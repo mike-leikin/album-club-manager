@@ -1,0 +1,66 @@
+import { NextResponse } from "next/server";
+import { createServerClient } from "@/lib/supabaseClient";
+import type { ParticipantInsert } from "@/lib/types/database";
+
+// GET /api/participants - List all participants
+export async function GET() {
+  try {
+    const supabase = createServerClient() as any;
+    const { data, error } = await supabase
+      .from("participants")
+      .select("*")
+      .order("name");
+
+    if (error) {
+      throw error;
+    }
+
+    return NextResponse.json({ data });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unable to load participants";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
+// POST /api/participants - Create a new participant
+export async function POST(request: Request) {
+  try {
+    const supabase = createServerClient() as any;
+    const body = (await request.json()) as ParticipantInsert;
+
+    // Basic validation
+    if (!body.name?.trim() || !body.email?.trim()) {
+      return NextResponse.json(
+        { error: "Name and email are required" },
+        { status: 400 }
+      );
+    }
+
+    const { data, error } = await supabase
+      .from("participants")
+      .insert({
+        name: body.name.trim(),
+        email: body.email.trim().toLowerCase(),
+      })
+      .select()
+      .single();
+
+    if (error) {
+      // Handle unique constraint violation
+      if (error.code === "23505") {
+        return NextResponse.json(
+          { error: "A participant with this email already exists" },
+          { status: 409 }
+        );
+      }
+      throw error;
+    }
+
+    return NextResponse.json({ data }, { status: 201 });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Unable to create participant";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}

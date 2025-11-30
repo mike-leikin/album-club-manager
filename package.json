@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:inspect": "tsx scripts/inspect-schema.ts",
+    "db:test": "tsx scripts/test-database.ts",
+    "db:seed": "tsx scripts/seed-sample-reviews.ts",
+    "migration:show": "tsx scripts/run-migration.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.81.1",
@@ -22,6 +26,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.3",
     "tailwindcss": "^4",
+    "tsx": "^4.20.6",
     "typescript": "^5"
   }
 }

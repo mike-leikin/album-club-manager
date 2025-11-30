@@ -1,28 +1,18 @@
 // app/page.tsx
-import Link from "next/link";
-
-export default function Home() {
+export default function HomePage() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center gap-6 p-6">
-      <h1 className="text-3xl font-bold">Album Club Manager</h1>
-      <p className="text-center max-w-xl">
-        A weekly music album club with one contemporary release and one
-        classic from the Rolling Stone 500. This is the future control center.
-      </p>
-
-      <div className="flex gap-4">
-        <Link
-          href="/week/1"
-          className="rounded border px-4 py-2 hover:bg-black hover:text-white"
-        >
-          View Week 1 (example)
-        </Link>
-        <Link
+    <main className="min-h-screen flex items-center justify-center">
+      <div className="max-w-xl text-center space-y-4">
+        <h1 className="text-3xl font-bold">Album Club Manager</h1>
+        <p className="text-gray-600">
+          A helper app for selecting albums, generating emails, and reviewing ratings.
+        </p>
+        <a
           href="/admin"
-          className="rounded border px-4 py-2 hover:bg-black hover:text-white"
+          className="inline-block rounded-md border px-4 py-2 text-sm font-medium hover:bg-gray-50"
         >
-          Admin / Curator
-        </Link>
+          Go to Curator Dashboard
+        </a>
       </div>
     </main>
   );

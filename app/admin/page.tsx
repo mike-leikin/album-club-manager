@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import React, { useEffect, useState } from "react";
+import ParticipantsManager from "@/components/ParticipantsManager";
 
 type Album = {
   title: string;
@@ -11,16 +11,51 @@ type Album = {
   rollingStoneRank?: string;
 };
 
-const { data } = await supabase
-  .from('weeks')
-  .select('*')
-  .order('week_number', { ascending: false })
-  .limit(1);
+type Tab = "week" | "participants";
+
+type ReviewStats = {
+  contemporary: {
+    avgRating: number | null;
+    reviewCount: number;
+    reviews: Array<{
+      rating: number;
+      favorite_track?: string;
+      review_text?: string;
+      participant: { name: string };
+    }>;
+  };
+  classic: {
+    avgRating: number | null;
+    reviewCount: number;
+    reviews: Array<{
+      rating: number;
+      favorite_track?: string;
+      review_text?: string;
+      participant: { name: string };
+    }>;
+  };
+  totalParticipants: number;
+  participationRate: number;
+};
 
 export default function AdminPage() {
+  // Tab state
+  const [activeTab, setActiveTab] = useState<Tab>("week");
+
   // Basic setup
   const [weekNumber, setWeekNumber] = useState("1");
-  const [responseDeadline, setResponseDeadline] = useState("Friday, Nov 1");
+  const [responseDeadline, setResponseDeadline] = useState(
+    new Date().toISOString().split("T")[0],
+  );
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveFeedback, setSaveFeedback] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+
+  // Review stats for previous week
+  const [reviewStats, setReviewStats] = useState<ReviewStats | null>(null);
+  const [loadingReviews, setLoadingReviews] = useState(false);
 
   // Contemporary album
   const [contemporary, setContemporary] = useState<Album>({
@@ -39,6 +74,49 @@ export default function AdminPage() {
     rollingStoneRank: "",
   });
 
+  const formatDeadline = (value: string) => {
+    if (!value) return "";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
+  const formattedDeadline = formatDeadline(responseDeadline);
+
+  // Fetch review stats for previous week
+  useEffect(() => {
+    const fetchReviewStats = async () => {
+      const prevWeek = Number(weekNumber) - 1;
+      if (prevWeek < 1) {
+        setReviewStats(null);
+        return;
+      }
+
+      setLoadingReviews(true);
+      try {
+        const response = await fetch(`/api/reviews?week_number=${prevWeek}`);
+        const result = await response.json();
+
+        if (response.ok && result.data) {
+          setReviewStats(result.data);
+        } else {
+          setReviewStats(null);
+        }
+      } catch (error) {
+        console.error("Failed to fetch review stats:", error);
+        setReviewStats(null);
+      } finally {
+        setLoadingReviews(false);
+      }
+    };
+
+    fetchReviewStats();
+  }, [weekNumber]);
+
   // ---- Derived email content ----
   const subject = `Album Club – Week ${weekNumber || ""}`.trim();
 
@@ -46,6 +124,47 @@ export default function AdminPage() {
 
   bodyLines.push("Hi all,");
   bodyLines.push("");
+
+  // Add previous week's results if available
+  if (reviewStats && reviewStats.contemporary.reviewCount > 0 || reviewStats && reviewStats.classic.reviewCount > 0) {
+    const prevWeek = Number(weekNumber) - 1;
+    bodyLines.push(`=== Week ${prevWeek} Results ===`);
+    bodyLines.push("");
+
+    if (reviewStats.contemporary.reviewCount > 0) {
+      bodyLines.push(`🔊 Contemporary: ${reviewStats.contemporary.avgRating?.toFixed(1) || "N/A"}/10 (${reviewStats.contemporary.reviewCount} ${reviewStats.contemporary.reviewCount === 1 ? "review" : "reviews"})`);
+
+      // Add favorite tracks if any
+      const favTracks = reviewStats.contemporary.reviews
+        .filter(r => r.favorite_track)
+        .map(r => `   • ${r.favorite_track} – ${r.participant.name}`)
+        .slice(0, 3); // Show max 3
+      if (favTracks.length > 0) {
+        bodyLines.push("   Favorite tracks:");
+        bodyLines.push(...favTracks);
+      }
+      bodyLines.push("");
+    }
+
+    if (reviewStats.classic.reviewCount > 0) {
+      bodyLines.push(`💿 Classic: ${reviewStats.classic.avgRating?.toFixed(1) || "N/A"}/10 (${reviewStats.classic.reviewCount} ${reviewStats.classic.reviewCount === 1 ? "review" : "reviews"})`);
+
+      // Add favorite tracks if any
+      const favTracks = reviewStats.classic.reviews
+        .filter(r => r.favorite_track)
+        .map(r => `   • ${r.favorite_track} – ${r.participant.name}`)
+        .slice(0, 3);
+      if (favTracks.length > 0) {
+        bodyLines.push("   Favorite tracks:");
+        bodyLines.push(...favTracks);
+      }
+      bodyLines.push("");
+    }
+
+    bodyLines.push("---");
+    bodyLines.push("");
+  }
+
   bodyLines.push("Here are the picks for this week:");
   bodyLines.push("");
 
@@ -80,11 +199,51 @@ export default function AdminPage() {
     bodyLines.push("");
   }
 
-  bodyLines.push("Please rate each album on a 1.0–10.0 scale and share any quick thoughts.");
-  if (responseDeadline) {
-    bodyLines.push(`Responses by: ${responseDeadline}`);
+  bodyLines.push(
+    "Please rate each album on a 1.0–10.0 scale and share any quick thoughts.",
+  );
+  if (formattedDeadline) {
+    bodyLines.push(`Responses by: ${formattedDeadline}`);
   }
   bodyLines.push("");
+
+  // Add full reviews section if available
+  if (reviewStats && (reviewStats.contemporary.reviewCount > 0 || reviewStats.classic.reviewCount > 0)) {
+    const prevWeek = Number(weekNumber) - 1;
+    bodyLines.push("---");
+    bodyLines.push("");
+    bodyLines.push(`=== Week ${prevWeek} Full Reviews ===`);
+    bodyLines.push("");
+
+    // Contemporary reviews with text
+    const contemporaryWithText = reviewStats.contemporary.reviews.filter(r => r.review_text);
+    if (contemporaryWithText.length > 0) {
+      bodyLines.push("🔊 Contemporary:");
+      bodyLines.push("");
+      contemporaryWithText.forEach(review => {
+        bodyLines.push(`${review.participant.name} (${review.rating}/10):`);
+        if (review.review_text) {
+          bodyLines.push(`"${review.review_text}"`);
+        }
+        bodyLines.push("");
+      });
+    }
+
+    // Classic reviews with text
+    const classicWithText = reviewStats.classic.reviews.filter(r => r.review_text);
+    if (classicWithText.length > 0) {
+      bodyLines.push("💿 Classic:");
+      bodyLines.push("");
+      classicWithText.forEach(review => {
+        bodyLines.push(`${review.participant.name} (${review.rating}/10):`);
+        if (review.review_text) {
+          bodyLines.push(`"${review.review_text}"`);
+        }
+        bodyLines.push("");
+      });
+    }
+  }
+
   bodyLines.push("- Mike");
 
   const body = bodyLines.join("\n");
@@ -98,12 +257,176 @@ export default function AdminPage() {
     }
   };
 
+  useEffect(() => {
+    let cancelled = false;
+
+    const fetchLatestWeek = async () => {
+      try {
+        const response = await fetch("/api/weeks");
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result?.error || "Failed to load latest week.");
+        }
+
+        if (!result?.data || cancelled) return;
+
+        const latest = result.data;
+        setWeekNumber(
+          latest.week_number ? String(latest.week_number) : "1",
+        );
+        setResponseDeadline(latest.response_deadline ?? "");
+        setContemporary({
+          title: latest.contemporary_title ?? "",
+          artist: latest.contemporary_artist ?? "",
+          year: latest.contemporary_year ?? "",
+          spotifyUrl: latest.contemporary_spotify_url ?? "",
+        });
+        setClassic({
+          title: latest.classic_title ?? "",
+          artist: latest.classic_artist ?? "",
+          year: latest.classic_year ?? "",
+          spotifyUrl: latest.classic_spotify_url ?? "",
+          rollingStoneRank: latest.rs_rank ? String(latest.rs_rank) : "",
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchLatestWeek();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    setSaveFeedback(null);
+
+    const parsedWeekNumber = Number(weekNumber);
+    if (!Number.isFinite(parsedWeekNumber) || parsedWeekNumber <= 0) {
+      setSaveFeedback({
+        type: "error",
+        message: "Enter a valid week number before saving.",
+      });
+      setIsSaving(false);
+      return;
+    }
+
+    const normalizeText = (value?: string) => {
+      if (!value) return null;
+      const trimmed = value.trim();
+      return trimmed.length ? trimmed : null;
+    };
+
+    const payload = {
+      week_number: parsedWeekNumber,
+      response_deadline: normalizeText(responseDeadline),
+      contemporary_title: normalizeText(contemporary.title),
+      contemporary_artist: normalizeText(contemporary.artist),
+      contemporary_year: normalizeText(contemporary.year),
+      contemporary_spotify_url: normalizeText(contemporary.spotifyUrl),
+      classic_title: normalizeText(classic.title),
+      classic_artist: normalizeText(classic.artist),
+      classic_year: normalizeText(classic.year),
+      classic_spotify_url: normalizeText(classic.spotifyUrl),
+      rs_rank: classic.rollingStoneRank
+        ? Number(classic.rollingStoneRank)
+        : null,
+    };
+
+    try {
+      const response = await fetch("/api/weeks", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result?.error || "Unable to save. Please try again.");
+      }
+
+      setSaveFeedback({ type: "success", message: "Saved ✅" });
+    } catch (error) {
+      setSaveFeedback({
+        type: "error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Unable to save. Please try again.",
+      });
+    }
+
+    setIsSaving(false);
+  };
+
   return (
     <main className="min-h-screen bg-black text-gray-50">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-8 md:flex-row">
-        {/* Left: Curator form */}
-        <section className="w-full rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6 shadow-lg md:w-1/2">
-          <h1 className="mb-4 text-2xl font-semibold">Curator Dashboard</h1>
+      <div className="mx-auto max-w-7xl px-4 py-8">
+        {/* Header with tabs */}
+        <div className="mb-6">
+          <h1 className="mb-4 text-3xl font-bold">Curator Dashboard</h1>
+
+          {/* Tab Navigation */}
+          <div className="flex gap-2 border-b border-zinc-800">
+            <button
+              onClick={() => setActiveTab("week")}
+              className={`px-4 py-2 text-sm font-medium transition ${
+                activeTab === "week"
+                  ? "border-b-2 border-emerald-500 text-emerald-400"
+                  : "text-zinc-400 hover:text-zinc-300"
+              }`}
+            >
+              Week Management
+            </button>
+            <button
+              onClick={() => setActiveTab("participants")}
+              className={`px-4 py-2 text-sm font-medium transition ${
+                activeTab === "participants"
+                  ? "border-b-2 border-emerald-500 text-emerald-400"
+                  : "text-zinc-400 hover:text-zinc-300"
+              }`}
+            >
+              Participants
+            </button>
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === "week" && (
+          <div className="flex flex-col gap-6 md:flex-row">
+            {/* Left: Curator form */}
+            <section className="w-full rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6 shadow-lg md:w-1/2">
+              <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <h2 className="text-xl font-semibold">This Week&apos;s Albums</h2>
+            <div className="flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:gap-3">
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={isSaving}
+                className="rounded-md border border-emerald-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isSaving ? "Saving..." : "Save Week"}
+              </button>
+              {saveFeedback && (
+                <span
+                  className={
+                    saveFeedback.type === "success"
+                      ? "text-emerald-400"
+                      : "text-red-400"
+                  }
+                >
+                  {saveFeedback.message}
+                </span>
+              )}
+            </div>
+          </div>
 
           {/* Week setup */}
           <div className="mb-6 space-y-3">
@@ -125,14 +448,13 @@ export default function AdminPage() {
 
             <div>
               <label className="block text-sm font-medium text-zinc-300">
-                Response Deadline (e.g. &quot;Friday, Nov 21&quot;)
+                Response Deadline
               </label>
               <input
-                type="text"
+                type="date"
                 value={responseDeadline}
                 onChange={(e) => setResponseDeadline(e.target.value)}
                 className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none"
-                placeholder='Friday, Nov 21'
               />
             </div>
           </div>
@@ -351,6 +673,11 @@ export default function AdminPage() {
             </p>
           </div>
         </section>
+          </div>
+        )}
+
+        {/* Participants Tab */}
+        {activeTab === "participants" && <ParticipantsManager />}
       </div>
     </main>
   );
