@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import ParticipantsManager from "@/components/ParticipantsManager";
 import SpotifySearch from "@/components/SpotifySearch";
+import RS500Picker from "@/components/RS500Picker";
 
 type Album = {
   title: string;
@@ -13,7 +15,7 @@ type Album = {
   rollingStoneRank?: string;
 };
 
-type Tab = "week" | "participants";
+type Tab = "week" | "participants" | "history";
 
 type ReviewStats = {
   contemporary: {
@@ -50,14 +52,14 @@ export default function AdminPage() {
     new Date().toISOString().split("T")[0],
   );
   const [isSaving, setIsSaving] = useState(false);
-  const [saveFeedback, setSaveFeedback] = useState<{
-    type: "success" | "error";
-    message: string;
-  } | null>(null);
+  const [isLoadingPreviousWeek, setIsLoadingPreviousWeek] = useState(false);
 
   // Review stats for previous week
   const [reviewStats, setReviewStats] = useState<ReviewStats | null>(null);
-  const [loadingReviews, setLoadingReviews] = useState(false);
+
+  // Week history
+  const [weekHistory, setWeekHistory] = useState<any[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
 
   // Contemporary album
   const [contemporary, setContemporary] = useState<Album>({
@@ -100,7 +102,6 @@ export default function AdminPage() {
         return;
       }
 
-      setLoadingReviews(true);
       try {
         const response = await fetch(`/api/reviews?week_number=${prevWeek}`);
         const result = await response.json();
@@ -113,13 +114,40 @@ export default function AdminPage() {
       } catch (error) {
         console.error("Failed to fetch review stats:", error);
         setReviewStats(null);
-      } finally {
-        setLoadingReviews(false);
       }
     };
 
     fetchReviewStats();
   }, [weekNumber]);
+
+  // Fetch week history when history tab is opened
+  useEffect(() => {
+    const fetchWeekHistory = async () => {
+      if (activeTab !== "history") return;
+
+      setIsLoadingHistory(true);
+
+      try {
+        const response = await fetch("/api/weeks/all");
+        const result = await response.json();
+
+        if (response.ok && result.data) {
+          // Sort by week number descending (most recent first)
+          const sorted = [...result.data].sort((a, b) => b.week_number - a.week_number);
+          setWeekHistory(sorted);
+        } else {
+          setWeekHistory([]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch week history:", error);
+        setWeekHistory([]);
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    };
+
+    fetchWeekHistory();
+  }, [activeTab]);
 
   // ---- Derived email content ----
   const subject = `Album Club – Week ${weekNumber || ""}`.trim();
@@ -313,16 +341,61 @@ export default function AdminPage() {
     };
   }, []);
 
+  const handleCopyFromPreviousWeek = async () => {
+    const currentWeekNum = Number(weekNumber);
+    const previousWeekNum = currentWeekNum - 1;
+
+    if (previousWeekNum < 1) {
+      toast.error("No previous week to copy from");
+      return;
+    }
+
+    setIsLoadingPreviousWeek(true);
+
+    try {
+      const response = await fetch(`/api/weeks?week_number=${previousWeekNum}`);
+      const result = await response.json();
+
+      if (!response.ok || !result.data) {
+        throw new Error("Previous week not found");
+      }
+
+      const prevWeek = result.data;
+
+      // Copy all album data from previous week
+      setContemporary({
+        title: prevWeek.contemporary_title ?? "",
+        artist: prevWeek.contemporary_artist ?? "",
+        year: prevWeek.contemporary_year ?? "",
+        spotifyUrl: prevWeek.contemporary_spotify_url ?? "",
+        albumArtUrl: prevWeek.contemporary_album_art_url ?? "",
+      });
+
+      setClassic({
+        title: prevWeek.classic_title ?? "",
+        artist: prevWeek.classic_artist ?? "",
+        year: prevWeek.classic_year ?? "",
+        spotifyUrl: prevWeek.classic_spotify_url ?? "",
+        albumArtUrl: prevWeek.classic_album_art_url ?? "",
+        rollingStoneRank: prevWeek.rs_rank ? String(prevWeek.rs_rank) : "",
+      });
+
+      toast.success(`Copied album data from Week ${previousWeekNum}`);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to copy previous week"
+      );
+    } finally {
+      setIsLoadingPreviousWeek(false);
+    }
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
-    setSaveFeedback(null);
 
     const parsedWeekNumber = Number(weekNumber);
     if (!Number.isFinite(parsedWeekNumber) || parsedWeekNumber <= 0) {
-      setSaveFeedback({
-        type: "error",
-        message: "Enter a valid week number before saving.",
-      });
+      toast.error("Enter a valid week number before saving.");
       setIsSaving(false);
       return;
     }
@@ -366,15 +439,13 @@ export default function AdminPage() {
         throw new Error(result?.error || "Unable to save. Please try again.");
       }
 
-      setSaveFeedback({ type: "success", message: "Saved ✅" });
+      toast.success("Week saved successfully!");
     } catch (error) {
-      setSaveFeedback({
-        type: "error",
-        message:
-          error instanceof Error
-            ? error.message
-            : "Unable to save. Please try again.",
-      });
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Unable to save. Please try again."
+      );
     }
 
     setIsSaving(false);
@@ -409,6 +480,16 @@ export default function AdminPage() {
             >
               Participants
             </button>
+            <button
+              onClick={() => setActiveTab("history")}
+              className={`px-4 py-2 text-sm font-medium transition ${
+                activeTab === "history"
+                  ? "border-b-2 border-emerald-500 text-emerald-400"
+                  : "text-zinc-400 hover:text-zinc-300"
+              }`}
+            >
+              Week History
+            </button>
           </div>
         </div>
 
@@ -419,7 +500,16 @@ export default function AdminPage() {
             <section className="w-full rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6 shadow-lg md:w-1/2">
               <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="text-xl font-semibold">This Week&apos;s Albums</h2>
-            <div className="flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:gap-3">
+            <div className="flex flex-col gap-2 text-sm sm:flex-row sm:items-center">
+              <button
+                type="button"
+                onClick={handleCopyFromPreviousWeek}
+                disabled={isLoadingPreviousWeek || Number(weekNumber) <= 1}
+                className="rounded-md border border-blue-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+                title={Number(weekNumber) <= 1 ? "No previous week available" : "Copy album data from previous week"}
+              >
+                {isLoadingPreviousWeek ? "Copying..." : "Copy from Previous Week"}
+              </button>
               <button
                 type="button"
                 onClick={handleSave}
@@ -428,17 +518,6 @@ export default function AdminPage() {
               >
                 {isSaving ? "Saving..." : "Save Week"}
               </button>
-              {saveFeedback && (
-                <span
-                  className={
-                    saveFeedback.type === "success"
-                      ? "text-emerald-400"
-                      : "text-red-400"
-                  }
-                >
-                  {saveFeedback.message}
-                </span>
-              )}
             </div>
           </div>
 
@@ -570,7 +649,7 @@ export default function AdminPage() {
               Classic Album <span className="text-xs text-zinc-400">(RS 500)</span>
             </h2>
 
-            <SpotifySearch
+            <RS500Picker
               onSelectAlbum={(album) => {
                 setClassic({
                   title: album.title,
@@ -578,10 +657,10 @@ export default function AdminPage() {
                   year: album.year,
                   spotifyUrl: album.spotifyUrl,
                   albumArtUrl: album.albumArtUrl,
-                  rollingStoneRank: classic.rollingStoneRank,
+                  rollingStoneRank: album.rollingStoneRank?.toString() || "",
                 });
               }}
-              placeholder="Search Spotify for classic album..."
+              placeholder="Search Rolling Stone 500..."
             />
 
             {classic.albumArtUrl && (
@@ -800,6 +879,127 @@ export default function AdminPage() {
 
         {/* Participants Tab */}
         {activeTab === "participants" && <ParticipantsManager />}
+
+        {/* Week History Tab */}
+        {activeTab === "history" && (
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6">
+            <h2 className="mb-4 text-xl font-semibold">Week History</h2>
+
+            {isLoadingHistory ? (
+              <p className="text-zinc-400">Loading week history...</p>
+            ) : weekHistory.length === 0 ? (
+              <p className="text-sm text-zinc-400">No weeks saved yet.</p>
+            ) : (
+              <div className="space-y-4">
+                {weekHistory.map((week) => (
+                  <div
+                    key={week.id}
+                    className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 hover:border-zinc-700 transition"
+                  >
+                    <div className="mb-3 flex items-start justify-between">
+                      <div>
+                        <h3 className="text-lg font-semibold">Week {week.week_number}</h3>
+                        {week.response_deadline && (
+                          <p className="text-xs text-zinc-500">
+                            Deadline: {new Date(week.response_deadline).toLocaleDateString()}
+                          </p>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => {
+                          // Load this week's data into the form
+                          setWeekNumber(String(week.week_number));
+                          setResponseDeadline(week.response_deadline || "");
+                          setContemporary({
+                            title: week.contemporary_title || "",
+                            artist: week.contemporary_artist || "",
+                            year: week.contemporary_year || "",
+                            spotifyUrl: week.contemporary_spotify_url || "",
+                            albumArtUrl: week.contemporary_album_art_url || "",
+                          });
+                          setClassic({
+                            title: week.classic_title || "",
+                            artist: week.classic_artist || "",
+                            year: week.classic_year || "",
+                            spotifyUrl: week.classic_spotify_url || "",
+                            albumArtUrl: week.classic_album_art_url || "",
+                            rollingStoneRank: week.rs_rank ? String(week.rs_rank) : "",
+                          });
+                          setActiveTab("week");
+                          toast.success(`Loaded Week ${week.week_number} for editing`);
+                        }}
+                        className="rounded-md border border-blue-500 px-3 py-1 text-xs font-medium text-white transition hover:bg-blue-500"
+                      >
+                        Edit
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Contemporary Album */}
+                      {week.contemporary_title && (
+                        <div className="flex gap-3">
+                          {week.contemporary_album_art_url ? (
+                            <img
+                              src={week.contemporary_album_art_url}
+                              alt={week.contemporary_title}
+                              className="w-16 h-16 rounded object-cover flex-shrink-0"
+                            />
+                          ) : (
+                            <div className="w-16 h-16 rounded bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                              <span className="text-xl">🔊</span>
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <div className="text-emerald-400 text-xs uppercase tracking-wide font-medium">
+                              Contemporary
+                            </div>
+                            <div className="text-sm font-medium truncate">{week.contemporary_title}</div>
+                            {week.contemporary_artist && (
+                              <div className="text-xs text-zinc-400 truncate">{week.contemporary_artist}</div>
+                            )}
+                            {week.contemporary_year && (
+                              <div className="text-xs text-zinc-500">({week.contemporary_year})</div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Classic Album */}
+                      {week.classic_title && (
+                        <div className="flex gap-3">
+                          {week.classic_album_art_url ? (
+                            <img
+                              src={week.classic_album_art_url}
+                              alt={week.classic_title}
+                              className="w-16 h-16 rounded object-cover flex-shrink-0"
+                            />
+                          ) : (
+                            <div className="w-16 h-16 rounded bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                              <span className="text-xl">💿</span>
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <div className="text-purple-400 text-xs uppercase tracking-wide font-medium">
+                              Classic (RS 500)
+                            </div>
+                            <div className="text-sm font-medium truncate">{week.classic_title}</div>
+                            {week.classic_artist && (
+                              <div className="text-xs text-zinc-400 truncate">{week.classic_artist}</div>
+                            )}
+                            <div className="text-xs text-zinc-500">
+                              {week.classic_year && `(${week.classic_year})`}
+                              {week.rs_rank && ` • Rank #${week.rs_rank}`}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </main>
   );

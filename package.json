@@ -11,14 +11,16 @@
     "db:test": "tsx scripts/test-database.ts",
     "db:seed": "tsx scripts/seed-sample-reviews.ts",
     "migration:show": "tsx scripts/run-migration.ts",
-    "import:rs500": "tsx scripts/import-rs500-simple.ts"
+    "import:rs500": "tsx scripts/import-rs500-simple.ts",
+    "fix:rs500": "tsx scripts/fix-rs500-data.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.81.1",
     "dotenv": "^17.2.3",
     "next": "16.0.10",
     "react": "19.2.0",
-    "react-dom": "19.2.0"
+    "react-dom": "19.2.0",
+    "sonner": "^2.0.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

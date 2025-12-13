@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 
 type Week = {
   week_number: number;
@@ -31,8 +32,6 @@ export default function SubmitPage() {
 
   // Form state
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   // Fetch latest week on mount
   useEffect(() => {
@@ -58,16 +57,14 @@ export default function SubmitPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitError(null);
-    setSubmitSuccess(false);
 
     if (!email.trim()) {
-      setSubmitError("Please enter your email address");
+      toast.error("Please enter your email address");
       return;
     }
 
     if (!weekNumber) {
-      setSubmitError("Week number is required");
+      toast.error("Week number is required");
       return;
     }
 
@@ -75,7 +72,7 @@ export default function SubmitPage() {
     const classicRatingNum = classicRating ? parseFloat(classicRating) : null;
 
     if (!contempRatingNum && !classicRatingNum) {
-      setSubmitError("Please rate at least one album");
+      toast.error("Please rate at least one album");
       return;
     }
 
@@ -115,7 +112,7 @@ export default function SubmitPage() {
         throw new Error(result.error || "Failed to submit reviews");
       }
 
-      setSubmitSuccess(true);
+      toast.success("Reviews submitted successfully! Thank you for your feedback.");
       // Clear form
       setContempRating("");
       setContempTrack("");
@@ -124,7 +121,7 @@ export default function SubmitPage() {
       setClassicTrack("");
       setClassicReview("");
     } catch (error) {
-      setSubmitError(
+      toast.error(
         error instanceof Error ? error.message : "Failed to submit reviews"
       );
     } finally {
@@ -344,19 +341,6 @@ export default function SubmitPage() {
               </div>
             </div>
           </div>
-
-          {/* Error/Success Messages */}
-          {submitError && (
-            <div className="rounded-md border border-red-500/50 bg-red-500/10 p-4 text-sm text-red-400">
-              {submitError}
-            </div>
-          )}
-
-          {submitSuccess && (
-            <div className="rounded-md border border-emerald-500/50 bg-emerald-500/10 p-4 text-sm text-emerald-400">
-              ✅ Reviews submitted successfully! Thank you for your feedback.
-            </div>
-          )}
 
           {/* Submit Button */}
           <button
