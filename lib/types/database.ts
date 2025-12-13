@@ -22,10 +22,12 @@ export interface Database {
           contemporary_artist: string | null
           contemporary_year: string | null
           contemporary_spotify_url: string | null
+          contemporary_album_art_url: string | null
           classic_title: string | null
           classic_artist: string | null
           classic_year: string | null
           classic_spotify_url: string | null
+          classic_album_art_url: string | null
           rs_rank: number | null
           created_at: string
         }
@@ -37,10 +39,12 @@ export interface Database {
           contemporary_artist?: string | null
           contemporary_year?: string | null
           contemporary_spotify_url?: string | null
+          contemporary_album_art_url?: string | null
           classic_title?: string | null
           classic_artist?: string | null
           classic_year?: string | null
           classic_spotify_url?: string | null
+          classic_album_art_url?: string | null
           rs_rank?: number | null
           created_at?: string
         }
@@ -52,10 +56,12 @@ export interface Database {
           contemporary_artist?: string | null
           contemporary_year?: string | null
           contemporary_spotify_url?: string | null
+          contemporary_album_art_url?: string | null
           classic_title?: string | null
           classic_artist?: string | null
           classic_year?: string | null
           classic_spotify_url?: string | null
+          classic_album_art_url?: string | null
           rs_rank?: number | null
           created_at?: string
         }
@@ -121,6 +127,53 @@ export interface Database {
           updated_at?: string
         }
       }
+      rs_500_albums: {
+        Row: {
+          id: string
+          rank: number
+          artist: string
+          album: string
+          year: number | null
+          already_covered: boolean
+          spotify_id: string | null
+          spotify_url: string | null
+          album_art_url: string | null
+          times_used: number
+          last_used_week: number | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          rank: number
+          artist: string
+          album: string
+          year?: number | null
+          already_covered?: boolean
+          spotify_id?: string | null
+          spotify_url?: string | null
+          album_art_url?: string | null
+          times_used?: number
+          last_used_week?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          rank?: number
+          artist?: string
+          album?: string
+          year?: number | null
+          already_covered?: boolean
+          spotify_id?: string | null
+          spotify_url?: string | null
+          album_art_url?: string | null
+          times_used?: number
+          last_used_week?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
@@ -146,6 +199,10 @@ export type ParticipantUpdate = Database['public']['Tables']['participants']['Up
 export type Review = Database['public']['Tables']['reviews']['Row']
 export type ReviewInsert = Database['public']['Tables']['reviews']['Insert']
 export type ReviewUpdate = Database['public']['Tables']['reviews']['Update']
+
+export type RS500Album = Database['public']['Tables']['rs_500_albums']['Row']
+export type RS500AlbumInsert = Database['public']['Tables']['rs_500_albums']['Insert']
+export type RS500AlbumUpdate = Database['public']['Tables']['rs_500_albums']['Update']
 
 // Joined types for common queries
 export type ReviewWithParticipant = Review & {

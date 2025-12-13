@@ -6,8 +6,10 @@ type Week = {
   week_number: number;
   contemporary_title?: string;
   contemporary_artist?: string;
+  contemporary_album_art_url?: string;
   classic_title?: string;
   classic_artist?: string;
+  classic_album_art_url?: string;
   response_deadline?: string;
 };
 
@@ -150,38 +152,66 @@ export default function SubmitPage() {
 
         {weekData && (
           <div className="mb-8 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6">
-            <h2 className="text-xl font-semibold mb-4">
+            <h2 className="text-xl font-semibold mb-6">
               Week {weekData.week_number}
             </h2>
-            <div className="space-y-3 text-sm">
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Contemporary Album */}
               {weekData.contemporary_title && (
-                <div>
-                  <div className="text-zinc-500 text-xs uppercase tracking-wide mb-1">
-                    Contemporary
-                  </div>
-                  <div className="text-zinc-100">
-                    {weekData.contemporary_title}
+                <div className="flex flex-col items-center text-center space-y-3">
+                  {weekData.contemporary_album_art_url ? (
+                    <img
+                      src={weekData.contemporary_album_art_url}
+                      alt={`${weekData.contemporary_title} cover`}
+                      className="w-48 h-48 rounded-lg object-cover shadow-2xl ring-2 ring-emerald-500/20"
+                    />
+                  ) : (
+                    <div className="w-48 h-48 rounded-lg bg-zinc-800 flex items-center justify-center">
+                      <span className="text-4xl">🔊</span>
+                    </div>
+                  )}
+                  <div>
+                    <div className="text-emerald-400 text-xs uppercase tracking-wide font-medium mb-1">
+                      Contemporary
+                    </div>
+                    <div className="text-zinc-100 font-medium">
+                      {weekData.contemporary_title}
+                    </div>
                     {weekData.contemporary_artist && (
-                      <span className="text-zinc-400">
-                        {" "}
-                        – {weekData.contemporary_artist}
-                      </span>
+                      <div className="text-zinc-400 text-sm">
+                        {weekData.contemporary_artist}
+                      </div>
                     )}
                   </div>
                 </div>
               )}
+
+              {/* Classic Album */}
               {weekData.classic_title && (
-                <div>
-                  <div className="text-zinc-500 text-xs uppercase tracking-wide mb-1">
-                    Classic
-                  </div>
-                  <div className="text-zinc-100">
-                    {weekData.classic_title}
+                <div className="flex flex-col items-center text-center space-y-3">
+                  {weekData.classic_album_art_url ? (
+                    <img
+                      src={weekData.classic_album_art_url}
+                      alt={`${weekData.classic_title} cover`}
+                      className="w-48 h-48 rounded-lg object-cover shadow-2xl ring-2 ring-purple-500/20"
+                    />
+                  ) : (
+                    <div className="w-48 h-48 rounded-lg bg-zinc-800 flex items-center justify-center">
+                      <span className="text-4xl">💿</span>
+                    </div>
+                  )}
+                  <div>
+                    <div className="text-purple-400 text-xs uppercase tracking-wide font-medium mb-1">
+                      Classic (RS 500)
+                    </div>
+                    <div className="text-zinc-100 font-medium">
+                      {weekData.classic_title}
+                    </div>
                     {weekData.classic_artist && (
-                      <span className="text-zinc-400">
-                        {" "}
-                        – {weekData.classic_artist}
-                      </span>
+                      <div className="text-zinc-400 text-sm">
+                        {weekData.classic_artist}
+                      </div>
                     )}
                   </div>
                 </div>

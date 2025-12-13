@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ParticipantsManager from "@/components/ParticipantsManager";
+import SpotifySearch from "@/components/SpotifySearch";
 
 type Album = {
   title: string;
   artist: string;
   year?: string;
   spotifyUrl?: string;
+  albumArtUrl?: string;
   rollingStoneRank?: string;
 };
 
@@ -63,6 +65,7 @@ export default function AdminPage() {
     artist: "",
     year: "",
     spotifyUrl: "",
+    albumArtUrl: "",
   });
 
   // Classic album
@@ -71,6 +74,7 @@ export default function AdminPage() {
     artist: "",
     year: "",
     spotifyUrl: "",
+    albumArtUrl: "",
     rollingStoneRank: "",
   });
 
@@ -176,6 +180,9 @@ export default function AdminPage() {
     if (contemporary.artist) pieces.push("– " + contemporary.artist);
     if (contemporary.year) pieces.push(`(${contemporary.year})`);
     bodyLines.push(pieces.join(" "));
+    if (contemporary.albumArtUrl) {
+      bodyLines.push(`Cover: ${contemporary.albumArtUrl}`);
+    }
     if (contemporary.spotifyUrl) {
       bodyLines.push(`Listen: ${contemporary.spotifyUrl}`);
     }
@@ -193,6 +200,9 @@ export default function AdminPage() {
       pieces.push(`[Rank #${classic.rollingStoneRank}]`);
     }
     bodyLines.push(pieces.join(" "));
+    if (classic.albumArtUrl) {
+      bodyLines.push(`Cover: ${classic.albumArtUrl}`);
+    }
     if (classic.spotifyUrl) {
       bodyLines.push(`Listen: ${classic.spotifyUrl}`);
     }
@@ -281,12 +291,14 @@ export default function AdminPage() {
           artist: latest.contemporary_artist ?? "",
           year: latest.contemporary_year ?? "",
           spotifyUrl: latest.contemporary_spotify_url ?? "",
+          albumArtUrl: latest.contemporary_album_art_url ?? "",
         });
         setClassic({
           title: latest.classic_title ?? "",
           artist: latest.classic_artist ?? "",
           year: latest.classic_year ?? "",
           spotifyUrl: latest.classic_spotify_url ?? "",
+          albumArtUrl: latest.classic_album_art_url ?? "",
           rollingStoneRank: latest.rs_rank ? String(latest.rs_rank) : "",
         });
       } catch (error) {
@@ -328,10 +340,12 @@ export default function AdminPage() {
       contemporary_artist: normalizeText(contemporary.artist),
       contemporary_year: normalizeText(contemporary.year),
       contemporary_spotify_url: normalizeText(contemporary.spotifyUrl),
+      contemporary_album_art_url: normalizeText(contemporary.albumArtUrl),
       classic_title: normalizeText(classic.title),
       classic_artist: normalizeText(classic.artist),
       classic_year: normalizeText(classic.year),
       classic_spotify_url: normalizeText(classic.spotifyUrl),
+      classic_album_art_url: normalizeText(classic.albumArtUrl),
       rs_rank: classic.rollingStoneRank
         ? Number(classic.rollingStoneRank)
         : null,
@@ -463,6 +477,29 @@ export default function AdminPage() {
           <div className="mb-6 space-y-3">
             <h2 className="text-lg font-semibold">Contemporary Album</h2>
 
+            <SpotifySearch
+              onSelectAlbum={(album) => {
+                setContemporary({
+                  title: album.title,
+                  artist: album.artist,
+                  year: album.year,
+                  spotifyUrl: album.spotifyUrl,
+                  albumArtUrl: album.albumArtUrl,
+                });
+              }}
+              placeholder="Search Spotify for contemporary album..."
+            />
+
+            {contemporary.albumArtUrl && (
+              <div className="flex justify-center">
+                <img
+                  src={contemporary.albumArtUrl}
+                  alt={`${contemporary.title} cover`}
+                  className="h-32 w-32 rounded-lg object-cover shadow-lg"
+                />
+              </div>
+            )}
+
             <div>
               <label className="block text-sm font-medium text-zinc-300">
                 Title
@@ -532,6 +569,30 @@ export default function AdminPage() {
             <h2 className="text-lg font-semibold">
               Classic Album <span className="text-xs text-zinc-400">(RS 500)</span>
             </h2>
+
+            <SpotifySearch
+              onSelectAlbum={(album) => {
+                setClassic({
+                  title: album.title,
+                  artist: album.artist,
+                  year: album.year,
+                  spotifyUrl: album.spotifyUrl,
+                  albumArtUrl: album.albumArtUrl,
+                  rollingStoneRank: classic.rollingStoneRank,
+                });
+              }}
+              placeholder="Search Spotify for classic album..."
+            />
+
+            {classic.albumArtUrl && (
+              <div className="flex justify-center">
+                <img
+                  src={classic.albumArtUrl}
+                  alt={`${classic.title} cover`}
+                  className="h-32 w-32 rounded-lg object-cover shadow-lg"
+                />
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-zinc-300">
@@ -671,6 +732,67 @@ export default function AdminPage() {
               You&apos;ll be able to paste this into Gmail and send to your Google
               Group.
             </p>
+
+            {/* Visual Preview with Album Art */}
+            {(contemporary.albumArtUrl || classic.albumArtUrl) && (
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-3">
+                  Visual Preview
+                </label>
+                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                  <p className="text-sm font-medium text-gray-700 mb-3">
+                    This Week&apos;s Albums:
+                  </p>
+                  <div className="space-y-3">
+                    {contemporary.title && contemporary.albumArtUrl && (
+                      <div className="flex items-center gap-3 bg-white p-3 rounded-md shadow-sm">
+                        <img
+                          src={contemporary.albumArtUrl}
+                          alt={contemporary.title}
+                          className="w-16 h-16 rounded object-cover"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs text-emerald-600 font-medium">
+                            🔊 CONTEMPORARY
+                          </div>
+                          <div className="text-sm font-medium text-gray-900 truncate">
+                            {contemporary.title}
+                          </div>
+                          <div className="text-xs text-gray-600 truncate">
+                            {contemporary.artist}
+                            {contemporary.year && ` (${contemporary.year})`}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    {classic.title && classic.albumArtUrl && (
+                      <div className="flex items-center gap-3 bg-white p-3 rounded-md shadow-sm">
+                        <img
+                          src={classic.albumArtUrl}
+                          alt={classic.title}
+                          className="w-16 h-16 rounded object-cover"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs text-purple-600 font-medium">
+                            💿 CLASSIC (RS 500)
+                          </div>
+                          <div className="text-sm font-medium text-gray-900 truncate">
+                            {classic.title}
+                          </div>
+                          <div className="text-xs text-gray-600 truncate">
+                            {classic.artist}
+                            {classic.year && ` (${classic.year})`}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-3">
+                    💡 Tip: Copy the image URLs from the text body above and add them to your email for a richer experience.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </section>
           </div>

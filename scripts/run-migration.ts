@@ -9,7 +9,7 @@ import * as path from 'path';
 async function main() {
   console.log('🚀 Supabase Migration Helper\n');
 
-  const migrationFile = process.argv[2] || 'supabase/migrations/001_create_participants_and_reviews.sql';
+  const migrationFile = process.argv[2] || 'supabase/migrations/002_add_album_artwork_urls.sql';
   const fullPath = path.join(process.cwd(), migrationFile);
 
   if (!fs.existsSync(fullPath)) {
