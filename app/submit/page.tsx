@@ -7,9 +7,11 @@ type Week = {
   week_number: number;
   contemporary_title?: string;
   contemporary_artist?: string;
+  contemporary_year?: number;
   contemporary_album_art_url?: string;
   classic_title?: string;
   classic_artist?: string;
+  classic_year?: number;
   classic_album_art_url?: string;
   response_deadline?: string;
 };
@@ -275,9 +277,29 @@ export default function SubmitPage() {
 
           {/* Contemporary Album */}
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6">
-            <h3 className="text-lg font-semibold mb-4">
-              🔊 Contemporary Album
-            </h3>
+            <div className="mb-6 flex gap-4">
+              {weekData?.contemporary_album_art_url && (
+                <img
+                  src={weekData.contemporary_album_art_url}
+                  alt={weekData.contemporary_title}
+                  className="w-24 h-24 rounded-lg border border-zinc-700 flex-shrink-0"
+                />
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wider text-emerald-500 mb-1">
+                  🔊 Contemporary
+                </p>
+                <h3 className="text-lg font-bold text-white">
+                  {weekData?.contemporary_title || "Contemporary Album"}
+                </h3>
+                {weekData?.contemporary_artist && (
+                  <p className="text-sm text-zinc-400 mt-1">
+                    {weekData.contemporary_artist}
+                    {weekData.contemporary_year && ` • ${weekData.contemporary_year}`}
+                  </p>
+                )}
+              </div>
+            </div>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-zinc-300 mb-2">
@@ -325,7 +347,29 @@ export default function SubmitPage() {
 
           {/* Classic Album */}
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6">
-            <h3 className="text-lg font-semibold mb-4">💿 Classic Album</h3>
+            <div className="mb-6 flex gap-4">
+              {weekData?.classic_album_art_url && (
+                <img
+                  src={weekData.classic_album_art_url}
+                  alt={weekData.classic_title}
+                  className="w-24 h-24 rounded-lg border border-zinc-700 flex-shrink-0"
+                />
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-wider text-amber-500 mb-1">
+                  💿 Classic (RS 500)
+                </p>
+                <h3 className="text-lg font-bold text-white">
+                  {weekData?.classic_title || "Classic Album"}
+                </h3>
+                {weekData?.classic_artist && (
+                  <p className="text-sm text-zinc-400 mt-1">
+                    {weekData.classic_artist}
+                    {weekData.classic_year && ` • ${weekData.classic_year}`}
+                  </p>
+                )}
+              </div>
+            </div>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-zinc-300 mb-2">
