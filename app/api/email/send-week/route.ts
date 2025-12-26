@@ -182,6 +182,19 @@ export async function POST(request: NextRequest) {
     const successCount = results.filter((r) => r.status === "fulfilled").length;
     const failedCount = results.filter((r) => r.status === "rejected").length;
 
+    // Log results for debugging
+    console.log('Email sending results:', {
+      total: participants.length,
+      sent: successCount,
+      failed: failedCount,
+      results: results.map((r, i) => ({
+        participant: participants[i].email,
+        status: r.status,
+        error: r.status === 'rejected' ? r.reason : null,
+        resendResponse: r.status === 'fulfilled' ? JSON.stringify(r.value) : null,
+      }))
+    });
+
     return NextResponse.json({
       success: true,
       sent: successCount,

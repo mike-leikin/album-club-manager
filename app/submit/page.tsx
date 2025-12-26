@@ -250,14 +250,24 @@ export default function SubmitPage() {
             <label className="block text-sm font-medium text-zinc-300 mb-2">
               Your Email
             </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none"
-              placeholder="your.email@example.com"
-            />
+            <div className="relative">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setEmailSource("manual");
+                }}
+                required
+                className="w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none"
+                placeholder="your.email@example.com"
+              />
+              {emailSource === "url" && email && (
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-emerald-500">
+                  ✓ Pre-filled
+                </span>
+              )}
+            </div>
             <p className="mt-2 text-xs text-zinc-500">
               Use the email you registered with
             </p>
