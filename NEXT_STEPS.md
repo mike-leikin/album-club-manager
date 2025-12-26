@@ -62,83 +62,6 @@
 
 ---
 
-## 🆕 Priority 4: Reviewer Feedback Form
-
-**Estimated Time**: 3-4 hours
-
-### Overview
-Create a public feedback form for participants to share anonymous feedback about the album club experience.
-
-### Features to Build
-
-1. **Feedback Form** (`/feedback` page)
-   - Rating: "How satisfied are you with Album Club?" (1-10 scale)
-   - Album variety satisfaction (1-10)
-   - Favorite aspect (multiple choice):
-     - Music discovery
-     - Community discussion
-     - Diversity of genres
-     - Other (text input)
-   - What could be improved? (text area, 500 char limit)
-   - Would you recommend to a friend? (Yes/No)
-   - Anonymous submission (no email required)
-
-2. **Database Schema**
-   ```sql
-   CREATE TABLE feedback (
-     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-     satisfaction_rating INTEGER NOT NULL CHECK (satisfaction_rating >= 1 AND satisfaction_rating <= 10),
-     variety_rating INTEGER NOT NULL CHECK (variety_rating >= 1 AND variety_rating <= 10),
-     favorite_aspect TEXT,
-     improvements TEXT CHECK (char_length(improvements) <= 500),
-     would_recommend BOOLEAN,
-     submitted_at TIMESTAMPTZ NOT NULL DEFAULT now()
-   );
-   ```
-
-3. **Admin Feedback Viewer**
-   - Add "Feedback" tab to admin dashboard
-   - Show aggregate stats:
-     - Average satisfaction rating
-     - Average variety rating
-     - % would recommend
-   - List all feedback submissions
-   - Filter by date range
-
-4. **Implementation Files**
-   - `app/feedback/page.tsx` - Public feedback form
-   - `app/api/feedback/route.ts` - Submit feedback endpoint
-   - `app/api/feedback/stats/route.ts` - Get aggregated stats
-   - `supabase/migrations/004_create_feedback_table.sql`
-   - Update `lib/types/database.ts` with Feedback types
-
-### Design Notes
-- Use same visual style as submit form (dark theme, rounded cards)
-- Add encouraging message: "Your feedback helps make Album Club better!"
-- Show success message after submission
-- Keep form short (< 2 minutes to complete)
-
----
-
-## 📅 Timeline
-
-### ✅ Completed (RS 500 Integration)
-- ✅ RS 500 Admin UI Integration
-- ✅ Fixed CSV data formatting issues
-- ✅ End-to-end classic album selection flow tested
-
-### ✅ Completed (UX Polish)
-- ✅ Bulk participant import + Copy previous week
-- ✅ Week history browser
-- ✅ Toast notifications + Admin polish
-
-### 🎯 Next Up (Feedback System)
-- **Day 1-2**: Build feedback form and database
-- **Day 3**: Admin feedback viewer
-- **Day 4**: Test and polish
-
----
-
 ## 🎯 Success Criteria
 
 ### RS 500 Integration ✓ COMPLETE
@@ -154,13 +77,6 @@ Create a public feedback form for participants to share anonymous feedback about
 - ✅ Week history shows all past weeks with thumbnails
 - ✅ Toast notifications work across all forms
 - ✅ Admin dashboard feels polished and responsive
-
-### Feedback System (Pending)
-- [ ] Participants can submit anonymous feedback
-- [ ] Form is quick and easy (< 2 min)
-- [ ] Admin can view aggregate stats
-- [ ] Individual feedback submissions are readable
-- [ ] Data helps inform club improvements
 
 ---
 
@@ -197,6 +113,33 @@ When admin saves a week with a classic album from RS 500:
 
 ---
 
+## 🆕 Recent Enhancements
+
+### Automated Email Sending ✓ NEW!
+- ✅ One-click email sending to all participants from admin dashboard
+- ✅ Personalized review links for each participant
+- ✅ Email preview before sending
+- ✅ Previous week's results automatically included
+- ✅ Spotify links for both albums
+- ✅ Professional email formatting
+- ✅ Uses Resend (free tier: 3,000 emails/month)
+
+**Usage**:
+1. Save your week in admin dashboard
+2. Click "Preview Email" to see what participants will receive
+3. Click "📧 Send Email" to send to all participants
+4. Each participant gets a personalized link with their email pre-filled
+
+**Setup**: See [EMAIL_SETUP.md](EMAIL_SETUP.md) for 5-minute setup guide
+
+### Review Form Improvements
+- ✅ Email pre-population via URL parameter (e.g., `?email=user@example.com`)
+- ✅ Email persistence in localStorage for returning users
+- ✅ Removed character limit on review text (now unlimited)
+- ✅ Changed textarea to be resizable vertically
+
+---
+
 ## 💡 Future Enhancements (Backlog)
 
 - Analytics dashboard (participant engagement over time)
@@ -218,7 +161,7 @@ When admin saves a week with a classic album from RS 500:
 - ✅ **RS 500 Integration**: Complete with search, filter, and usage tracking
 - ✅ **UX Improvements**: All 5 features implemented (CSV import, copy week, history browser, toasts, polish)
 
-**Next Priority**: Reviewer Feedback Form (Priority 4)
+**Core functionality complete!** The app is production-ready for running Album Club.
 
 **Files Created/Modified in Latest Session**:
 - `components/ParticipantsManager.tsx` - Added CSV import, toast notifications

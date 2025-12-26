@@ -19,6 +19,7 @@ export default function SubmitPage() {
   const [weekNumber, setWeekNumber] = useState<number | null>(null);
   const [weekData, setWeekData] = useState<Week | null>(null);
   const [loadingWeek, setLoadingWeek] = useState(false);
+  const [emailSource, setEmailSource] = useState<"url" | "localStorage" | "manual">("manual");
 
   // Contemporary album review
   const [contempRating, setContempRating] = useState("");
@@ -32,6 +33,27 @@ export default function SubmitPage() {
 
   // Form state
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Pre-populate email from URL parameter or localStorage
+  useEffect(() => {
+    // Check URL parameter first
+    const urlParams = new URLSearchParams(window.location.search);
+    const emailParam = urlParams.get("email");
+
+    if (emailParam) {
+      setEmail(emailParam);
+      setEmailSource("url");
+      // Save to localStorage for future visits
+      localStorage.setItem("albumClubEmail", emailParam);
+    } else {
+      // Try to load from localStorage
+      const savedEmail = localStorage.getItem("albumClubEmail");
+      if (savedEmail) {
+        setEmail(savedEmail);
+        setEmailSource("localStorage");
+      }
+    }
+  }, []);
 
   // Fetch latest week on mount
   useEffect(() => {
@@ -112,8 +134,13 @@ export default function SubmitPage() {
         throw new Error(result.error || "Failed to submit reviews");
       }
 
+      // Save email to localStorage for future visits
+      if (email.trim()) {
+        localStorage.setItem("albumClubEmail", email.trim());
+      }
+
       toast.success("Reviews submitted successfully! Thank you for your feedback.");
-      // Clear form
+      // Clear form (but keep email)
       setContempRating("");
       setContempTrack("");
       setContempReview("");
@@ -273,19 +300,15 @@ export default function SubmitPage() {
 
               <div>
                 <label className="block text-sm font-medium text-zinc-300 mb-2">
-                  Review (optional, max 500 characters)
+                  Review (optional)
                 </label>
                 <textarea
                   value={contempReview}
                   onChange={(e) => setContempReview(e.target.value)}
-                  maxLength={500}
                   rows={4}
-                  className="w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none resize-none"
+                  className="w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none resize-y"
                   placeholder="Share your thoughts on the album..."
                 />
-                <p className="mt-1 text-xs text-zinc-500 text-right">
-                  {contempReview.length}/500
-                </p>
               </div>
             </div>
           </div>
@@ -325,19 +348,15 @@ export default function SubmitPage() {
 
               <div>
                 <label className="block text-sm font-medium text-zinc-300 mb-2">
-                  Review (optional, max 500 characters)
+                  Review (optional)
                 </label>
                 <textarea
                   value={classicReview}
                   onChange={(e) => setClassicReview(e.target.value)}
-                  maxLength={500}
                   rows={4}
-                  className="w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none resize-none"
+                  className="w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none resize-y"
                   placeholder="Share your thoughts on the album..."
                 />
-                <p className="mt-1 text-xs text-zinc-500 text-right">
-                  {classicReview.length}/500
-                </p>
               </div>
             </div>
           </div>

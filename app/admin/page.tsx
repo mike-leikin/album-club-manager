@@ -53,6 +53,8 @@ export default function AdminPage() {
   );
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingPreviousWeek, setIsLoadingPreviousWeek] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [showEmailPreview, setShowEmailPreview] = useState(false);
 
   // Review stats for previous week
   const [reviewStats, setReviewStats] = useState<ReviewStats | null>(null);
@@ -390,6 +392,45 @@ export default function AdminPage() {
     }
   };
 
+  const handleSendEmail = async () => {
+    const parsedWeekNumber = Number(weekNumber);
+    if (!Number.isFinite(parsedWeekNumber) || parsedWeekNumber <= 0) {
+      toast.error("Please save the week before sending emails.");
+      return;
+    }
+
+    if (!confirm(`Send week ${parsedWeekNumber} email to all participants?`)) {
+      return;
+    }
+
+    setIsSendingEmail(true);
+
+    try {
+      const response = await fetch("/api/email/send-week", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ weekNumber: parsedWeekNumber }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to send emails");
+      }
+
+      toast.success(`Email sent to ${result.sent} participant(s)!`);
+      if (result.failed > 0) {
+        toast.error(`${result.failed} email(s) failed to send`);
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to send emails"
+      );
+    } finally {
+      setIsSendingEmail(false);
+    }
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
 
@@ -517,6 +558,21 @@ export default function AdminPage() {
                 className="rounded-md border border-emerald-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSaving ? "Saving..." : "Save Week"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowEmailPreview(true)}
+                className="rounded-md border border-purple-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-purple-500"
+              >
+                Preview Email
+              </button>
+              <button
+                type="button"
+                onClick={handleSendEmail}
+                disabled={isSendingEmail}
+                className="rounded-md bg-purple-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-purple-600 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isSendingEmail ? "Sending..." : "📧 Send Email"}
               </button>
             </div>
           </div>
@@ -879,6 +935,59 @@ export default function AdminPage() {
 
         {/* Participants Tab */}
         {activeTab === "participants" && <ParticipantsManager />}
+
+        {/* Email Preview Modal */}
+        {showEmailPreview && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+            <div className="w-full max-w-2xl rounded-2xl border border-zinc-800 bg-zinc-950 p-6 shadow-2xl">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-xl font-semibold">Email Preview</h2>
+                <button
+                  onClick={() => setShowEmailPreview(false)}
+                  className="text-zinc-400 hover:text-zinc-200"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <div className="text-sm font-medium text-zinc-400">Subject:</div>
+                  <div className="text-zinc-100">Album Club – Week {weekNumber}</div>
+                </div>
+
+                <div>
+                  <div className="text-sm font-medium text-zinc-400 mb-2">Body:</div>
+                  <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 font-mono text-sm text-zinc-300 whitespace-pre-wrap">
+                    {`Hi [Participant Name],\n\n${body}`}
+                  </div>
+                </div>
+
+                <div className="text-xs text-zinc-500">
+                  Note: Each participant will receive a personalized link with their email pre-filled.
+                </div>
+
+                <div className="flex justify-end gap-2">
+                  <button
+                    onClick={() => setShowEmailPreview(false)}
+                    className="rounded-md border border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:bg-zinc-800"
+                  >
+                    Close
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowEmailPreview(false);
+                      handleSendEmail();
+                    }}
+                    className="rounded-md bg-purple-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-purple-600"
+                  >
+                    Send Now
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Week History Tab */}
         {activeTab === "history" && (
