@@ -956,15 +956,21 @@ export default function AdminPage() {
                   <div className="text-zinc-100">Album Club – Week {weekNumber}</div>
                 </div>
 
+                <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/10 p-4 mb-4">
+                  <p className="text-sm text-yellow-200">
+                    ℹ️ <strong>Preview Note:</strong> This shows the plain text content. Actual emails will be sent with beautiful HTML formatting including album artwork, Spotify links, and previous week results.
+                  </p>
+                </div>
+
                 <div>
-                  <div className="text-sm font-medium text-zinc-400 mb-2">Body:</div>
-                  <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 font-mono text-sm text-zinc-300 whitespace-pre-wrap">
+                  <div className="text-sm font-medium text-zinc-400 mb-2">Content:</div>
+                  <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 font-mono text-sm text-zinc-300 whitespace-pre-wrap max-h-96 overflow-y-auto">
                     {`Hi [Participant Name],\n\n${body}`}
                   </div>
                 </div>
 
                 <div className="text-xs text-zinc-500">
-                  Note: Each participant will receive a personalized link with their email pre-filled.
+                  Each participant will receive a personalized email with their name and a unique review link.
                 </div>
 
                 <div className="flex justify-end gap-2">
