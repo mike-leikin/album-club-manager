@@ -97,6 +97,29 @@ export async function POST(request: NextRequest) {
       });
     };
 
+    // Helper function to log email attempts
+    const logEmailAttempt = async (
+      participantId: string, // UUID from participants table
+      participantEmail: string,
+      status: 'sent' | 'failed',
+      resendId?: string,
+      errorMessage?: string
+    ) => {
+      try {
+        await supabase.from('email_logs').insert({
+          week_number: weekNumber,
+          participant_id: participantId,
+          participant_email: participantEmail,
+          status,
+          resend_id: resendId,
+          error_message: errorMessage,
+        });
+      } catch (logError) {
+        // Don't fail the email send if logging fails, just log to console
+        console.error('Failed to log email attempt:', logError);
+      }
+    };
+
     // Send individual emails
     const emailPromises = participants.map(async (participant: any) => {
       const submitUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/submit?email=${encodeURIComponent(participant.email)}`;
@@ -393,13 +416,36 @@ export async function POST(request: NextRequest) {
 
       textBody += `- Mike`;
 
-      return resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || "Album Club <onboarding@resend.dev>",
-        to: participant.email,
-        subject: `Album Club – Week ${weekNumber}`,
-        html: htmlBody,
-        text: textBody,
-      });
+      try {
+        const result = await resend.emails.send({
+          from: process.env.RESEND_FROM_EMAIL || "Album Club <onboarding@resend.dev>",
+          to: participant.email,
+          subject: `Album Club – Week ${weekNumber}`,
+          html: htmlBody,
+          text: textBody,
+        });
+
+        // Log successful send
+        await logEmailAttempt(
+          participant.id,
+          participant.email,
+          'sent',
+          result.data?.id
+        );
+
+        return result;
+      } catch (error) {
+        // Log failed send
+        await logEmailAttempt(
+          participant.id,
+          participant.email,
+          'failed',
+          undefined,
+          error instanceof Error ? error.message : 'Unknown error'
+        );
+
+        throw error;
+      }
     });
 
     const results = await Promise.allSettled(emailPromises);

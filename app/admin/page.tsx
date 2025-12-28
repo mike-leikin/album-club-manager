@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import ParticipantsManager from "@/components/ParticipantsManager";
 import SpotifySearch from "@/components/SpotifySearch";
 import RS500Picker from "@/components/RS500Picker";
+import EmailHistoryTab from "@/components/EmailHistoryTab";
 
 type Album = {
   title: string;
@@ -15,7 +16,7 @@ type Album = {
   rollingStoneRank?: string;
 };
 
-type Tab = "week" | "participants" | "history";
+type Tab = "week" | "participants" | "history" | "email-history" | "export";
 
 type ReviewStats = {
   contemporary: {
@@ -530,6 +531,26 @@ export default function AdminPage() {
               }`}
             >
               Week History
+            </button>
+            <button
+              onClick={() => setActiveTab("email-history")}
+              className={`px-4 py-2 text-sm font-medium transition ${
+                activeTab === "email-history"
+                  ? "border-b-2 border-emerald-500 text-emerald-400"
+                  : "text-zinc-400 hover:text-zinc-300"
+              }`}
+            >
+              Email History
+            </button>
+            <button
+              onClick={() => setActiveTab("export")}
+              className={`px-4 py-2 text-sm font-medium transition ${
+                activeTab === "export"
+                  ? "border-b-2 border-emerald-500 text-emerald-400"
+                  : "text-zinc-400 hover:text-zinc-300"
+              }`}
+            >
+              Data Export
             </button>
           </div>
         </div>
@@ -1113,6 +1134,136 @@ export default function AdminPage() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Email History Tab */}
+        {activeTab === "email-history" && (
+          <EmailHistoryTab />
+        )}
+
+        {/* Data Export Tab */}
+        {activeTab === "export" && (
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6">
+            <h2 className="mb-4 text-xl font-semibold">Data Export & Backup</h2>
+            <p className="mb-6 text-sm text-zinc-400">
+              Export your album club data for backup or analysis. All exports include timestamps and can be used to restore data if needed.
+            </p>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* Full Backup */}
+              <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5">
+                <div className="mb-3 flex items-center gap-2">
+                  <span className="text-2xl">💾</span>
+                  <h3 className="font-semibold">Complete Backup</h3>
+                </div>
+                <p className="mb-4 text-sm text-zinc-400">
+                  Export everything: all reviews, participants, weeks, and RS 500 data in a single JSON file.
+                </p>
+                <a
+                  href="/api/export/full"
+                  download
+                  className="inline-block w-full rounded-md bg-emerald-500 px-4 py-2 text-center text-sm font-medium text-white transition hover:bg-emerald-600"
+                >
+                  Download Full Backup (JSON)
+                </a>
+              </div>
+
+              {/* Reviews Export */}
+              <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5">
+                <div className="mb-3 flex items-center gap-2">
+                  <span className="text-2xl">📝</span>
+                  <h3 className="font-semibold">Reviews</h3>
+                </div>
+                <p className="mb-4 text-sm text-zinc-400">
+                  Export all participant reviews with ratings, favorite tracks, and comments.
+                </p>
+                <div className="flex gap-2">
+                  <a
+                    href="/api/export/reviews?format=csv"
+                    download
+                    className="flex-1 rounded-md border border-zinc-700 px-4 py-2 text-center text-sm font-medium transition hover:bg-zinc-800"
+                  >
+                    CSV
+                  </a>
+                  <a
+                    href="/api/export/reviews?format=json"
+                    download
+                    className="flex-1 rounded-md border border-zinc-700 px-4 py-2 text-center text-sm font-medium transition hover:bg-zinc-800"
+                  >
+                    JSON
+                  </a>
+                </div>
+              </div>
+
+              {/* Participants Export */}
+              <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5">
+                <div className="mb-3 flex items-center gap-2">
+                  <span className="text-2xl">👥</span>
+                  <h3 className="font-semibold">Participants</h3>
+                </div>
+                <p className="mb-4 text-sm text-zinc-400">
+                  Export participant list with names, emails, and review counts.
+                </p>
+                <div className="flex gap-2">
+                  <a
+                    href="/api/export/participants?format=csv"
+                    download
+                    className="flex-1 rounded-md border border-zinc-700 px-4 py-2 text-center text-sm font-medium transition hover:bg-zinc-800"
+                  >
+                    CSV
+                  </a>
+                  <a
+                    href="/api/export/participants?format=json"
+                    download
+                    className="flex-1 rounded-md border border-zinc-700 px-4 py-2 text-center text-sm font-medium transition hover:bg-zinc-800"
+                  >
+                    JSON
+                  </a>
+                </div>
+              </div>
+
+              {/* Weeks Export */}
+              <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5">
+                <div className="mb-3 flex items-center gap-2">
+                  <span className="text-2xl">📅</span>
+                  <h3 className="font-semibold">Week History</h3>
+                </div>
+                <p className="mb-4 text-sm text-zinc-400">
+                  Export all weeks with album details, deadlines, and average ratings.
+                </p>
+                <div className="flex gap-2">
+                  <a
+                    href="/api/export/weeks?format=csv"
+                    download
+                    className="flex-1 rounded-md border border-zinc-700 px-4 py-2 text-center text-sm font-medium transition hover:bg-zinc-800"
+                  >
+                    CSV
+                  </a>
+                  <a
+                    href="/api/export/weeks?format=json"
+                    download
+                    className="flex-1 rounded-md border border-zinc-700 px-4 py-2 text-center text-sm font-medium transition hover:bg-zinc-800"
+                  >
+                    JSON
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Backup Recommendations */}
+            <div className="mt-6 rounded-xl border border-yellow-900/50 bg-yellow-950/20 p-4">
+              <div className="mb-2 flex items-center gap-2 text-yellow-500">
+                <span className="text-xl">⚠️</span>
+                <h4 className="font-semibold">Backup Recommendations</h4>
+              </div>
+              <ul className="space-y-1 text-sm text-zinc-400">
+                <li>• Download a complete backup regularly (weekly recommended)</li>
+                <li>• Store backups in a safe location (cloud storage, external drive)</li>
+                <li>• Keep multiple backup versions in case you need to restore older data</li>
+                <li>• Test your backups occasionally to ensure they can be restored</li>
+              </ul>
+            </div>
           </div>
         )}
       </div>

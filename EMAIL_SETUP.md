@@ -21,11 +21,11 @@ Add these to your `.env.local` file:
 
 ```bash
 RESEND_API_KEY=re_your_api_key_here
-RESEND_FROM_EMAIL="Album Club <noreply@yourdomain.com>"
+RESEND_FROM_EMAIL="Album Club <weekly@yourdomain.com>"
 NEXT_PUBLIC_APP_URL=https://yourdomain.com
 ```
 
-**Note**: Replace `yourdomain.com` with your actual domain.
+**Note**: Replace `yourdomain.com` with your actual domain. Use the root domain (not a subdomain) for email sending.
 
 ### 4. Verify Your Domain (Optional but Recommended)
 
@@ -45,8 +45,10 @@ NEXT_PUBLIC_APP_URL=https://yourdomain.com
 Once domain is verified, update `.env.local`:
 
 ```bash
-RESEND_FROM_EMAIL="Mike from Album Club <mike@yourdomain.com>"
+RESEND_FROM_EMAIL="Album Club <weekly@yourdomain.com>"
 ```
+
+**Important**: Use your root domain (e.g., `albumclub.club`), not a subdomain (e.g., `send.albumclub.club`). Only the root domain needs to be verified in Resend.
 
 ## How to Use
 

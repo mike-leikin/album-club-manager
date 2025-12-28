@@ -132,9 +132,9 @@ When admin saves a week with a classic album from RS 500:
 
 **Email Configuration**:
 - Custom domain: `albumclub.club` (purchased on Cloudflare)
-- Sending subdomain: `send.albumclub.club` (following Resend best practices)
-- From address: `Album Club <weekly@send.albumclub.club>`
+- From address: `Album Club <weekly@albumclub.club>`
 - App URL: `https://albumclub.club`
+- Status: ✅ Fully operational and verified
 
 ### Review Form Improvements
 - ✅ Email pre-population via URL parameter (e.g., `?email=user@example.com`)
@@ -144,52 +144,158 @@ When admin saves a week with a classic album from RS 500:
 
 ---
 
-## 🚧 In Progress: Custom Domain Setup
+## ✅ Custom Domain Setup - COMPLETE!
 
-### Current Status: DNS Configuration Pending ⏳
+### Current Status: Fully Operational ✅
 
 **What's Done**:
 - ✅ Purchased `albumclub.club` domain on Cloudflare
 - ✅ Configured Vercel to use custom domain
 - ✅ Added domain to Resend for email sending
-- ✅ Configured DKIM record (verified ✅)
+- ✅ Domain verified in Resend dashboard
 - ✅ Updated environment variables:
   - Local: `.env.local`
   - Production: Vercel environment variables
-- ✅ Email from address: `weekly@send.albumclub.club`
+- ✅ Email from address: `weekly@albumclub.club`
 - ✅ App URL: `https://albumclub.club`
+- ✅ Tested and confirmed email delivery working
 
-**What's Pending**:
-- ⏳ Add DNS records in Cloudflare for Resend email verification:
-  - **MX record**: Name `send`, Content `feedback-smtp.us-east-...`, Priority `10`
-  - **TXT record**: Name `send`, Content `v=spf1 include:amazonses.com ~all`
-- ⏳ Wait for DNS propagation (2-10 minutes)
-- ⏳ Verify SPF and MX records in Resend dashboard
-- ⏳ Test email sending to multiple participants
-
-**Why Subdomain?**
-Per Resend's best practices, using `send.albumclub.club` instead of the root domain:
-- Isolates email sending reputation from main domain
-- Communicates intent clearly to email providers
-- Better deliverability and inbox placement
-
-**Next Steps**:
-1. Add MX and TXT DNS records in Cloudflare
-2. Wait for Resend to show "Verified" status for both records
-3. Test email sending functionality
-4. Verify emails arrive in participant inboxes
+**Configuration Notes**:
+- Using root domain `albumclub.club` for email sending (not subdomain)
+- Domain is verified and emails are being delivered successfully
+- SPF, DKIM, and DMARC records properly configured
 
 ---
 
 ## 💡 Future Enhancements (Backlog)
 
-- Analytics dashboard (participant engagement over time)
-- Participant profiles (track review history)
-- Weekly leaderboard (most active reviewers)
-- Export reviews to PDF/CSV
-- Album recommendations engine
-- Spotify playlist generation from weekly picks
-- Mobile app (React Native)
+### 🚨 Critical Priority (Data Loss Prevention)
+
+**These features are essential for production reliability and data safety:**
+
+1. **Data Backup & Export System** ✅ COMPLETE!
+   - ✅ Export all reviews to CSV/JSON
+   - ✅ Export participants list with review counts
+   - ✅ Export week history with full details
+   - ✅ Complete database backup in single JSON file
+   - ✅ Admin dashboard "Data Export" tab with one-click downloads
+   - ⏳ Automated backup mechanism (scheduled exports)
+   - ⏳ Point-in-time recovery capability
+
+   **What's Built**:
+   - `/api/export/full` - Complete backup (JSON)
+   - `/api/export/reviews` - All reviews (CSV/JSON)
+   - `/api/export/participants` - Participant list (CSV/JSON)
+   - `/api/export/weeks` - Week history (CSV/JSON)
+   - Beautiful UI in admin dashboard with export buttons
+
+2. **Email Delivery Tracking & Audit Trail** ✅ COMPLETE!
+   - ✅ Database table to log email sends: `email_logs { week_number, participant_id, sent_at, status, error_message }`
+   - ✅ Track which participants successfully received emails
+   - ✅ View email history per participant and per week
+   - ✅ Retry failed emails without re-sending to everyone
+   - ✅ Admin dashboard "Email History" tab with filtering and statistics
+   - ✅ One-click retry for failed emails by week
+   - ✅ Complete audit trail with Resend message IDs
+   - ⏳ **Pending**: Run database migration in Supabase dashboard (see EMAIL_TRACKING_SETUP.md)
+
+3. **Error Monitoring & Structured Logging**
+   - Integration with error tracking service (Sentry free tier, Rollbar, etc.)
+   - Replace console.log with structured logging
+   - Alert system for critical failures (email failures, database errors)
+   - Request tracing and correlation IDs
+   - **Current issue**: Production errors go undetected; no visibility into failures
+
+### 🔴 High Priority (Operational Stability)
+
+4. **Deadline Enforcement & Week Lifecycle**
+   - Prevent review submissions after deadline passes
+   - Week states: draft, active, closed, archived
+   - Lock past weeks to prevent accidental edits
+   - Automated email reminders before deadline (24 hours, 1 hour)
+   - Timezone handling for deadlines
+   - **Current issue**: Participants can submit reviews weeks after deadline
+
+5. **Review Moderation & Editing Tools**
+   - Admin UI to edit/delete inappropriate reviews
+   - Participant dashboard to view and edit their own reviews
+   - Review history and audit trail (track changes)
+   - Draft reviews with auto-save
+   - Preview before submission
+   - **Current issue**: No way to moderate content; participants can't edit submitted reviews
+
+6. **Safe Participant Management**
+   - Soft delete instead of CASCADE (currently deletes ALL reviews!)
+   - Warning dialog: "This will delete 23 reviews from this participant"
+   - Ability to recover deleted participants within 30 days
+   - Participant status: active, inactive, archived
+   - Email change capability with verification
+   - **Critical bug**: Deleting a participant permanently destroys all their review history
+
+7. **Database Migration System**
+   - Track which migrations have been applied
+   - Automated migration runner (currently manual)
+   - Rollback capability for failed migrations
+   - Migration versioning and order enforcement
+   - CI/CD integration
+   - **Current issue**: No source of truth for `weeks` table schema; manual SQL required
+
+8. **Testing Infrastructure**
+   - Unit tests for critical API routes
+   - Integration tests for review submission flow
+   - Email sending tests with mocks
+   - Component tests for admin dashboard
+   - CI/CD pipeline with automated testing
+   - **Current issue**: Zero test coverage; refactoring is dangerous
+
+### 🟡 Medium Priority (UX & Feature Enhancements)
+
+9. **Authentication and access control**:
+   - User login system (email/password or OAuth)
+   - Admin role management and permissions
+   - Protected admin routes (currently anyone can access /admin)
+   - Participant accounts (track their own reviews, see personalized stats)
+   - Session management and secure authentication
+
+10. **Music review aggregation tool**:
+    - Scan recent music reviews from trusted sources (Pitchfork, NPR Music, AllMusic, etc.)
+    - AI-powered suggestions for contemporary albums
+    - Filter by genre, release date, critic ratings
+
+11. **Public landing page improvements**:
+    - Allow non-admins to browse historical reviews and albums
+    - Public archive/history page with all past weeks
+    - Filter by album, artist, or participant
+    - Read-only view of reviews and ratings
+    - Beautiful landing page with recent activity
+
+12. **Enhanced Data Validation**
+    - Duplicate review prevention (race condition handling)
+    - XSS sanitization for user input
+    - Email deliverability validation (not just format)
+    - Week number sequential validation
+    - Album recommendation field usage (currently unused in schema)
+
+13. **Participant Engagement Tools**
+    - Analytics dashboard (participation rates over time)
+    - Participant profiles (track review history)
+    - Weekly leaderboard (most active reviewers)
+    - Email engagement tracking (opens, clicks)
+    - Automated re-engagement emails for inactive participants
+
+14. **Advanced Features**
+    - Album recommendations engine
+    - Spotify playlist generation from weekly picks
+    - Review sentiment analysis
+    - Participant taste profiles
+    - Album similarity suggestions
+
+### 🟢 Low Priority (Nice to Have)
+
+15. **Mobile app** (React Native)
+16. **Email templates builder** (visual editor)
+17. **Multi-language support**
+18. **Dark mode**
 
 ---
 
@@ -201,10 +307,11 @@ Per Resend's best practices, using `send.albumclub.club` instead of the root dom
 - ✅ **RS 500 Integration**: Complete with search, filter, and usage tracking
 - ✅ **UX Improvements**: All 5 features implemented (CSV import, copy week, history browser, toasts, polish)
 - ✅ **Email Automation**: HTML email templates with Resend integration
-- ✅ **Custom Domain**: `albumclub.club` configured for app and email
-- ⏳ **DNS Verification**: Waiting for Resend email domain verification
+- ✅ **Custom Domain**: `albumclub.club` configured and verified
+- ✅ **Email Delivery**: Fully operational and tested
+- ✅ **Data Export & Backup**: Complete export system with CSV/JSON downloads
 
-**The app is production-ready!** Just needs final DNS verification to enable email sending.
+**The app is production-ready and fully operational!**
 
 **Recent Session Changes**:
 - `.env.local` - Updated to use custom domain and subdomain email
