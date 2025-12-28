@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabaseClient";
+import { requireCuratorApi } from "@/lib/auth/apiAuth";
 
 export async function GET(request: NextRequest) {
+  // Check auth first
+  const authError = await requireCuratorApi(request);
+  if (authError) return authError;
   try {
     const supabase = createServerClient() as any;
 

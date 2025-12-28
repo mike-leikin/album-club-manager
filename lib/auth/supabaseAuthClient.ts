@@ -1,0 +1,43 @@
+import { createBrowserClient } from '@supabase/ssr'
+import { createServerClient as createSSRServerClient, type CookieOptions } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+import type { Database } from '@/lib/types/database'
+
+// Client-side auth client (for use in components)
+export function createAuthClient() {
+  return createBrowserClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  )
+}
+
+// Server-side auth client (for use in Server Components, API routes, middleware)
+export async function createServerAuthClient() {
+  const cookieStore = await cookies()
+
+  return createSSRServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          try {
+            cookieStore.set({ name, value, ...options })
+          } catch (error) {
+            // Server Component - ignore
+          }
+        },
+        remove(name: string, options: CookieOptions) {
+          try {
+            cookieStore.set({ name, value: '', ...options })
+          } catch (error) {
+            // Server Component - ignore
+          }
+        },
+      },
+    }
+  )
+}

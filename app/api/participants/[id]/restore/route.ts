@@ -1,12 +1,16 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabaseClient";
+import { requireCuratorApi } from "@/lib/auth/apiAuth";
 
 type RouteContext = {
   params: Promise<{ id: string }>;
 };
 
 // POST /api/participants/[id]/restore - Restore a soft-deleted participant
-export async function POST(_request: Request, context: RouteContext) {
+export async function POST(request: NextRequest, context: RouteContext) {
+  // Check auth first
+  const authError = await requireCuratorApi(request);
+  if (authError) return authError;
   try {
     const { id } = await context.params;
     const supabase = createServerClient() as any;

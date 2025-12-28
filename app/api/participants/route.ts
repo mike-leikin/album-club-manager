@@ -1,9 +1,13 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabaseClient";
+import { requireCuratorApi } from "@/lib/auth/apiAuth";
 import type { ParticipantInsert } from "@/lib/types/database";
 
 // GET /api/participants - List all participants
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
+  // Check auth first
+  const authError = await requireCuratorApi(request);
+  if (authError) return authError;
   try {
     const supabase = createServerClient() as any;
     const { searchParams } = new URL(request.url);
@@ -34,7 +38,10 @@ export async function GET(request: Request) {
 }
 
 // POST /api/participants - Create a new participant
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  // Check auth first
+  const authError = await requireCuratorApi(request);
+  if (authError) return authError;
   try {
     const supabase = createServerClient() as any;
     const body = (await request.json()) as ParticipantInsert;

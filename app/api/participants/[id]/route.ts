@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabaseClient";
+import { requireCuratorApi } from "@/lib/auth/apiAuth";
 
 type RouteContext = {
   params: Promise<{ id: string }>;
@@ -11,7 +12,10 @@ type UpdatePayload = {
 };
 
 // PUT /api/participants/[id] - Update a participant
-export async function PUT(request: Request, context: RouteContext) {
+export async function PUT(request: NextRequest, context: RouteContext) {
+  // Check auth first
+  const authError = await requireCuratorApi(request);
+  if (authError) return authError;
   try {
     const { id } = await context.params;
     const supabase = createServerClient() as any;
@@ -78,7 +82,10 @@ export async function PUT(request: Request, context: RouteContext) {
 }
 
 // DELETE /api/participants/[id] - Soft delete a participant
-export async function DELETE(_request: Request, context: RouteContext) {
+export async function DELETE(request: NextRequest, context: RouteContext) {
+  // Check auth first
+  const authError = await requireCuratorApi(request);
+  if (authError) return authError;
   try {
     const { id } = await context.params;
     const supabase = createServerClient() as any;

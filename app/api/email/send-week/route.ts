@@ -2,11 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createServerClient } from "@/lib/supabaseClient";
 import { createApiLogger } from "@/lib/logger";
+import { requireCuratorApi } from "@/lib/auth/apiAuth";
 import * as Sentry from "@sentry/nextjs";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: NextRequest) {
+  // Check auth first
+  const authError = await requireCuratorApi(request);
+  if (authError) return authError;
+
   const requestId = crypto.randomUUID();
   const logger = createApiLogger(requestId);
 

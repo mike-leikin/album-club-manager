@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabaseClient";
+import { requireCuratorApi } from "@/lib/auth/apiAuth";
 
 function convertToCSV(data: any[]): string {
   if (data.length === 0) return "";
@@ -42,6 +43,10 @@ function convertToCSV(data: any[]): string {
 }
 
 export async function GET(request: NextRequest) {
+  // Check auth first
+  const authError = await requireCuratorApi(request);
+  if (authError) return authError;
+
   try {
     const { searchParams } = new URL(request.url);
     const format = searchParams.get("format") || "json";
