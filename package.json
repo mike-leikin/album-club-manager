@@ -10,7 +10,9 @@
     "db:inspect": "tsx scripts/inspect-schema.ts",
     "db:test": "tsx scripts/test-database.ts",
     "db:seed": "tsx scripts/seed-sample-reviews.ts",
-    "migration:show": "tsx scripts/run-migration.ts",
+    "migrate": "tsx scripts/migrate.ts",
+    "migrate:status": "tsx scripts/migrate.ts status",
+    "migrate:rollback": "tsx scripts/migrate.ts rollback",
     "import:rs500": "tsx scripts/import-rs500-simple.ts",
     "fix:rs500": "tsx scripts/fix-rs500-data.ts"
   },
@@ -32,7 +34,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.0.3",
     "tailwindcss": "^4",
-    "tsx": "^4.20.6",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }

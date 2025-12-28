@@ -259,13 +259,24 @@ When admin saves a week with a classic album from RS 500:
    - Complete data preservation on deletion
    - See SAFE_PARTICIPANT_MANAGEMENT.md for full documentation
 
-7. **Database Migration System**
-   - Track which migrations have been applied
-   - Automated migration runner (currently manual)
-   - Rollback capability for failed migrations
-   - Migration versioning and order enforcement
-   - CI/CD integration
-   - **Current issue**: No source of truth for `weeks` table schema; manual SQL required
+7. **Database Migration System** ✅ COMPLETE!
+   - ✅ Migration tracking table to record applied migrations
+   - ✅ Interactive migration runner CLI tool
+   - ✅ Checksum validation to detect modified migrations
+   - ✅ Migration status reporting (applied, pending, failed)
+   - ✅ Rollback capability to mark migrations as unapplied
+   - ✅ Dry-run mode to preview migrations
+   - ✅ Target-specific migrations
+   - ✅ Execution time tracking
+
+   **What's Built**:
+   - `lib/migrations.ts` - Core migration logic
+   - `scripts/migrate.ts` - CLI tool
+   - `supabase/migrations/000_create_migrations_table.sql` - Tracking table
+   - `npm run migrate` - Run pending migrations
+   - `npm run migrate:status` - Check migration status
+   - `npm run migrate:rollback` - Rollback last migration
+   - See MIGRATIONS_GUIDE.md for full documentation
 
 8. **Testing Infrastructure**
    - Unit tests for critical API routes
