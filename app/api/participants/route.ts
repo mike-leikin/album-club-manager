@@ -3,13 +3,23 @@ import { createServerClient } from "@/lib/supabaseClient";
 import type { ParticipantInsert } from "@/lib/types/database";
 
 // GET /api/participants - List all participants
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const supabase = createServerClient() as any;
-    const { data, error } = await supabase
+    const { searchParams } = new URL(request.url);
+    const includeDeleted = searchParams.get('includeDeleted') === 'true';
+
+    let query = supabase
       .from("participants")
       .select("*")
       .order("name");
+
+    // By default, only return active (non-deleted) participants
+    if (!includeDeleted) {
+      query = query.is("deleted_at", null);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       throw error;

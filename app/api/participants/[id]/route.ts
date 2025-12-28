@@ -77,22 +77,33 @@ export async function PUT(request: Request, context: RouteContext) {
   }
 }
 
-// DELETE /api/participants/[id] - Delete a participant
+// DELETE /api/participants/[id] - Soft delete a participant
 export async function DELETE(_request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
     const supabase = createServerClient() as any;
 
+    // Get review count before deletion
+    const { count: reviewCount } = await supabase
+      .from("reviews")
+      .select("*", { count: "exact", head: true })
+      .eq("participant_id", id);
+
+    // Soft delete by setting deleted_at timestamp
     const { error } = await supabase
       .from("participants")
-      .delete()
-      .eq("id", id);
+      .update({ deleted_at: new Date().toISOString() })
+      .eq("id", id)
+      .is("deleted_at", null); // Only delete if not already deleted
 
     if (error) {
       throw error;
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      reviewCount: reviewCount || 0
+    });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unable to delete participant";

@@ -21,13 +21,17 @@ export default function ParticipantsManager() {
   const [csvContent, setCsvContent] = useState("");
   const [isImporting, setIsImporting] = useState(false);
 
+  // Deleted participants state
+  const [showDeleted, setShowDeleted] = useState(false);
+
   // Load participants
   const loadParticipants = async () => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const response = await fetch("/api/participants");
+      const url = showDeleted ? "/api/participants?includeDeleted=true" : "/api/participants";
+      const response = await fetch(url);
       const result = await response.json();
 
       if (!response.ok) {
@@ -44,7 +48,7 @@ export default function ParticipantsManager() {
 
   useEffect(() => {
     loadParticipants();
-  }, []);
+  }, [showDeleted]);
 
   // Handle add/edit submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -91,11 +95,26 @@ export default function ParticipantsManager() {
 
   // Handle delete
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to remove ${name} from the club?`)) {
-      return;
-    }
-
     try {
+      // First, get the review count
+      const countResponse = await fetch(`/api/participants/${id}/review-count`);
+      if (!countResponse.ok) {
+        throw new Error("Failed to get review count");
+      }
+
+      const { reviewCount } = await countResponse.json();
+
+      // Show warning with review count
+      const message = reviewCount > 0
+        ? `Are you sure you want to remove ${name} from the club?\n\n` +
+          `⚠️ This participant has ${reviewCount} review${reviewCount === 1 ? '' : 's'}.\n` +
+          `Their reviews will be preserved but marked as from a deleted participant.`
+        : `Are you sure you want to remove ${name} from the club?`;
+
+      if (!confirm(message)) {
+        return;
+      }
+
       const response = await fetch(`/api/participants/${id}`, {
         method: "DELETE",
       });
@@ -106,9 +125,32 @@ export default function ParticipantsManager() {
       }
 
       await loadParticipants();
-      toast.success("Participant removed!");
+      toast.success(`${name} removed (${reviewCount} review${reviewCount === 1 ? '' : 's'} preserved)`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to delete participant");
+    }
+  };
+
+  // Handle restore
+  const handleRestore = async (id: string, name: string) => {
+    if (!confirm(`Restore ${name} to active status?`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/participants/${id}/restore`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.error || "Failed to restore participant");
+      }
+
+      await loadParticipants();
+      toast.success(`${name} restored!`);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to restore participant");
     }
   };
 
@@ -228,6 +270,16 @@ export default function ParticipantsManager() {
         <h2 className="text-xl font-semibold">Club Participants</h2>
         {!showAddForm && !showImportForm && (
           <div className="flex gap-2">
+            <button
+              onClick={() => setShowDeleted(!showDeleted)}
+              className={`rounded-md border px-4 py-2 text-sm font-medium transition ${
+                showDeleted
+                  ? "border-amber-500 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20"
+                  : "border-zinc-600 text-zinc-400 hover:bg-zinc-800"
+              }`}
+            >
+              {showDeleted ? "Hide Deleted" : "Show Deleted"}
+            </button>
             <button
               onClick={() => setShowImportForm(true)}
               className="rounded-md border border-blue-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-500"
@@ -366,26 +418,52 @@ export default function ParticipantsManager() {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-800">
-              {participants.map((participant) => (
-                <tr key={participant.id} className="hover:bg-zinc-900/30">
-                  <td className="px-4 py-3 text-sm text-zinc-100">{participant.name}</td>
-                  <td className="px-4 py-3 text-sm text-zinc-400">{participant.email}</td>
-                  <td className="px-4 py-3 text-right text-sm">
-                    <button
-                      onClick={() => handleEditClick(participant)}
-                      className="mr-2 text-emerald-400 hover:text-emerald-300"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(participant.id, participant.name)}
-                      className="text-red-400 hover:text-red-300"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {participants.map((participant) => {
+                const isDeleted = participant.deleted_at != null;
+                return (
+                  <tr
+                    key={participant.id}
+                    className={`hover:bg-zinc-900/30 ${isDeleted ? "opacity-50" : ""}`}
+                  >
+                    <td className="px-4 py-3 text-sm">
+                      <span className={isDeleted ? "text-zinc-500 line-through" : "text-zinc-100"}>
+                        {participant.name}
+                      </span>
+                      {isDeleted && (
+                        <span className="ml-2 rounded-full bg-red-900/30 px-2 py-0.5 text-xs text-red-400">
+                          Deleted
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-zinc-400">{participant.email}</td>
+                    <td className="px-4 py-3 text-right text-sm">
+                      {isDeleted ? (
+                        <button
+                          onClick={() => handleRestore(participant.id, participant.name)}
+                          className="text-emerald-400 hover:text-emerald-300"
+                        >
+                          Restore
+                        </button>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => handleEditClick(participant)}
+                            className="mr-2 text-emerald-400 hover:text-emerald-300"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(participant.id, participant.name)}
+                            className="text-red-400 hover:text-red-300"
+                          >
+                            Delete
+                          </button>
+                        </>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
