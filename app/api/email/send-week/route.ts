@@ -1,19 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createServerClient } from "@/lib/supabaseClient";
+import { createApiLogger } from "@/lib/logger";
+import * as Sentry from "@sentry/nextjs";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: NextRequest) {
+  const requestId = crypto.randomUUID();
+  const logger = createApiLogger(requestId);
+
   try {
+    logger.info("Email send request received", { requestId });
     const { weekNumber } = await request.json();
 
     if (!weekNumber) {
+      logger.warn("Email send request missing week number", { requestId });
       return NextResponse.json(
         { error: "Week number is required" },
         { status: 400 }
       );
     }
+
+    logger.info("Sending emails for week", { weekNumber, requestId });
 
     const supabase = createServerClient() as any;
 
@@ -25,6 +34,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (weekError || !week) {
+      logger.error("Week not found", { weekNumber, requestId }, weekError);
       return NextResponse.json(
         { error: "Week not found" },
         { status: 404 }
@@ -38,11 +48,14 @@ export async function POST(request: NextRequest) {
       .order("name");
 
     if (participantsError || !participants || participants.length === 0) {
+      logger.error("No participants found", { weekNumber, requestId }, participantsError);
       return NextResponse.json(
         { error: "No participants found" },
         { status: 404 }
       );
     }
+
+    logger.info("Participants loaded", { count: participants.length, weekNumber, requestId });
 
     // Fetch previous week's review stats (if available)
     let reviewStats = null;
@@ -115,8 +128,12 @@ export async function POST(request: NextRequest) {
           error_message: errorMessage,
         });
       } catch (logError) {
-        // Don't fail the email send if logging fails, just log to console
-        console.error('Failed to log email attempt:', logError);
+        // Don't fail the email send if logging fails
+        logger.error('Failed to log email attempt to database', {
+          participantEmail,
+          weekNumber,
+          requestId
+        }, logError instanceof Error ? logError : new Error(String(logError)));
       }
     };
 
@@ -453,18 +470,31 @@ export async function POST(request: NextRequest) {
     const successCount = results.filter((r) => r.status === "fulfilled").length;
     const failedCount = results.filter((r) => r.status === "rejected").length;
 
-    // Log results for debugging
-    console.log('Email sending results:', {
-      total: participants.length,
-      sent: successCount,
-      failed: failedCount,
-      results: results.map((r, i) => ({
-        participant: participants[i].email,
-        status: r.status,
-        error: r.status === 'rejected' ? r.reason : null,
-        resendResponse: r.status === 'fulfilled' ? JSON.stringify(r.value) : null,
-      }))
-    });
+    // Log detailed results
+    const failedEmails = results
+      .map((r, i) => ({ result: r, participant: participants[i] }))
+      .filter(({ result }) => result.status === "rejected")
+      .map(({ result, participant }) => ({
+        email: participant.email,
+        error: result.status === 'rejected' ? result.reason : null
+      }));
+
+    if (failedCount > 0) {
+      logger.warn('Some emails failed to send', {
+        weekNumber,
+        total: participants.length,
+        sent: successCount,
+        failed: failedCount,
+        failedEmails,
+        requestId
+      });
+    } else {
+      logger.info('All emails sent successfully', {
+        weekNumber,
+        total: participants.length,
+        requestId
+      });
+    }
 
     return NextResponse.json({
       success: true,
@@ -473,7 +503,16 @@ export async function POST(request: NextRequest) {
       total: participants.length,
     });
   } catch (error) {
-    console.error("Email send error:", error);
+    logger.error("Email send error", {
+      requestId,
+      errorMessage: error instanceof Error ? error.message : 'Unknown error'
+    }, error instanceof Error ? error : new Error(String(error)));
+
+    Sentry.captureException(error, {
+      tags: { endpoint: '/api/email/send-week' },
+      extra: { requestId }
+    });
+
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to send emails" },
       { status: 500 }
