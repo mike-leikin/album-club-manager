@@ -231,13 +231,23 @@ When admin saves a week with a classic album from RS 500:
    - Preview before submission
    - **Current issue**: No way to moderate content; participants can't edit submitted reviews
 
-6. **Safe Participant Management**
-   - Soft delete instead of CASCADE (currently deletes ALL reviews!)
-   - Warning dialog: "This will delete 23 reviews from this participant"
-   - Ability to recover deleted participants within 30 days
-   - Participant status: active, inactive, archived
-   - Email change capability with verification
-   - **Critical bug**: Deleting a participant permanently destroys all their review history
+6. **Safe Participant Management** ✅ COMPLETE!
+   - ✅ Soft delete instead of CASCADE (reviews now preserved!)
+   - ✅ Warning dialog shows exact review count before deletion
+   - ✅ Ability to restore deleted participants anytime
+   - ✅ "Show Deleted" / "Hide Deleted" toggle in UI
+   - ✅ Visual indicators for deleted participants
+   - ✅ One-click restore functionality
+   - ✅ Foreign key changed from CASCADE to SET NULL
+   - ⏳ **Pending**: Email change capability with verification
+
+   **What's Built**:
+   - Soft delete with `deleted_at` timestamp
+   - `/api/participants/[id]/restore` - Restore endpoint
+   - `/api/participants/[id]/review-count` - Review count endpoint
+   - Enhanced ParticipantsManager UI with restore capability
+   - Complete data preservation on deletion
+   - See SAFE_PARTICIPANT_MANAGEMENT.md for full documentation
 
 7. **Database Migration System**
    - Track which migrations have been applied
