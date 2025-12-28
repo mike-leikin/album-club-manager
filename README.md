@@ -26,6 +26,7 @@ Album Club Manager streamlines the process of running a weekly music club where 
 ### 👥 Participant Management
 - **Bulk CSV Import**: Add multiple participants at once via CSV upload
 - **Individual Management**: Add, edit, or remove participants through the admin interface
+- **Safe Deletion**: Soft delete preserves all review history with one-click restore capability
 - **Review Tracking**: See all reviews submitted by each participant
 
 ### 📊 Admin Dashboard
@@ -33,6 +34,8 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Copy Previous Week**: Quickly duplicate the previous week's setup
 - **Week History Browser**: View and edit all past weeks with album thumbnails
 - **Email Preview**: See exactly what participants will receive before sending
+- **Email Delivery Tracking**: Complete audit trail with retry capability for failed sends
+- **Data Export**: One-click export of all reviews, participants, and week history
 - **Toast Notifications**: Clean, non-intrusive feedback for all actions
 
 ### 📝 Review Submission
@@ -47,6 +50,7 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Language**: TypeScript
 - **Database**: Supabase (PostgreSQL)
 - **Email**: Resend
+- **Error Monitoring**: Sentry (optional)
 - **Styling**: Tailwind CSS
 - **UI Components**: Custom components with Sonner for toast notifications
 - **Deployment**: Vercel
@@ -55,10 +59,12 @@ Album Club Manager streamlines the process of running a weekly music club where 
 ## Database Schema
 
 ### Tables
-- `participants`: User information (name, email)
+- `participants`: User information (name, email) with soft delete support
 - `weeks`: Weekly album selections and deadlines
 - `reviews`: Participant ratings and reviews
 - `rs_500_albums`: Complete Rolling Stone 500 list with Spotify metadata
+- `email_logs`: Email delivery tracking and audit trail
+- `_migrations`: Database migration tracking with checksums
 
 ## Getting Started
 
@@ -108,7 +114,20 @@ NEXT_PUBLIC_APP_URL=https://yourdomain.com
 
 4. Set up the database:
 
-Run the SQL migrations in your Supabase dashboard (see `supabase/migrations/` directory).
+Use the automated migration tool to track and apply database changes:
+
+```bash
+# Check migration status
+npm run migrate:status
+
+# Run pending migrations
+npm run migrate
+
+# Get help
+npm run migrate help
+```
+
+See [MIGRATIONS_GUIDE.md](MIGRATIONS_GUIDE.md) for detailed instructions.
 
 5. Run the development server:
 
@@ -164,6 +183,14 @@ album-club-manager/
 
 See [EMAIL_SETUP.md](EMAIL_SETUP.md) for detailed instructions on configuring Resend for email delivery.
 
+### Error Monitoring (Optional)
+
+See [ERROR_MONITORING_SETUP.md](ERROR_MONITORING_SETUP.md) for instructions on setting up Sentry for error tracking and structured logging.
+
+### Database Migrations
+
+See [MIGRATIONS_GUIDE.md](MIGRATIONS_GUIDE.md) for instructions on using the automated migration tracking system.
+
 ### Spotify Integration
 
 1. Create a Spotify app at [developer.spotify.com](https://developer.spotify.com)
@@ -183,22 +210,26 @@ For production deployment with custom email domain:
 ## Performance Metrics
 
 - **Week Setup Time**: 5 minutes → 30 seconds (94% faster with Spotify integration)
-- **Email Sending**: Manual → One-click automated
-- **Participant Management**: One-by-one → Bulk CSV import
+- **Email Sending**: Manual → One-click automated with delivery tracking
+- **Participant Management**: One-by-one → Bulk CSV import with safe deletion
+- **Migration Tracking**: Manual → Automated with status reporting
 
 ## Roadmap
 
 See [NEXT_STEPS.md](NEXT_STEPS.md) for the complete feature roadmap and future enhancements.
 
-### Critical Priorities
-- Data backup & export system
-- Email delivery tracking
-- Error monitoring & structured logging
+### ✅ Completed Features
+- ✅ Data backup & export system
+- ✅ Email delivery tracking & audit trail
+- ✅ Error monitoring & structured logging
+- ✅ Safe participant management with soft delete
+- ✅ Database migration tracking system
 
 ### High Priorities
-- Deadline enforcement
-- Review moderation tools
+- Deadline enforcement & week lifecycle management
+- Review moderation & editing tools
 - Authentication & access control
+- Testing infrastructure
 
 ## Contributing
 
