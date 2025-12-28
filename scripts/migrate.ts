@@ -2,7 +2,12 @@
 // scripts/migrate.ts
 // CLI tool for running database migrations
 
-import "dotenv/config";
+import { config } from "dotenv";
+import { join } from "path";
+
+// Load environment variables from .env.local
+config({ path: join(process.cwd(), ".env.local") });
+
 import {
   runMigrations,
   getMigrationStatus,
