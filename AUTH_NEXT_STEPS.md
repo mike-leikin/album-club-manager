@@ -1,6 +1,6 @@
-# Authentication Implementation - Next Steps
+# Authentication Implementation - ✅ COMPLETE!
 
-## ✅ Completed (Steps 1-6)
+## ✅ All Steps Completed
 
 - [x] Database migration created with auth schema changes
 - [x] Installed @supabase/ssr dependency
@@ -11,11 +11,48 @@
 - [x] Created unauthorized access page
 - [x] Updated landing page with authentication
 - [x] Protected all admin API routes
-- [x] Committed all changes to git
+- [x] Updated database types with auth fields
+- [x] Configured Supabase Auth in dashboard
+- [x] Created custom branded Magic Link email template
+- [x] Fixed callback handler to properly set session cookies
+- [x] Fixed middleware to use service role for curator checks
+- [x] Tested authentication flows in production
+- [x] Deployed to production at albumclub.club
+- [x] Updated documentation
 
-## 🔄 Remaining Steps
+**Last Deployment**: 2025-12-28
+**Status**: ✅ Fully operational in production
 
-### Step 7: Update Database Types
+---
+
+## 🎯 What's Working
+
+### Authentication Features
+- ✅ Magic Link (passwordless email) authentication
+- ✅ Google OAuth (commented out in UI, ready to re-enable)
+- ✅ Custom branded email template matching Album Club design
+- ✅ Secure session management with cookies
+- ✅ Auto-linking existing participants to auth accounts
+
+### Authorization Features
+- ✅ Curator permission system with `is_curator` flag
+- ✅ Protected /admin dashboard (curator-only)
+- ✅ Protected admin API routes with auth checks
+- ✅ Middleware-based route protection
+- ✅ Row Level Security (RLS) policies on all tables
+- ✅ Unauthorized access page for non-curators
+
+### Security
+- ✅ Defense in depth (middleware + API + RLS)
+- ✅ Privilege escalation prevention
+- ✅ Service role key for reliable curator checks
+- ✅ Production-ready cookie handling
+
+---
+
+## 📚 Reference - Completed Steps
+
+### Step 7: Update Database Types ✅
 
 **File to modify**: `lib/types/database.ts`
 
@@ -58,7 +95,7 @@ participants: {
 
 ---
 
-### Step 8: Configure Supabase Auth (Dashboard)
+### Step 8: Configure Supabase Auth (Dashboard) ✅
 
 #### 8.1 Enable Google OAuth
 
@@ -113,7 +150,7 @@ Subject: Sign in to Album Club
 
 ---
 
-### Step 9: Testing
+### Step 9: Testing ✅
 
 #### 9.1 Local Development Testing
 
@@ -173,7 +210,7 @@ Should show your email with `is_curator = true`.
 
 ---
 
-### Step 10: Production Deployment
+### Step 10: Production Deployment ✅
 
 #### 10.1 Update Environment Variables
 
@@ -210,7 +247,7 @@ Vercel should auto-deploy.
 
 ---
 
-### Step 11: Documentation Updates
+### Step 11: Documentation Updates ✅
 
 #### 11.1 Update NEXT_STEPS.md
 
@@ -397,5 +434,45 @@ SELECT name, email FROM participants WHERE is_curator = true;
 
 ---
 
+---
+
+## 🔧 Production Fixes Applied
+
+### Issue 1: Magic Link OTP Expired Error
+**Problem**: Magic links were failing with "otp_expired" error in production.
+
+**Root Cause**: Supabase Site URL was still set to `http://localhost:3000` instead of production domain.
+
+**Fix**: Updated Site URL in Supabase Dashboard → Authentication → URL Configuration to `https://albumclub.club`
+
+### Issue 2: Session Not Persisting After Callback
+**Problem**: After clicking magic link, users were redirected to login instead of /admin.
+
+**Root Cause**: The auth callback handler had empty cookie `set` and `remove` handlers, preventing session cookies from being saved to the response.
+
+**Fix**: Updated [app/auth/callback/route.ts](app/auth/callback/route.ts) to:
+- Create `NextResponse` object before creating Supabase client
+- Implement proper `cookies.set()` to attach session cookies to response
+- Return response with cookies attached
+
+**Commit**: `c26150e - Fix Magic Link authentication by properly setting session cookies in callback handler`
+
+### Issue 3: Middleware Curator Check Failing
+**Problem**: Even with correct database setup (`is_curator = true`), users were redirected to /unauthorized page.
+
+**Root Cause**: Middleware was using anon key to query participants table. The auth context wasn't properly set in the Vercel edge runtime, causing RLS policies to return null even though policy was `USING (true)`.
+
+**Fix**: Updated [middleware.ts](middleware.ts) to:
+- Use service role key for curator status checks
+- Bypass RLS entirely for reliable permission lookups
+- Applied to both /admin protection and login redirect
+
+**Commit**: `c567962 - Fix middleware curator check by using service role key`
+
+**Key Insight**: While RLS works fine in local development, the edge runtime in production has different auth context propagation. Using service role for middleware permission checks is more reliable across environments.
+
+---
+
 **Last Updated**: 2025-12-28
-**Auth Implementation Version**: 1.0
+**Auth Implementation Version**: 1.1
+**Production Status**: ✅ Fully operational at albumclub.club

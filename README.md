@@ -30,12 +30,13 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Review Tracking**: See all reviews submitted by each participant
 
 ### 🔐 Authentication & Access Control
-- **Google OAuth**: Sign in with Google for seamless authentication
-- **Magic Link**: Passwordless email login for convenience
+- **Magic Link**: Passwordless email login for seamless authentication
+- **Google OAuth**: Available but currently disabled in UI (ready to re-enable)
 - **Curator Permissions**: Role-based access control with `is_curator` flag
 - **Protected Routes**: Admin dashboard and API routes require curator access
 - **Auto-linking**: Existing participants automatically linked to auth accounts on signup
 - **Session Management**: Secure cookie-based sessions with Supabase Auth
+- **Custom Email Template**: Branded magic link emails matching Album Club design
 
 ### 📊 Admin Dashboard
 - **Week Management**: Create and edit weekly album selections
@@ -179,6 +180,52 @@ Open [http://localhost:3000](http://localhost:3000) with your browser.
 3. Click the review link in the email
 4. Submit ratings (1.0-10.0) and favorite tracks
 5. See previous week's results in the next email
+
+## User Management
+
+### Authentication
+
+**Sign In**: Visit [albumclub.club/login](https://albumclub.club/login)
+
+**Methods**:
+- **Magic Link** (recommended): Enter your email, receive a secure login link
+- **Google OAuth**: Currently disabled in UI, but can be re-enabled by uncommenting code in [app/login/page.tsx](app/login/page.tsx)
+
+### Managing Curators
+
+Curators have full access to the admin dashboard and can manage weeks, participants, and send emails.
+
+**Add a curator** (run in Supabase SQL Editor):
+```sql
+UPDATE participants
+SET is_curator = true
+WHERE email = 'user@example.com';
+```
+
+**Remove curator access**:
+```sql
+UPDATE participants
+SET is_curator = false
+WHERE email = 'user@example.com';
+```
+
+**View all curators**:
+```sql
+SELECT name, email, auth_user_id
+FROM participants
+WHERE is_curator = true;
+```
+
+### How Auto-linking Works
+
+When a user signs up via Magic Link or Google OAuth:
+1. Supabase creates an `auth.users` record
+2. A database trigger automatically checks for an existing participant with that email
+3. If found, the participant's `auth_user_id` is linked to the new auth account
+4. If not found, a new participant record is created
+5. User can now sign in and access features based on their `is_curator` status
+
+**Note**: Only curators can access the `/admin` dashboard. Non-curators who sign in will see an "Access Denied" page.
 
 ## Project Structure
 

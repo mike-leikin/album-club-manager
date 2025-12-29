@@ -1,9 +1,9 @@
 # Album Club Manager - Product Roadmap
 
-## Current Status: v2.0 ✅ (Completed)
+## Current Status: v2.1 ✅ (Completed)
 
 ### What's Live
-- ✅ Participant management (CRUD, bulk CSV import)
+- ✅ Participant management (CRUD, bulk CSV import, soft delete)
 - ✅ Review submission form (public-facing, unlimited text)
 - ✅ Review statistics in weekly emails
 - ✅ Week management with Supabase persistence
@@ -14,6 +14,10 @@
 - ✅ HTML email templates with album artwork
 - ✅ Custom domain (albumclub.club)
 - ✅ Data export and backup system (CSV/JSON)
+- ✅ Email delivery tracking and retry system
+- ✅ Error monitoring with Sentry
+- ✅ Database migration tracking system
+- ✅ **Authentication & authorization (Magic Link, curator permissions)**
 - ✅ Deployed to Vercel at https://albumclub.club
 
 ---
@@ -134,12 +138,15 @@
 - [ ] Club-specific settings and branding
 - [ ] Club admin roles and permissions
 
-### 4.2 Authentication & User Accounts
-- [ ] Supabase Auth integration
-- [ ] Email/password signup
-- [ ] Social login (Google, Spotify)
-- [ ] Password reset flow
-- [ ] Profile management
+### 4.2 Authentication & User Accounts ✅ COMPLETED (v2.1)
+- [x] Supabase Auth integration
+- [x] Magic Link authentication (passwordless email)
+- [x] Social login (Google OAuth - ready to enable)
+- [x] Curator permission system
+- [x] Protected routes with middleware
+- [x] Auto-linking participants to auth accounts
+- [ ] Password reset flow (not needed for Magic Link)
+- [ ] Profile management (future enhancement)
 
 ### 4.3 Premium Features
 - [ ] Custom club domains
@@ -273,8 +280,30 @@
 
 ---
 
-**Last Updated**: 2025-12-27
-**Version**: 2.0 → 3.0 Roadmap
-**Current Status**: Production-ready with all core features complete
+## v2.1 Changelog (2025-12-28)
+
+### Authentication & Authorization
+- ✅ Implemented Supabase Auth with Magic Link
+- ✅ Google OAuth ready (commented out in UI)
+- ✅ Curator permission system with role-based access control
+- ✅ Middleware-based route protection for /admin
+- ✅ Row Level Security (RLS) policies on all tables
+- ✅ Auto-linking participants to auth accounts on signup
+- ✅ Custom branded Magic Link email template
+- ✅ Production deployment with cookie-based sessions
+- ✅ Fixed middleware to use service role for curator checks
+- ✅ Fixed callback handler for proper session persistence
+
+### Infrastructure
+- ✅ Email delivery tracking and audit trail
+- ✅ Error monitoring with Sentry
+- ✅ Database migration tracking system
+- ✅ Safe participant management with soft delete
+
+---
+
+**Last Updated**: 2025-12-28
+**Version**: 2.1 (Authentication Complete)
+**Current Status**: Production-ready with authentication and all core features complete
 **Live URL**: https://albumclub.club
 **Maintainer**: Mike Leikin

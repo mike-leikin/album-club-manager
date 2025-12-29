@@ -94,6 +94,8 @@
 
 **All Core Features Complete!** 🎉
 
+**Version 2.1** - Authentication & Authorization Complete (2025-12-28)
+
 - ✅ **Spotify Integration**: Fully operational with auto-populate and album art
 - ✅ **RS 500 Integration**: Complete with search, filter, and usage tracking
 - ✅ **UX Improvements**: All 5 features implemented (CSV import, copy week, history browser, toasts, polish)
@@ -105,14 +107,17 @@
 - ✅ **Safe Participant Management**: Soft delete with restore functionality
 - ✅ **Error Monitoring & Structured Logging**: Sentry integration with comprehensive logging
 - ✅ **Database Migration System**: Automated tracking with interactive CLI tool
+- ✅ **Authentication & Authorization**: Magic Link, curator permissions, protected routes
 
 **The app is production-ready and fully operational!**
 
-**Recent Session Accomplishments**:
-- ✅ **Error Monitoring**: Sentry integration with structured logging and error boundaries
-- ✅ **Safe Participant Management**: Soft delete, restore capability, data preservation
-- ✅ **Migration System**: Interactive CLI tool with tracking and checksum validation
-- ✅ **Codebase Cleanup**: Removed unused migration helpers and duplicate directories
+**Latest Session Accomplishments (2025-12-28)**:
+- ✅ **Authentication Implementation**: Magic Link auth with Supabase
+- ✅ **Curator Permissions**: Role-based access control with `is_curator` flag
+- ✅ **Protected Routes**: Middleware-based /admin protection
+- ✅ **Custom Email Template**: Branded Magic Link emails
+- ✅ **Production Fixes**: Session persistence and middleware curator checks
+- ✅ **Auto-linking**: Participants automatically linked to auth accounts
 
 **Production Infrastructure**:
 - Custom domain: `albumclub.club` (fully operational)
@@ -120,12 +125,14 @@
 - Error tracking: Sentry with session replay
 - Database migrations: Automated tracking with manual SQL execution
 - Data safety: Soft deletes, email logs, complete export capability
+- Authentication: Supabase Auth with Magic Link and Google OAuth (ready)
 
 **Admin Workflow Speed**:
 - Week setup: **5 minutes → 30 seconds** (94% faster)
 - Email sending: **Manual → One-click automated**
 - Participant management: **One-by-one → Bulk CSV import**
 - Migration tracking: **Manual → Automated with status reporting**
+- Admin access: **Secure authentication with curator permissions**
 
 ---
 
