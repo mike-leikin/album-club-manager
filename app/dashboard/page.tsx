@@ -55,6 +55,8 @@ export default function DashboardPage() {
       }
 
       const { data } = await response.json() as { data: MyReviewsResponse };
+      console.log("Dashboard API response:", data);
+      console.log("Setting isCurator to:", data.participant.isCurator);
       setReviews(data.reviews);
       setStats(data.stats);
       setUserName(data.participant.name);
