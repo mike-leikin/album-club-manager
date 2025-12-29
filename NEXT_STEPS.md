@@ -16,7 +16,10 @@
 
 2. **Review Moderation & Editing Tools** (Participant features ✅ COMPLETE)
    - Admin UI to edit/delete inappropriate reviews (future enhancement)
-   - ✅ Participant dashboard to view and edit their own reviews
+   - ✅ Participant dashboard to view and edit their own reviews (v2.2 COMPLETE)
+   - ✅ Review editing with inline form (rating, favorite track, review text) (v2.2 COMPLETE)
+   - ✅ Review deletion with confirmation dialog (v2.2 COMPLETE)
+   - ✅ Personal statistics (participation rate, average ratings) (v2.2 COMPLETE)
    - Review history and audit trail (track changes) (future enhancement)
    - Draft reviews with auto-save (future enhancement)
    - Preview before submission (future enhancement)
@@ -30,8 +33,10 @@
    - **Current issue**: Zero test coverage; refactoring is dangerous
 
 4. **Enhanced Authentication Features** (Basic auth ✅ COMPLETE):
-   - ✅ Participant dashboard (view personal review history with statistics)
-   - ✅ Review editing and deletion for participants
+   - ✅ Participant dashboard (view personal review history with statistics) (v2.2 COMPLETE)
+   - ✅ Review editing and deletion for participants (v2.2 COMPLETE)
+   - ✅ Curator dual-access (admin panel + personal dashboard) (v2.2 COMPLETE)
+   - ✅ Post-submission redirect to dashboard (v2.2 COMPLETE)
    - Curator management UI (promote/demote curators without SQL) (future enhancement)
    - Social login options (GitHub, Microsoft, etc.) (future enhancement)
    - Email verification for reviews (prevent spam submissions) (future enhancement)
@@ -113,11 +118,15 @@
 **The app is production-ready and fully operational!**
 
 **Latest Session Accomplishments (2025-12-28)**:
-- ✅ **Participant Dashboard**: Full personal review history with statistics
+- ✅ **Participant Dashboard**: Full personal review history with album artwork and week details
 - ✅ **Review Editing**: Participants can edit their own reviews (rating, track, text)
-- ✅ **Review Deletion**: Participants can delete their own reviews
-- ✅ **Personal Statistics**: Participation rate, average ratings, review counts
-- ✅ **Protected Routes**: `/dashboard` requires authentication, auto-redirects
+- ✅ **Review Deletion**: Participants can delete their own reviews with confirmation
+- ✅ **Personal Statistics**: Participation rate, average ratings, review counts by type
+- ✅ **Protected Routes**: `/dashboard` requires authentication, auto-redirects to login
+- ✅ **Curator Dual-Access**: Curators can access both admin panel and personal dashboard
+- ✅ **Post-Submission Flow**: Authenticated users redirect to dashboard after submitting reviews
+- ✅ **API Endpoints**: `/api/my-reviews` (GET), `/api/reviews/[id]` (PATCH, DELETE)
+- ✅ **Security**: Server-side ownership validation, RLS policies enforced
 
 **Production Infrastructure**:
 - Custom domain: `albumclub.club` (fully operational)
@@ -311,21 +320,25 @@ UPDATE participants SET is_curator = false WHERE email = 'user@example.com';
 SELECT name, email FROM participants WHERE is_curator = true;
 ```
 
-### Participant Dashboard ✅ COMPLETE!
+### Participant Dashboard ✅ COMPLETE! (v2.2)
 - ✅ Personal review history with album artwork and full week details
 - ✅ Edit own reviews (rating, favorite track, review text)
-- ✅ Delete own reviews with confirmation
+- ✅ Delete own reviews with confirmation dialog
 - ✅ Participation statistics (total reviews, participation rate, average ratings)
 - ✅ Protected `/dashboard` route (authentication required)
-- ✅ Automatic redirect to dashboard after login for non-curators
+- ✅ Automatic redirect to dashboard after login for all users (including curators)
+- ✅ Curator dual-access: admin panel button in dashboard, my reviews button in admin
+- ✅ Post-submission redirect: authenticated users go to dashboard after submitting reviews
 - ✅ Empty state with link to submit first review
 - ✅ Reviews grouped by week in reverse chronological order
 
 **What's Built**:
-- `/app/dashboard/page.tsx` - Participant dashboard UI
-- `/app/api/my-reviews/route.ts` - GET endpoint for user's reviews and stats
+- `/app/dashboard/page.tsx` - Participant dashboard UI with curator detection
+- `/app/api/my-reviews/route.ts` - GET endpoint for user's reviews and stats (includes curator status)
 - `/app/api/reviews/[id]/route.ts` - PATCH/DELETE endpoints for review management
-- `middleware.ts` - Updated to protect `/dashboard` route and redirect authenticated users
+- `middleware.ts` - Updated to protect `/dashboard` route and redirect all authenticated users
+- `/app/submit/page.tsx` - Updated to redirect to dashboard after submission
+- `/app/admin/page.tsx` - Updated with "My Reviews" button for curators
 - See [PARTICIPANT_DASHBOARD.md](PARTICIPANT_DASHBOARD.md) for full documentation
 
 **Features**:
@@ -344,10 +357,25 @@ SELECT name, email FROM participants WHERE is_curator = true;
   - Update ratings, tracks, and text
   - Save or cancel changes
   - Toast notifications for feedback
+- Curator Features:
+  - "Admin Panel" button visible only to curators in dashboard
+  - "My Reviews" button in admin panel to return to dashboard
+  - Curators can submit and manage their own reviews like other participants
 - Security:
   - Users can only view/edit/delete their own reviews
-  - Server-side validation of ownership
+  - Server-side validation of ownership using participant_id matching
   - RLS policies enforce database-level security
+  - Curator status fetched server-side to bypass RLS restrictions
+
+**Technical Implementation Notes**:
+- **Foreign Key Challenge**: Reviews table has no FK to weeks, only `week_number` integer
+  - Solution: Fetch reviews and weeks separately, map in memory using `week_number`
+  - Avoided `.select('*, week:weeks!inner(*)')` join syntax due to missing FK
+- **Curator Status Detection**: RLS policies block client-side queries for `is_curator`
+  - Solution: Include `participant.isCurator` in `/api/my-reviews` response
+  - Uses service role key on server to bypass RLS and fetch curator status
+- **Next.js 15+ Params**: API routes use async params pattern
+  - `{ params }: { params: Promise<{ id: string }> }` with `await params`
 
 ### Automated Email Sending ✓ COMPLETE!
 - ✅ One-click email sending to all participants from admin dashboard

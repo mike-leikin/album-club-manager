@@ -33,10 +33,12 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Magic Link**: Passwordless email login for seamless authentication
 - **Google OAuth**: Available but currently disabled in UI (ready to re-enable)
 - **Curator Permissions**: Role-based access control with `is_curator` flag
-- **Protected Routes**: Admin dashboard and API routes require curator access
+- **Protected Routes**: Admin dashboard and participant dashboard require authentication
 - **Auto-linking**: Existing participants automatically linked to auth accounts on signup
 - **Session Management**: Secure cookie-based sessions with Supabase Auth
 - **Custom Email Template**: Branded magic link emails matching Album Club design
+- **Participant Dashboard**: Personal review history, editing, and statistics for all users
+- **Curator Dual-Access**: Curators can access both admin panel and their own reviews
 
 ### 📊 Admin Dashboard
 - **Week Management**: Create and edit weekly album selections
@@ -47,11 +49,16 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Data Export**: One-click export of all reviews, participants, and week history
 - **Toast Notifications**: Clean, non-intrusive feedback for all actions
 
-### 📝 Review Submission
+### 📝 Review Submission & Management
 - **Simple Form**: Participants rate albums (1.0-10.0) and share favorite tracks
 - **Email Pre-population**: Review links auto-fill participant email addresses
 - **Unlimited Text**: No character limits on review comments
 - **Mobile Responsive**: Works seamlessly on all devices
+- **Participant Dashboard**: View all submitted reviews with statistics
+- **Review Editing**: Edit ratings, favorite tracks, and review text inline
+- **Review Deletion**: Delete reviews with confirmation dialog
+- **Personal Statistics**: Track participation rate and average ratings
+- **Post-Submission Flow**: Authenticated users redirect to dashboard after submitting
 
 ## Tech Stack
 
@@ -70,11 +77,13 @@ Album Club Manager streamlines the process of running a weekly music club where 
 ### Tables
 - `participants`: User information (name, email, auth_user_id, is_curator) with soft delete support
 - `weeks`: Weekly album selections and deadlines
-- `reviews`: Participant ratings and reviews
+- `reviews`: Participant ratings and reviews (linked to participants via participant_id)
 - `rs_500_albums`: Complete Rolling Stone 500 list with Spotify metadata
 - `email_logs`: Email delivery tracking and audit trail
 - `_migrations`: Database migration tracking with checksums
 - Supabase Auth tables: `auth.users` managed by Supabase
+
+**Note**: The `reviews` table uses `week_number` (integer) to reference weeks, not a foreign key relationship.
 
 ## Getting Started
 
@@ -177,9 +186,11 @@ Open [http://localhost:3000](http://localhost:3000) with your browser.
 
 1. Receive personalized email with album details and Spotify links
 2. Listen to both albums
-3. Click the review link in the email
+3. Click the review link in the email (or visit `/submit`)
 4. Submit ratings (1.0-10.0) and favorite tracks
-5. See previous week's results in the next email
+5. Authenticated users are redirected to personal dashboard
+6. View review history, statistics, and edit past reviews
+7. See previous week's results in the next email
 
 ## User Management
 
@@ -225,23 +236,44 @@ When a user signs up via Magic Link or Google OAuth:
 4. If not found, a new participant record is created
 5. User can now sign in and access features based on their `is_curator` status
 
-**Note**: Only curators can access the `/admin` dashboard. Non-curators who sign in will see an "Access Denied" page.
+**Note**: Only curators can access the `/admin` dashboard. Non-curators who sign in will be redirected to their personal dashboard at `/dashboard` where they can view and manage their reviews.
+
+### Participant Dashboard Access
+
+All authenticated users (curators and non-curators) have access to `/dashboard`:
+- View personal review history with album artwork
+- Edit ratings, favorite tracks, and review text
+- Delete reviews with confirmation
+- See participation statistics (total reviews, participation rate, average ratings)
+
+**Curator Features**:
+- Curators see an "Admin Panel" button in their dashboard to access `/admin`
+- In the admin panel, curators see a "My Reviews" button to return to their dashboard
+- This allows curators to both manage the club AND submit their own reviews
 
 ## Project Structure
 
 ```
 album-club-manager/
 ├── app/
-│   ├── admin/              # Admin dashboard
+│   ├── admin/              # Admin dashboard (curator-only)
+│   ├── dashboard/          # Participant dashboard (all authenticated users)
 │   ├── api/
 │   │   ├── email/          # Email sending endpoints
+│   │   ├── my-reviews/     # Personal review history endpoint
+│   │   ├── reviews/[id]/   # Review edit/delete endpoints
 │   │   ├── rs500/          # RS 500 album endpoints
 │   │   └── spotify/        # Spotify search endpoints
+│   ├── auth/               # Authentication callback handlers
+│   ├── login/              # Login page (Magic Link)
 │   ├── submit/             # Review submission form
+│   ├── unauthorized/       # Access denied page
 │   └── page.tsx            # Landing page
 ├── lib/
+│   ├── auth/               # Authentication utilities
 │   ├── supabaseClient.ts   # Database client
 │   └── spotify.ts          # Spotify API client
+├── middleware.ts           # Route protection middleware
 ├── public/                 # Static assets
 └── supabase/               # Database migrations
 ```
@@ -287,19 +319,24 @@ For production deployment with custom email domain:
 
 See [NEXT_STEPS.md](NEXT_STEPS.md) for the complete feature roadmap and future enhancements.
 
-### ✅ Completed Features
+### ✅ Completed Features (v2.2)
 - ✅ Data backup & export system
 - ✅ Email delivery tracking & audit trail
 - ✅ Error monitoring & structured logging
 - ✅ Safe participant management with soft delete
 - ✅ Database migration tracking system
 - ✅ Authentication & authorization (Google OAuth, Magic Link, curator permissions)
+- ✅ Participant dashboard (personal review history, editing, deletion)
+- ✅ Review statistics (participation rate, average ratings)
+- ✅ Curator dual-access (admin panel + personal dashboard)
+- ✅ Post-submission redirect to dashboard
 
 ### High Priorities
 - Deadline enforcement & week lifecycle management
-- Review moderation & editing tools
+- Admin review moderation tools (edit/delete any review)
 - Testing infrastructure
-- Enhanced authentication features (participant dashboard, curator management UI)
+- Curator management UI (promote/demote without SQL)
+- Review history audit trail (track changes over time)
 
 ## Contributing
 
