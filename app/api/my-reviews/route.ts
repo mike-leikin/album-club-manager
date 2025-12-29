@@ -33,8 +33,17 @@ export async function GET() {
       .single();
 
     if (participantError || !participant) {
+      console.error("Participant lookup failed:", {
+        auth_user_id: session.user.id,
+        email: session.user.email,
+        error: participantError?.message,
+      });
+
       return NextResponse.json(
-        { error: "Participant not found" },
+        {
+          error: "Participant not found. Your account may not be linked to a participant record.",
+          details: `Logged in as: ${session.user.email}. Please contact the curator to link your account.`
+        },
         { status: 404 }
       );
     }
