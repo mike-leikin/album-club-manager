@@ -145,7 +145,7 @@ Configure Supabase Auth in the Supabase Dashboard:
 - Enable Google OAuth provider (optional)
 - Configure email provider (Magic Link - enabled by default)
 - Set Site URL and Redirect URLs
-- See [AUTH_NEXT_STEPS.md](AUTH_NEXT_STEPS.md) for detailed instructions
+- See [AUTH_GUIDE.md](AUTH_GUIDE.md) for detailed instructions
 
 Set your first curator in the database:
 ```sql

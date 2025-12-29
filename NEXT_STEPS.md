@@ -297,7 +297,7 @@
 - `app/auth/callback/route.ts` - OAuth callback handler
 - `app/unauthorized/page.tsx` - Access denied page
 - `supabase/migrations/006_add_authentication.sql` - Auth schema and RLS policies
-- See [AUTH_NEXT_STEPS.md](AUTH_NEXT_STEPS.md) for configuration details
+- See [AUTH_GUIDE.md](AUTH_GUIDE.md) for configuration details
 
 **How to manage curators**:
 ```sql

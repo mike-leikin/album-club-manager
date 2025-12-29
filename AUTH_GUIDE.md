@@ -295,7 +295,7 @@ This app uses Supabase Auth with Google OAuth and Magic Link authentication.
    UPDATE participants SET is_curator = true WHERE email = 'your.email@example.com';
    ```
 
-3. Configure Supabase Auth (see AUTH_NEXT_STEPS.md for details):
+3. Configure Supabase Auth (see AUTH_GUIDE.md for details):
    - Enable Google OAuth provider
    - Set Site URL and Redirect URLs
    - Customize email templates (optional)
