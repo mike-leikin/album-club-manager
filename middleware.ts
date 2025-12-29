@@ -97,29 +97,20 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // If accessing login page while authenticated, redirect to admin
-  if (pathname === '/login' && session) {
-    // Check curator status using service role to bypass RLS
-    const adminClient = createClient<Database>(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
-      }
-    )
-
-    const { data: participant } = await adminClient
-      .from('participants')
-      .select('is_curator')
-      .eq('auth_user_id', session.user.id)
-      .single() as { data: { is_curator: boolean } | null }
-
-    if (participant?.is_curator) {
-      return NextResponse.redirect(new URL('/admin', request.url))
+  // Protect /dashboard route (requires authentication, not curator-only)
+  if (pathname.startsWith('/dashboard')) {
+    if (!session) {
+      // Not authenticated - redirect to login
+      const redirectUrl = new URL('/login', request.url)
+      redirectUrl.searchParams.set('redirect', pathname)
+      return NextResponse.redirect(redirectUrl)
     }
+  }
+
+  // If accessing login page while authenticated, redirect to dashboard
+  // (Curators can navigate to /admin from their dashboard)
+  if (pathname === '/login' && session) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
   return response
@@ -129,6 +120,6 @@ export const config = {
   matcher: [
     '/admin/:path*',
     '/login',
-    '/my-reviews/:path*', // Future enhancement
+    '/dashboard/:path*',
   ],
 }

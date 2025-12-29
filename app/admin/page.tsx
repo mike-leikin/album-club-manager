@@ -498,7 +498,15 @@ export default function AdminPage() {
       <div className="mx-auto max-w-7xl px-4 py-8">
         {/* Header with tabs */}
         <div className="mb-6">
-          <h1 className="mb-4 text-3xl font-bold">Curator Dashboard</h1>
+          <div className="mb-4 flex items-center justify-between">
+            <h1 className="text-3xl font-bold">Curator Dashboard</h1>
+            <a
+              href="/dashboard"
+              className="px-4 py-2 text-sm font-medium text-white bg-zinc-800 border border-zinc-700 rounded-lg hover:bg-zinc-700 transition-colors"
+            >
+              My Reviews
+            </a>
+          </div>
 
           {/* Tab Navigation */}
           <div className="flex gap-2 border-b border-zinc-800">

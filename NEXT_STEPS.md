@@ -14,13 +14,12 @@
    - Timezone handling for deadlines
    - **Current issue**: Participants can submit reviews weeks after deadline
 
-2. **Review Moderation & Editing Tools**
-   - Admin UI to edit/delete inappropriate reviews
-   - Participant dashboard to view and edit their own reviews
-   - Review history and audit trail (track changes)
-   - Draft reviews with auto-save
-   - Preview before submission
-   - **Current issue**: No way to moderate content; participants can't edit submitted reviews
+2. **Review Moderation & Editing Tools** (Participant features ✅ COMPLETE)
+   - Admin UI to edit/delete inappropriate reviews (future enhancement)
+   - ✅ Participant dashboard to view and edit their own reviews
+   - Review history and audit trail (track changes) (future enhancement)
+   - Draft reviews with auto-save (future enhancement)
+   - Preview before submission (future enhancement)
 
 3. **Testing Infrastructure**
    - Unit tests for critical API routes
@@ -30,12 +29,13 @@
    - CI/CD pipeline with automated testing
    - **Current issue**: Zero test coverage; refactoring is dangerous
 
-4. **Enhanced Authentication Features** (Basic auth complete):
-   - Participant dashboard (view personal review history)
-   - Curator management UI (promote/demote curators without SQL)
-   - Social login options (GitHub, Microsoft, etc.)
-   - Email verification for reviews (prevent spam submissions)
-   - Advanced permissions (read-only curator role, team-based permissions)
+4. **Enhanced Authentication Features** (Basic auth ✅ COMPLETE):
+   - ✅ Participant dashboard (view personal review history with statistics)
+   - ✅ Review editing and deletion for participants
+   - Curator management UI (promote/demote curators without SQL) (future enhancement)
+   - Social login options (GitHub, Microsoft, etc.) (future enhancement)
+   - Email verification for reviews (prevent spam submissions) (future enhancement)
+   - Advanced permissions (read-only curator role, team-based permissions) (future enhancement)
 
 5. **Music review aggregation tool**:
    - Scan recent music reviews from trusted sources (Pitchfork, NPR Music, AllMusic, etc.)
@@ -94,7 +94,7 @@
 
 **All Core Features Complete!** 🎉
 
-**Version 2.1** - Authentication & Authorization Complete (2025-12-28)
+**Version 2.2** - Participant Dashboard Complete (2025-12-28)
 
 - ✅ **Spotify Integration**: Fully operational with auto-populate and album art
 - ✅ **RS 500 Integration**: Complete with search, filter, and usage tracking
@@ -108,16 +108,16 @@
 - ✅ **Error Monitoring & Structured Logging**: Sentry integration with comprehensive logging
 - ✅ **Database Migration System**: Automated tracking with interactive CLI tool
 - ✅ **Authentication & Authorization**: Magic Link, curator permissions, protected routes
+- ✅ **Participant Dashboard**: Personal review history, editing, and statistics
 
 **The app is production-ready and fully operational!**
 
 **Latest Session Accomplishments (2025-12-28)**:
-- ✅ **Authentication Implementation**: Magic Link auth with Supabase
-- ✅ **Curator Permissions**: Role-based access control with `is_curator` flag
-- ✅ **Protected Routes**: Middleware-based /admin protection
-- ✅ **Custom Email Template**: Branded Magic Link emails
-- ✅ **Production Fixes**: Session persistence and middleware curator checks
-- ✅ **Auto-linking**: Participants automatically linked to auth accounts
+- ✅ **Participant Dashboard**: Full personal review history with statistics
+- ✅ **Review Editing**: Participants can edit their own reviews (rating, track, text)
+- ✅ **Review Deletion**: Participants can delete their own reviews
+- ✅ **Personal Statistics**: Participation rate, average ratings, review counts
+- ✅ **Protected Routes**: `/dashboard` requires authentication, auto-redirects
 
 **Production Infrastructure**:
 - Custom domain: `albumclub.club` (fully operational)
@@ -310,6 +310,44 @@ UPDATE participants SET is_curator = false WHERE email = 'user@example.com';
 -- View all curators
 SELECT name, email FROM participants WHERE is_curator = true;
 ```
+
+### Participant Dashboard ✅ COMPLETE!
+- ✅ Personal review history with album artwork and full week details
+- ✅ Edit own reviews (rating, favorite track, review text)
+- ✅ Delete own reviews with confirmation
+- ✅ Participation statistics (total reviews, participation rate, average ratings)
+- ✅ Protected `/dashboard` route (authentication required)
+- ✅ Automatic redirect to dashboard after login for non-curators
+- ✅ Empty state with link to submit first review
+- ✅ Reviews grouped by week in reverse chronological order
+
+**What's Built**:
+- `/app/dashboard/page.tsx` - Participant dashboard UI
+- `/app/api/my-reviews/route.ts` - GET endpoint for user's reviews and stats
+- `/app/api/reviews/[id]/route.ts` - PATCH/DELETE endpoints for review management
+- `middleware.ts` - Updated to protect `/dashboard` route and redirect authenticated users
+- See [PARTICIPANT_DASHBOARD.md](PARTICIPANT_DASHBOARD.md) for full documentation
+
+**Features**:
+- Personal statistics cards showing:
+  - Total reviews submitted
+  - Participation rate (% of weeks reviewed)
+  - Average contemporary rating
+  - Average classic rating
+- Review history showing:
+  - Album artwork and metadata
+  - User's ratings and review text
+  - Favorite tracks
+  - Week numbers and deadlines
+- Inline editing:
+  - Click "Edit" to modify reviews
+  - Update ratings, tracks, and text
+  - Save or cancel changes
+  - Toast notifications for feedback
+- Security:
+  - Users can only view/edit/delete their own reviews
+  - Server-side validation of ownership
+  - RLS policies enforce database-level security
 
 ### Automated Email Sending ✓ COMPLETE!
 - ✅ One-click email sending to all participants from admin dashboard
