@@ -119,8 +119,15 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    console.error("my-reviews API error:", error);
     const message =
       error instanceof Error ? error.message : "Unable to fetch reviews";
-    return NextResponse.json({ error: message }, { status: 500 });
+    const stack = error instanceof Error ? error.stack : undefined;
+
+    return NextResponse.json({
+      error: message,
+      details: stack,
+      type: typeof error,
+    }, { status: 500 });
   }
 }
