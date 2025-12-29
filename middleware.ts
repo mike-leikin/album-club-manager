@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
+import type { Database } from './lib/types/database'
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -71,12 +73,23 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
 
-    // Check curator status
-    const { data: participant } = await supabase
+    // Check curator status using service role to bypass RLS
+    const adminClient = createClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    )
+
+    const { data: participant } = await adminClient
       .from('participants')
       .select('is_curator')
       .eq('auth_user_id', session.user.id)
-      .single()
+      .single() as { data: { is_curator: boolean } | null }
 
     if (!participant?.is_curator) {
       // Authenticated but not curator - show access denied
@@ -86,11 +99,23 @@ export async function middleware(request: NextRequest) {
 
   // If accessing login page while authenticated, redirect to admin
   if (pathname === '/login' && session) {
-    const { data: participant } = await supabase
+    // Check curator status using service role to bypass RLS
+    const adminClient = createClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    )
+
+    const { data: participant } = await adminClient
       .from('participants')
       .select('is_curator')
       .eq('auth_user_id', session.user.id)
-      .single()
+      .single() as { data: { is_curator: boolean } | null }
 
     if (participant?.is_curator) {
       return NextResponse.redirect(new URL('/admin', request.url))
