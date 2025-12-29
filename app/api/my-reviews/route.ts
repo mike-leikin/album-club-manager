@@ -54,13 +54,14 @@ export async function GET() {
       .select(
         `
         *,
-        week:weeks!inner(*)
+        week:weeks(*)
       `
       )
       .eq("participant_id", participant.id)
       .order("week_number", { ascending: false });
 
     if (reviewsError) {
+      console.error("Error fetching reviews:", reviewsError);
       throw reviewsError;
     }
 
