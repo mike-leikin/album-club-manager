@@ -25,10 +25,10 @@ export async function GET() {
 
     const supabase = createServerClient() as any;
 
-    // Get participant ID from auth user ID
+    // Get participant ID and curator status from auth user ID
     const { data: participant, error: participantError } = await supabase
       .from("participants")
-      .select("id")
+      .select("id, name, is_curator")
       .eq("auth_user_id", session.user.id)
       .single();
 
@@ -107,6 +107,10 @@ export async function GET() {
       data: {
         reviews: reviews || [],
         stats,
+        participant: {
+          name: participant.name,
+          isCurator: participant.is_curator,
+        },
       },
     });
   } catch (error) {

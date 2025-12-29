@@ -22,6 +22,10 @@ type ReviewStats = {
 type MyReviewsResponse = {
   reviews: ReviewWithWeek[];
   stats: ReviewStats;
+  participant: {
+    name: string;
+    isCurator: boolean;
+  };
 };
 
 export default function DashboardPage() {
@@ -39,28 +43,8 @@ export default function DashboardPage() {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    loadUserData();
     loadReviews();
   }, []);
-
-  async function loadUserData() {
-    const supabase = createAuthClient();
-    const { data: { user } } = await supabase.auth.getUser();
-
-    if (user) {
-      // Fetch participant name and curator status
-      const { data: participant } = (await supabase
-        .from('participants')
-        .select('name, is_curator')
-        .eq('auth_user_id', user.id)
-        .single()) as { data: { name: string; is_curator: boolean } | null };
-
-      if (participant) {
-        setUserName(participant.name);
-        setIsCurator(participant.is_curator);
-      }
-    }
-  }
 
   async function loadReviews() {
     setIsLoading(true);
@@ -73,6 +57,8 @@ export default function DashboardPage() {
       const { data } = await response.json() as { data: MyReviewsResponse };
       setReviews(data.reviews);
       setStats(data.stats);
+      setUserName(data.participant.name);
+      setIsCurator(data.participant.isCurator);
     } catch (error) {
       toast.error("Failed to load your reviews");
       console.error(error);
