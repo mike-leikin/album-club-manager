@@ -48,15 +48,10 @@ export async function GET() {
       );
     }
 
-    // Fetch all reviews for this participant with week data
+    // Fetch all reviews for this participant
     const { data: reviews, error: reviewsError } = await supabase
       .from("reviews")
-      .select(
-        `
-        *,
-        week:weeks(*)
-      `
-      )
+      .select("*")
       .eq("participant_id", participant.id)
       .order("week_number", { ascending: false });
 
@@ -64,6 +59,27 @@ export async function GET() {
       console.error("Error fetching reviews:", reviewsError);
       throw reviewsError;
     }
+
+    // Fetch week data for all unique week numbers
+    const weekNumbers = [...new Set((reviews || []).map((r: Review) => r.week_number))];
+    const { data: weeks, error: weeksDataError } = weekNumbers.length > 0
+      ? await supabase
+          .from("weeks")
+          .select("*")
+          .in("week_number", weekNumbers)
+      : { data: [], error: null };
+
+    if (weeksDataError) {
+      console.error("Error fetching weeks:", weeksDataError);
+      throw weeksDataError;
+    }
+
+    // Map weeks to reviews
+    const weeksMap = new Map((weeks || []).map((w: Week) => [w.week_number, w]));
+    const reviewsWithWeeks = (reviews || []).map((r: Review) => ({
+      ...r,
+      week: weeksMap.get(r.week_number) || null,
+    }));
 
     // Fetch total weeks count
     const { count: totalWeeks, error: weeksError } = await supabase
@@ -75,24 +91,24 @@ export async function GET() {
     }
 
     // Calculate statistics
-    const contemporaryReviews = (reviews || []).filter(
-      (r: Review) => r.album_type === "contemporary"
+    const contemporaryReviews = reviewsWithWeeks.filter(
+      (r: any) => r.album_type === "contemporary"
     );
-    const classicReviews = (reviews || []).filter(
-      (r: Review) => r.album_type === "classic"
+    const classicReviews = reviewsWithWeeks.filter(
+      (r: any) => r.album_type === "classic"
     );
 
-    const calcAvg = (reviewList: Review[]) => {
+    const calcAvg = (reviewList: any[]) => {
       if (reviewList.length === 0) return null;
       const sum = reviewList.reduce((acc, r) => acc + Number(r.rating), 0);
       return Math.round((sum / reviewList.length) * 10) / 10;
     };
 
     // Count unique weeks reviewed
-    const uniqueWeeks = new Set((reviews || []).map((r: Review) => r.week_number));
+    const uniqueWeeks = new Set(reviewsWithWeeks.map((r: any) => r.week_number));
 
     const stats: ReviewStats = {
-      totalReviews: (reviews || []).length,
+      totalReviews: reviewsWithWeeks.length,
       contemporaryCount: contemporaryReviews.length,
       classicCount: classicReviews.length,
       avgContemporaryRating: calcAvg(contemporaryReviews),
@@ -106,7 +122,7 @@ export async function GET() {
 
     return NextResponse.json({
       data: {
-        reviews: reviews || [],
+        reviews: reviewsWithWeeks,
         stats,
         participant: {
           name: participant.name,
