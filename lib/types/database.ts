@@ -71,6 +71,8 @@ export interface Database {
           id: string
           name: string
           email: string
+          auth_user_id: string | null
+          is_curator: boolean
           created_at: string
           updated_at: string
           deleted_at: string | null
@@ -79,6 +81,8 @@ export interface Database {
           id?: string
           name: string
           email: string
+          auth_user_id?: string | null
+          is_curator?: boolean
           created_at?: string
           updated_at?: string
           deleted_at?: string | null
@@ -87,6 +91,8 @@ export interface Database {
           id?: string
           name?: string
           email?: string
+          auth_user_id?: string | null
+          is_curator?: boolean
           created_at?: string
           updated_at?: string
           deleted_at?: string | null

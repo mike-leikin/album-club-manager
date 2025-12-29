@@ -1,6 +1,6 @@
 'use client'
 
-import { createAuthClient } from '@/lib/auth/supabaseAuthClient'
+import { createAuthClient } from '@/lib/auth/supabaseAuthClientBrowser'
 import { useRouter } from 'next/navigation'
 
 export default function UnauthorizedPage() {

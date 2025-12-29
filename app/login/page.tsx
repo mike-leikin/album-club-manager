@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { createAuthClient } from '@/lib/auth/supabaseAuthClient'
+import { useState, useEffect, Suspense } from 'react'
+import { createAuthClient } from '@/lib/auth/supabaseAuthClientBrowser'
 import { toast } from 'sonner'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-export default function LoginPage() {
+function LoginContent() {
   const [email, setEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [magicLinkSent, setMagicLinkSent] = useState(false)
@@ -107,7 +107,9 @@ export default function LoginPage() {
         </div>
 
         <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-8 space-y-6">
-          {/* Google OAuth */}
+          {/* Google OAuth - Temporarily disabled */}
+          {/* Uncomment this section to re-enable Google OAuth */}
+          {/*
           <button
             onClick={handleGoogleLogin}
             disabled={isLoading}
@@ -134,7 +136,6 @@ export default function LoginPage() {
             {isLoading ? 'Signing in...' : 'Continue with Google'}
           </button>
 
-          {/* Divider */}
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-zinc-700"></div>
@@ -143,6 +144,7 @@ export default function LoginPage() {
               <span className="bg-zinc-950 px-2 text-zinc-400">Or</span>
             </div>
           </div>
+          */}
 
           {/* Magic Link Form */}
           <form onSubmit={handleMagicLink} className="space-y-4">
@@ -171,7 +173,7 @@ export default function LoginPage() {
           </form>
 
           <p className="text-xs text-center text-zinc-500">
-            By signing in, you agree to receive album club emails and notifications.
+            We'll send you a secure sign-in link via email.
           </p>
         </div>
 
@@ -185,5 +187,13 @@ export default function LoginPage() {
         </div>
       </div>
     </main>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-black" />}>
+      <LoginContent />
+    </Suspense>
   )
 }

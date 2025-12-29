@@ -30,12 +30,12 @@
    - CI/CD pipeline with automated testing
    - **Current issue**: Zero test coverage; refactoring is dangerous
 
-4. **Authentication and access control**:
-   - User login system (email/password or OAuth)
-   - Admin role management and permissions
-   - Protected admin routes (currently anyone can access /admin)
-   - Participant accounts (track their own reviews, see personalized stats)
-   - Session management and secure authentication
+4. **Enhanced Authentication Features** (Basic auth complete):
+   - Participant dashboard (view personal review history)
+   - Curator management UI (promote/demote curators without SQL)
+   - Social login options (GitHub, Microsoft, etc.)
+   - Email verification for reviews (prevent spam submissions)
+   - Advanced permissions (read-only curator role, team-based permissions)
 
 5. **Music review aggregation tool**:
    - Scan recent music reviews from trusted sources (Pitchfork, NPR Music, AllMusic, etc.)
@@ -270,6 +270,39 @@
 - `npm run migrate:status` - Check migration status
 - `npm run migrate:rollback` - Rollback last migration
 - See [MIGRATIONS_GUIDE.md](MIGRATIONS_GUIDE.md) for full documentation
+
+### Authentication & Authorization ✅ COMPLETE!
+- ✅ Supabase Auth with Google OAuth and Magic Link (passwordless email)
+- ✅ Curator permission system with `is_curator` flag
+- ✅ Protected /admin dashboard and all admin API routes
+- ✅ Middleware-based route protection
+- ✅ Row Level Security (RLS) policies on all tables
+- ✅ Auto-linking of participants to auth accounts on signup
+- ✅ Unauthorized access page for non-curators
+- ✅ Session management with secure cookies
+
+**What's Built**:
+- `middleware.ts` - Route protection middleware
+- `lib/auth/supabaseAuthClient.ts` - Auth client setup
+- `lib/auth/utils.ts` - Session helpers
+- `lib/auth/apiAuth.ts` - API route protection utilities
+- `app/login/page.tsx` - Login UI with Google OAuth and Magic Link
+- `app/auth/callback/route.ts` - OAuth callback handler
+- `app/unauthorized/page.tsx` - Access denied page
+- `supabase/migrations/006_add_authentication.sql` - Auth schema and RLS policies
+- See [AUTH_NEXT_STEPS.md](AUTH_NEXT_STEPS.md) for configuration details
+
+**How to manage curators**:
+```sql
+-- Add a curator
+UPDATE participants SET is_curator = true WHERE email = 'user@example.com';
+
+-- Remove curator access
+UPDATE participants SET is_curator = false WHERE email = 'user@example.com';
+
+-- View all curators
+SELECT name, email FROM participants WHERE is_curator = true;
+```
 
 ### Automated Email Sending ✓ COMPLETE!
 - ✅ One-click email sending to all participants from admin dashboard

@@ -29,7 +29,7 @@ export async function getUserSession(): Promise<UserSession | null> {
     .from('participants')
     .select('name, is_curator')
     .eq('auth_user_id', session.user.id)
-    .single()
+    .single() as { data: { name: string; is_curator: boolean } | null }
 
   return {
     user: {

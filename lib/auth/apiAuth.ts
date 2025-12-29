@@ -36,7 +36,7 @@ export async function requireCuratorApi(request: NextRequest) {
     .from('participants')
     .select('is_curator')
     .eq('auth_user_id', session.user.id)
-    .single()
+    .single() as { data: { is_curator: boolean } | null }
 
   if (!participant?.is_curator) {
     return NextResponse.json(

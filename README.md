@@ -29,6 +29,14 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Safe Deletion**: Soft delete preserves all review history with one-click restore capability
 - **Review Tracking**: See all reviews submitted by each participant
 
+### 🔐 Authentication & Access Control
+- **Google OAuth**: Sign in with Google for seamless authentication
+- **Magic Link**: Passwordless email login for convenience
+- **Curator Permissions**: Role-based access control with `is_curator` flag
+- **Protected Routes**: Admin dashboard and API routes require curator access
+- **Auto-linking**: Existing participants automatically linked to auth accounts on signup
+- **Session Management**: Secure cookie-based sessions with Supabase Auth
+
 ### 📊 Admin Dashboard
 - **Week Management**: Create and edit weekly album selections
 - **Copy Previous Week**: Quickly duplicate the previous week's setup
@@ -59,12 +67,13 @@ Album Club Manager streamlines the process of running a weekly music club where 
 ## Database Schema
 
 ### Tables
-- `participants`: User information (name, email) with soft delete support
+- `participants`: User information (name, email, auth_user_id, is_curator) with soft delete support
 - `weeks`: Weekly album selections and deadlines
 - `reviews`: Participant ratings and reviews
 - `rs_500_albums`: Complete Rolling Stone 500 list with Spotify metadata
 - `email_logs`: Email delivery tracking and audit trail
 - `_migrations`: Database migration tracking with checksums
+- Supabase Auth tables: `auth.users` managed by Supabase
 
 ## Getting Started
 
@@ -129,7 +138,20 @@ npm run migrate help
 
 See [MIGRATIONS_GUIDE.md](MIGRATIONS_GUIDE.md) for detailed instructions.
 
-5. Run the development server:
+5. Set up authentication:
+
+Configure Supabase Auth in the Supabase Dashboard:
+- Enable Google OAuth provider (optional)
+- Configure email provider (Magic Link - enabled by default)
+- Set Site URL and Redirect URLs
+- See [AUTH_NEXT_STEPS.md](AUTH_NEXT_STEPS.md) for detailed instructions
+
+Set your first curator in the database:
+```sql
+UPDATE participants SET is_curator = true WHERE email = 'your.email@example.com';
+```
+
+6. Run the development server:
 
 ```bash
 npm run dev
@@ -224,12 +246,13 @@ See [NEXT_STEPS.md](NEXT_STEPS.md) for the complete feature roadmap and future e
 - ✅ Error monitoring & structured logging
 - ✅ Safe participant management with soft delete
 - ✅ Database migration tracking system
+- ✅ Authentication & authorization (Google OAuth, Magic Link, curator permissions)
 
 ### High Priorities
 - Deadline enforcement & week lifecycle management
 - Review moderation & editing tools
-- Authentication & access control
 - Testing infrastructure
+- Enhanced authentication features (participant dashboard, curator management UI)
 
 ## Contributing
 
