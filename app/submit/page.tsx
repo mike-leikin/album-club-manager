@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import { createAuthClient } from "@/lib/auth/supabaseAuthClientBrowser";
 
 type Week = {
   week_number: number;
@@ -142,13 +143,25 @@ export default function SubmitPage() {
       }
 
       toast.success("Reviews submitted successfully! Thank you for your feedback.");
-      // Clear form (but keep email)
-      setContempRating("");
-      setContempTrack("");
-      setContempReview("");
-      setClassicRating("");
-      setClassicTrack("");
-      setClassicReview("");
+
+      // Check if user is authenticated
+      const supabase = createAuthClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (user) {
+        // Authenticated user - redirect to dashboard after a brief delay
+        setTimeout(() => {
+          window.location.href = "/dashboard";
+        }, 1500);
+      } else {
+        // Not authenticated - clear form but stay on page
+        setContempRating("");
+        setContempTrack("");
+        setContempReview("");
+        setClassicRating("");
+        setClassicTrack("");
+        setClassicReview("");
+      }
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to submit reviews"
