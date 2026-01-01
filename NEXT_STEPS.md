@@ -6,13 +6,18 @@
 
 **Potential areas for improvement when needed:**
 
-1. **Deadline Enforcement & Week Lifecycle**
-   - Prevent review submissions after deadline passes
-   - Week states: draft, active, closed, archived
-   - Lock past weeks to prevent accidental edits
-   - Automated email reminders before deadline (24 hours, 1 hour)
-   - Timezone handling for deadlines
-   - **Current issue**: Participants can submit reviews weeks after deadline
+1. **Deadline Enforcement & Week Lifecycle** ✅ COMPLETE (v2.3)
+   - ✅ Participants can view and review all weeks (current and previous) (v2.3 COMPLETE)
+   - ✅ Past deadline warnings (non-blocking, informative) (v2.3 COMPLETE)
+   - ✅ Current week clearly distinguished from previous weeks (v2.3 COMPLETE)
+   - ✅ Add reviews to any week (past or present) (v2.3 COMPLETE)
+   - ✅ "No album set" placeholders for missing albums (v2.3 COMPLETE)
+   - ✅ Deadline display on submit form and dashboard (v2.3 COMPLETE)
+   - Hard deadline enforcement (block submissions after deadline) (future enhancement)
+   - Week states: draft, active, closed, archived (future enhancement)
+   - Lock past weeks to prevent accidental edits (future enhancement)
+   - Automated email reminders before deadline (24 hours, 1 hour) (future enhancement)
+   - Timezone handling for deadlines (future enhancement)
 
 2. **Review Moderation & Editing Tools** (Participant features ✅ COMPLETE)
    - Admin UI to edit/delete inappropriate reviews (future enhancement)
@@ -99,7 +104,7 @@
 
 **All Core Features Complete!** 🎉
 
-**Version 2.2** - Participant Dashboard Complete (2025-12-28)
+**Version 2.3** - Week Lifecycle Enhancement Complete (2026-01-01)
 
 - ✅ **Spotify Integration**: Fully operational with auto-populate and album art
 - ✅ **RS 500 Integration**: Complete with search, filter, and usage tracking
@@ -114,19 +119,21 @@
 - ✅ **Database Migration System**: Automated tracking with interactive CLI tool
 - ✅ **Authentication & Authorization**: Magic Link, curator permissions, protected routes
 - ✅ **Participant Dashboard**: Personal review history, editing, and statistics
+- ✅ **Week Lifecycle**: All weeks visible, past deadline warnings, add reviews to any week
 
 **The app is production-ready and fully operational!**
 
-**Latest Session Accomplishments (2025-12-28)**:
-- ✅ **Participant Dashboard**: Full personal review history with album artwork and week details
-- ✅ **Review Editing**: Participants can edit their own reviews (rating, track, text)
-- ✅ **Review Deletion**: Participants can delete their own reviews with confirmation
-- ✅ **Personal Statistics**: Participation rate, average ratings, review counts by type
-- ✅ **Protected Routes**: `/dashboard` requires authentication, auto-redirects to login
-- ✅ **Curator Dual-Access**: Curators can access both admin panel and personal dashboard
-- ✅ **Post-Submission Flow**: Authenticated users redirect to dashboard after submitting reviews
-- ✅ **API Endpoints**: `/api/my-reviews` (GET), `/api/reviews/[id]` (PATCH, DELETE)
-- ✅ **Security**: Server-side ownership validation, RLS policies enforced
+**Latest Session Accomplishments (2026-01-01)**:
+- ✅ **Enhanced Dashboard**: Shows all weeks (current + previous), not just weeks with reviews
+- ✅ **Current Week Highlighting**: Green border and "Current" badge for active week
+- ✅ **Past Deadline Warnings**: Amber badges and inline warnings (non-blocking)
+- ✅ **Add Reviews to Any Week**: "Add Review" buttons for empty review slots
+- ✅ **No Album Set Placeholders**: Clear indicators when curator hasn't set an album
+- ✅ **Submit Form Enhancement**: Deadline display and past-deadline warning banner
+- ✅ **Current Week Logic**: Latest non-expired week, or most recent if all expired
+- ✅ **Development Mode**: Bypass authentication with `?dev=true&email=` for testing
+- ✅ **API Enhancement**: `/api/my-reviews` returns all weeks with review status
+- ✅ **Inline Review Forms**: Add and edit reviews directly in dashboard
 
 **Production Infrastructure**:
 - Custom domain: `albumclub.club` (fully operational)
@@ -340,6 +347,36 @@ SELECT name, email FROM participants WHERE is_curator = true;
 - `/app/submit/page.tsx` - Updated to redirect to dashboard after submission
 - `/app/admin/page.tsx` - Updated with "My Reviews" button for curators
 - See [PARTICIPANT_DASHBOARD.md](PARTICIPANT_DASHBOARD.md) for full documentation
+
+### Week Lifecycle Enhancement ✅ COMPLETE! (v2.3)
+- ✅ Dashboard shows ALL weeks (current and previous), not just weeks with reviews
+- ✅ Current week highlighted with green border and "Current" badge
+- ✅ Previous weeks section with all past weeks in descending order
+- ✅ Add reviews to any week (past or present) with "Add Review" buttons
+- ✅ Past deadline warnings (amber badges and inline messages)
+- ✅ "No album set" placeholders for missing albums (can't review non-existent albums)
+- ✅ Smart current week detection (latest non-expired, or most recent if all expired)
+- ✅ Deadline display on submit form with past-deadline warning banner
+- ✅ Inline review forms for adding/editing reviews in dashboard
+- ✅ Development mode bypass for local testing (`?dev=true&email=`)
+
+**What's Built**:
+- `/app/api/my-reviews/route.ts` - Enhanced to return all weeks with review status
+- `/app/dashboard/page.tsx` - Completely restructured with current/previous week sections
+- `/app/submit/page.tsx` - Added deadline warning banner
+- `middleware.ts` - Added development mode authentication bypass
+- Helper functions: `isPastDeadline()`, `determineCurrentWeek()`
+- New types: `WeekWithReviewStatus` with review slots and deadline status
+- See [WEEK_LIFECYCLE.md](WEEK_LIFECYCLE.md) for full documentation
+
+**Features**:
+- **Current Week Section**: Shows active week with green accent, deadline info
+- **Previous Weeks Section**: All past weeks, scrollable, with past-deadline badges
+- **Empty Review Slots**: "Add Review" button when participant hasn't reviewed that album
+- **No Album Set**: Dashed border placeholder when curator hasn't configured an album
+- **Smart Status**: Automatically detects current week based on deadline status
+- **Non-Blocking Warnings**: Users can submit past deadline with clear warning message
+- **Development Testing**: Bypass authentication with `?dev=true&email=participant@test.com`
 
 **Features**:
 - Personal statistics cards showing:

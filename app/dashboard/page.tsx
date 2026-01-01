@@ -19,8 +19,18 @@ type ReviewStats = {
   totalWeeks: number;
 };
 
+type WeekWithReviewStatus = Week & {
+  reviews: {
+    contemporary: Review | null;
+    classic: Review | null;
+  };
+  isPastDeadline: boolean;
+  isCurrentWeek: boolean;
+};
+
 type MyReviewsResponse = {
   reviews: ReviewWithWeek[];
+  allWeeks: WeekWithReviewStatus[];
   stats: ReviewStats;
   participant: {
     name: string;
@@ -29,33 +39,53 @@ type MyReviewsResponse = {
 };
 
 export default function DashboardPage() {
-  const [reviews, setReviews] = useState<ReviewWithWeek[]>([]);
+  const [allWeeks, setAllWeeks] = useState<WeekWithReviewStatus[]>([]);
   const [stats, setStats] = useState<ReviewStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [editingReview, setEditingReview] = useState<ReviewWithWeek | null>(null);
+  const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
+  const [addingReview, setAddingReview] = useState<{ weekNumber: number; albumType: 'contemporary' | 'classic' } | null>(null);
   const [userName, setUserName] = useState<string>("");
   const [isCurator, setIsCurator] = useState(false);
+  const [participantEmail, setParticipantEmail] = useState<string>("");
 
-  // Editing form state
-  const [editRating, setEditRating] = useState(0);
-  const [editFavoriteTrack, setEditFavoriteTrack] = useState("");
-  const [editReviewText, setEditReviewText] = useState("");
+  // Editing/adding form state
+  const [formRating, setFormRating] = useState(0);
+  const [formFavoriteTrack, setFormFavoriteTrack] = useState("");
+  const [formReviewText, setFormReviewText] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     loadReviews();
+    loadUserEmail();
   }, []);
+
+  async function loadUserEmail() {
+    const supabase = createAuthClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user?.email) {
+      setParticipantEmail(user.email);
+    }
+  }
 
   async function loadReviews() {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/my-reviews");
+      // In development with ?dev=true, use email parameter
+      const isDev = typeof window !== 'undefined' &&
+                    new URLSearchParams(window.location.search).get('dev') === 'true';
+      const devEmail = isDev ? new URLSearchParams(window.location.search).get('email') : null;
+
+      const apiUrl = devEmail
+        ? `/api/my-reviews?email=${encodeURIComponent(devEmail)}`
+        : '/api/my-reviews';
+
+      const response = await fetch(apiUrl);
       if (!response.ok) {
         throw new Error("Failed to fetch reviews");
       }
 
       const { data } = await response.json() as { data: MyReviewsResponse };
-      setReviews(data.reviews);
+      setAllWeeks(data.allWeeks || []);
       setStats(data.stats);
       setUserName(data.participant.name);
       setIsCurator(data.participant.isCurator);
@@ -67,32 +97,38 @@ export default function DashboardPage() {
     }
   }
 
-  function startEditing(review: ReviewWithWeek) {
-    setEditingReview(review);
-    setEditRating(review.rating);
-    setEditFavoriteTrack(review.favorite_track || "");
-    setEditReviewText(review.review_text || "");
+  function startEditing(review: Review) {
+    setEditingReviewId(review.id);
+    setFormRating(review.rating);
+    setFormFavoriteTrack(review.favorite_track || "");
+    setFormReviewText(review.review_text || "");
   }
 
-  function cancelEditing() {
-    setEditingReview(null);
-    setEditRating(0);
-    setEditFavoriteTrack("");
-    setEditReviewText("");
+  function startAdding(weekNumber: number, albumType: 'contemporary' | 'classic') {
+    setAddingReview({ weekNumber, albumType });
+    setFormRating(0);
+    setFormFavoriteTrack("");
+    setFormReviewText("");
   }
 
-  async function saveEdit() {
-    if (!editingReview) return;
+  function cancelForm() {
+    setEditingReviewId(null);
+    setAddingReview(null);
+    setFormRating(0);
+    setFormFavoriteTrack("");
+    setFormReviewText("");
+  }
 
+  async function saveEdit(reviewId: string) {
     setIsSaving(true);
     try {
-      const response = await fetch(`/api/reviews/${editingReview.id}`, {
+      const response = await fetch(`/api/reviews/${reviewId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          rating: editRating,
-          favorite_track: editFavoriteTrack || null,
-          review_text: editReviewText || null,
+          rating: formRating,
+          favorite_track: formFavoriteTrack || null,
+          review_text: formReviewText || null,
         }),
       });
 
@@ -101,10 +137,61 @@ export default function DashboardPage() {
       }
 
       toast.success("Review updated successfully");
-      cancelEditing();
+      cancelForm();
       await loadReviews();
     } catch (error) {
       toast.error("Failed to update review");
+      console.error(error);
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function saveNew(weekNumber: number, albumType: 'contemporary' | 'classic') {
+    if (!participantEmail) {
+      toast.error("Could not determine your email address");
+      return;
+    }
+
+    if (formRating < 0 || formRating > 10) {
+      toast.error("Rating must be between 0 and 10");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const reviewData = {
+        rating: formRating,
+        favorite_track: formFavoriteTrack || null,
+        review_text: formReviewText || null,
+      };
+
+      const payload: any = {
+        week_number: weekNumber,
+        participant_email: participantEmail,
+      };
+
+      if (albumType === 'contemporary') {
+        payload.contemporary = reviewData;
+      } else {
+        payload.classic = reviewData;
+      }
+
+      const response = await fetch("/api/reviews/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to submit review");
+      }
+
+      toast.success("Review submitted successfully");
+      cancelForm();
+      await loadReviews();
+    } catch (error) {
+      toast.error("Failed to submit review");
       console.error(error);
     } finally {
       setIsSaving(false);
@@ -149,6 +236,10 @@ export default function DashboardPage() {
       </div>
     );
   }
+
+  // Separate current and previous weeks
+  const currentWeek = allWeeks.find(w => w.isCurrentWeek) || null;
+  const previousWeeks = allWeeks.filter(w => !w.isCurrentWeek);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -210,7 +301,7 @@ export default function DashboardPage() {
                 {stats.participationRate}%
               </div>
               <div className="text-xs text-gray-500 mt-1">
-                {stats.totalReviews / 2} of {stats.totalWeeks} weeks
+                {Math.floor(stats.totalReviews / 2)} of {stats.totalWeeks} weeks
               </div>
             </div>
             <div className="bg-white rounded-lg shadow p-6">
@@ -238,163 +329,276 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Reviews Section */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Your Review History
-            </h2>
+        {/* Current Week Section */}
+        {currentWeek && (
+          <div className="mb-8">
+            <div className="mb-4">
+              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <span>📅</span> Current Week
+              </h2>
+            </div>
+            <WeekCard
+              week={currentWeek}
+              editingReviewId={editingReviewId}
+              addingReview={addingReview}
+              formRating={formRating}
+              formFavoriteTrack={formFavoriteTrack}
+              formReviewText={formReviewText}
+              isSaving={isSaving}
+              onStartEditing={startEditing}
+              onStartAdding={startAdding}
+              onCancelForm={cancelForm}
+              onSaveEdit={saveEdit}
+              onSaveNew={saveNew}
+              onDeleteReview={deleteReview}
+              onRatingChange={setFormRating}
+              onFavoriteTrackChange={setFormFavoriteTrack}
+              onReviewTextChange={setFormReviewText}
+              isCurrentWeek={true}
+            />
           </div>
+        )}
 
-          {reviews.length === 0 ? (
-            <div className="px-6 py-12 text-center">
-              <p className="text-gray-500">
-                You haven't submitted any reviews yet.
-              </p>
-              <a
-                href="/submit"
-                className="mt-4 inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Submit Your First Review
-              </a>
+        {/* Previous Weeks Section */}
+        {previousWeeks.length > 0 && (
+          <div>
+            <div className="mb-4">
+              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <span>📚</span> Previous Weeks
+              </h2>
             </div>
-          ) : (
-            <div className="divide-y divide-gray-200">
-              {Object.entries(
-                reviews.reduce((acc, review) => {
-                  const weekNum = review.week_number;
-                  if (!acc[weekNum]) acc[weekNum] = [];
-                  acc[weekNum].push(review);
-                  return acc;
-                }, {} as Record<number, ReviewWithWeek[]>)
-              )
-                .sort(([a], [b]) => Number(b) - Number(a))
-                .map(([weekNum, weekReviews]) => {
-                  const week = weekReviews[0].week;
-                  const contemporaryReview = weekReviews.find(
-                    (r) => r.album_type === "contemporary"
-                  );
-                  const classicReview = weekReviews.find(
-                    (r) => r.album_type === "classic"
-                  );
-
-                  return (
-                    <div key={weekNum} className="px-6 py-6">
-                      <div className="mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          Week {weekNum}
-                        </h3>
-                        {week.response_deadline && (
-                          <p className="text-sm text-gray-500">
-                            Deadline:{" "}
-                            {new Date(week.response_deadline).toLocaleDateString()}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Contemporary Album Review */}
-                        {contemporaryReview && (
-                          <ReviewCard
-                            review={contemporaryReview}
-                            week={week}
-                            albumType="contemporary"
-                            isEditing={editingReview?.id === contemporaryReview.id}
-                            editRating={editRating}
-                            editFavoriteTrack={editFavoriteTrack}
-                            editReviewText={editReviewText}
-                            isSaving={isSaving}
-                            onEdit={() => startEditing(contemporaryReview)}
-                            onDelete={() => deleteReview(contemporaryReview.id)}
-                            onCancel={cancelEditing}
-                            onSave={saveEdit}
-                            onRatingChange={setEditRating}
-                            onFavoriteTrackChange={setEditFavoriteTrack}
-                            onReviewTextChange={setEditReviewText}
-                          />
-                        )}
-
-                        {/* Classic Album Review */}
-                        {classicReview && (
-                          <ReviewCard
-                            review={classicReview}
-                            week={week}
-                            albumType="classic"
-                            isEditing={editingReview?.id === classicReview.id}
-                            editRating={editRating}
-                            editFavoriteTrack={editFavoriteTrack}
-                            editReviewText={editReviewText}
-                            isSaving={isSaving}
-                            onEdit={() => startEditing(classicReview)}
-                            onDelete={() => deleteReview(classicReview.id)}
-                            onCancel={cancelEditing}
-                            onSave={saveEdit}
-                            onRatingChange={setEditRating}
-                            onFavoriteTrackChange={setEditFavoriteTrack}
-                            onReviewTextChange={setEditReviewText}
-                          />
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
+            <div className="space-y-6">
+              {previousWeeks.map((week) => (
+                <WeekCard
+                  key={week.week_number}
+                  week={week}
+                  editingReviewId={editingReviewId}
+                  addingReview={addingReview}
+                  formRating={formRating}
+                  formFavoriteTrack={formFavoriteTrack}
+                  formReviewText={formReviewText}
+                  isSaving={isSaving}
+                  onStartEditing={startEditing}
+                  onStartAdding={startAdding}
+                  onCancelForm={cancelForm}
+                  onSaveEdit={saveEdit}
+                  onSaveNew={saveNew}
+                  onDeleteReview={deleteReview}
+                  onRatingChange={setFormRating}
+                  onFavoriteTrackChange={setFormFavoriteTrack}
+                  onReviewTextChange={setFormReviewText}
+                  isCurrentWeek={false}
+                />
+              ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {allWeeks.length === 0 && (
+          <div className="bg-white rounded-lg shadow px-6 py-12 text-center">
+            <p className="text-gray-500">
+              No weeks have been created yet. Check back soon!
+            </p>
+          </div>
+        )}
       </main>
     </div>
   );
 }
 
-type ReviewCardProps = {
-  review: ReviewWithWeek;
-  week: Week;
-  albumType: "contemporary" | "classic";
-  isEditing: boolean;
-  editRating: number;
-  editFavoriteTrack: string;
-  editReviewText: string;
+type WeekCardProps = {
+  week: WeekWithReviewStatus;
+  editingReviewId: string | null;
+  addingReview: { weekNumber: number; albumType: 'contemporary' | 'classic' } | null;
+  formRating: number;
+  formFavoriteTrack: string;
+  formReviewText: string;
   isSaving: boolean;
-  onEdit: () => void;
-  onDelete: () => void;
-  onCancel: () => void;
-  onSave: () => void;
+  onStartEditing: (review: Review) => void;
+  onStartAdding: (weekNumber: number, albumType: 'contemporary' | 'classic') => void;
+  onCancelForm: () => void;
+  onSaveEdit: (reviewId: string) => void;
+  onSaveNew: (weekNumber: number, albumType: 'contemporary' | 'classic') => void;
+  onDeleteReview: (reviewId: string) => void;
+  onRatingChange: (value: number) => void;
+  onFavoriteTrackChange: (value: string) => void;
+  onReviewTextChange: (value: string) => void;
+  isCurrentWeek: boolean;
+};
+
+function WeekCard({
+  week,
+  editingReviewId,
+  addingReview,
+  formRating,
+  formFavoriteTrack,
+  formReviewText,
+  isSaving,
+  onStartEditing,
+  onStartAdding,
+  onCancelForm,
+  onSaveEdit,
+  onSaveNew,
+  onDeleteReview,
+  onRatingChange,
+  onFavoriteTrackChange,
+  onReviewTextChange,
+  isCurrentWeek,
+}: WeekCardProps) {
+  const borderClass = isCurrentWeek ? 'border-2 border-green-500' : 'border border-gray-200';
+
+  return (
+    <div className={`bg-white rounded-lg shadow ${borderClass}`}>
+      <div className="px-6 py-4 border-b border-gray-200">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
+              Week {week.week_number}
+              {isCurrentWeek && (
+                <span className="text-xs font-medium px-2 py-1 bg-green-100 text-green-800 rounded">
+                  Current
+                </span>
+              )}
+              {week.isPastDeadline && !isCurrentWeek && (
+                <span className="text-xs font-medium px-2 py-1 bg-amber-100 text-amber-800 rounded">
+                  ⚠️ Past Deadline
+                </span>
+              )}
+            </h3>
+            {week.response_deadline && (
+              <p className="text-sm text-gray-500 mt-1">
+                Deadline: {new Date(week.response_deadline).toLocaleDateString('en-US', {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric',
+                  hour: 'numeric',
+                  minute: '2-digit'
+                })}
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="px-6 py-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Contemporary Album */}
+          <AlbumSlot
+            week={week}
+            albumType="contemporary"
+            review={week.reviews.contemporary}
+            isEditing={editingReviewId === week.reviews.contemporary?.id}
+            isAdding={addingReview?.weekNumber === week.week_number && addingReview?.albumType === 'contemporary'}
+            formRating={formRating}
+            formFavoriteTrack={formFavoriteTrack}
+            formReviewText={formReviewText}
+            isSaving={isSaving}
+            isPastDeadline={week.isPastDeadline}
+            onStartEditing={onStartEditing}
+            onStartAdding={() => onStartAdding(week.week_number, 'contemporary')}
+            onCancelForm={onCancelForm}
+            onSaveEdit={onSaveEdit}
+            onSaveNew={() => onSaveNew(week.week_number, 'contemporary')}
+            onDeleteReview={onDeleteReview}
+            onRatingChange={onRatingChange}
+            onFavoriteTrackChange={onFavoriteTrackChange}
+            onReviewTextChange={onReviewTextChange}
+          />
+
+          {/* Classic Album */}
+          <AlbumSlot
+            week={week}
+            albumType="classic"
+            review={week.reviews.classic}
+            isEditing={editingReviewId === week.reviews.classic?.id}
+            isAdding={addingReview?.weekNumber === week.week_number && addingReview?.albumType === 'classic'}
+            formRating={formRating}
+            formFavoriteTrack={formFavoriteTrack}
+            formReviewText={formReviewText}
+            isSaving={isSaving}
+            isPastDeadline={week.isPastDeadline}
+            onStartEditing={onStartEditing}
+            onStartAdding={() => onStartAdding(week.week_number, 'classic')}
+            onCancelForm={onCancelForm}
+            onSaveEdit={onSaveEdit}
+            onSaveNew={() => onSaveNew(week.week_number, 'classic')}
+            onDeleteReview={onDeleteReview}
+            onRatingChange={onRatingChange}
+            onFavoriteTrackChange={onFavoriteTrackChange}
+            onReviewTextChange={onReviewTextChange}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+type AlbumSlotProps = {
+  week: WeekWithReviewStatus;
+  albumType: 'contemporary' | 'classic';
+  review: Review | null;
+  isEditing: boolean;
+  isAdding: boolean;
+  formRating: number;
+  formFavoriteTrack: string;
+  formReviewText: string;
+  isSaving: boolean;
+  isPastDeadline: boolean;
+  onStartEditing: (review: Review) => void;
+  onStartAdding: () => void;
+  onCancelForm: () => void;
+  onSaveEdit: (reviewId: string) => void;
+  onSaveNew: () => void;
+  onDeleteReview: (reviewId: string) => void;
   onRatingChange: (value: number) => void;
   onFavoriteTrackChange: (value: string) => void;
   onReviewTextChange: (value: string) => void;
 };
 
-function ReviewCard({
-  review,
+function AlbumSlot({
   week,
   albumType,
+  review,
   isEditing,
-  editRating,
-  editFavoriteTrack,
-  editReviewText,
+  isAdding,
+  formRating,
+  formFavoriteTrack,
+  formReviewText,
   isSaving,
-  onEdit,
-  onDelete,
-  onCancel,
-  onSave,
+  isPastDeadline,
+  onStartEditing,
+  onStartAdding,
+  onCancelForm,
+  onSaveEdit,
+  onSaveNew,
+  onDeleteReview,
   onRatingChange,
   onFavoriteTrackChange,
   onReviewTextChange,
-}: ReviewCardProps) {
-  const albumTitle =
-    albumType === "contemporary"
-      ? week.contemporary_title
-      : week.classic_title;
-  const albumArtist =
-    albumType === "contemporary"
-      ? week.contemporary_artist
-      : week.classic_artist;
-  const albumYear =
-    albumType === "contemporary" ? week.contemporary_year : week.classic_year;
-  const albumArtUrl =
-    albumType === "contemporary"
-      ? week.contemporary_album_art_url
-      : week.classic_album_art_url;
+}: AlbumSlotProps) {
+  const albumTitle = albumType === "contemporary" ? week.contemporary_title : week.classic_title;
+  const albumArtist = albumType === "contemporary" ? week.contemporary_artist : week.classic_artist;
+  const albumYear = albumType === "contemporary" ? week.contemporary_year : week.classic_year;
+  const albumArtUrl = albumType === "contemporary" ? week.contemporary_album_art_url : week.classic_album_art_url;
+
+  const badgeColor = albumType === "contemporary"
+    ? "bg-purple-100 text-purple-800"
+    : "bg-orange-100 text-orange-800";
+
+  // If no album is set for this slot
+  if (!albumTitle) {
+    return (
+      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 flex items-center justify-center">
+        <div className="text-center text-gray-500">
+          <p className="font-medium">No album set</p>
+          <p className="text-sm mt-1">
+            {albumType === "contemporary" ? "Contemporary" : "Classic"}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="border border-gray-200 rounded-lg overflow-hidden">
@@ -404,7 +608,7 @@ function ReviewCard({
           {albumArtUrl && (
             <img
               src={albumArtUrl}
-              alt={albumTitle || "Album"}
+              alt={albumTitle}
               className="w-16 h-16 object-cover rounded"
             />
           )}
@@ -413,17 +617,9 @@ function ReviewCard({
               {albumTitle}
             </h4>
             <p className="text-sm text-gray-600 truncate">{albumArtist}</p>
-            {albumYear && (
-              <p className="text-xs text-gray-500">{albumYear}</p>
-            )}
+            {albumYear && <p className="text-xs text-gray-500">{albumYear}</p>}
           </div>
-          <span
-            className={`px-2 py-1 text-xs font-medium rounded ${
-              albumType === "contemporary"
-                ? "bg-purple-100 text-purple-800"
-                : "bg-orange-100 text-orange-800"
-            }`}
-          >
+          <span className={`px-2 py-1 text-xs font-medium rounded ${badgeColor}`}>
             {albumType === "contemporary" ? "Contemporary" : "Classic"}
           </span>
         </div>
@@ -431,30 +627,35 @@ function ReviewCard({
 
       {/* Review Content */}
       <div className="px-4 py-4">
-        {isEditing ? (
+        {isEditing || isAdding ? (
           <div className="space-y-4">
+            {isPastDeadline && isAdding && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-800">
+                ⚠️ You're submitting past the deadline, but that's okay!
+              </div>
+            )}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Rating
+                Rating (0-10)
               </label>
               <input
                 type="number"
                 min="0"
                 max="10"
                 step="0.1"
-                value={editRating}
-                onChange={(e) => onRatingChange(parseFloat(e.target.value))}
+                value={formRating}
+                onChange={(e) => onRatingChange(parseFloat(e.target.value) || 0)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Favorite Track
+                Favorite Track (optional)
               </label>
               <input
                 type="text"
-                value={editFavoriteTrack}
+                value={formFavoriteTrack}
                 onChange={(e) => onFavoriteTrackChange(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Optional"
@@ -463,10 +664,10 @@ function ReviewCard({
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Review
+                Review (optional)
               </label>
               <textarea
-                value={editReviewText}
+                value={formReviewText}
                 onChange={(e) => onReviewTextChange(e.target.value)}
                 rows={4}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y"
@@ -476,14 +677,14 @@ function ReviewCard({
 
             <div className="flex gap-2">
               <button
-                onClick={onSave}
+                onClick={() => isEditing ? onSaveEdit(review!.id) : onSaveNew()}
                 disabled={isSaving}
                 className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
-                {isSaving ? "Saving..." : "Save Changes"}
+                {isSaving ? "Saving..." : isEditing ? "Save Changes" : "Submit Review"}
               </button>
               <button
-                onClick={onCancel}
+                onClick={onCancelForm}
                 disabled={isSaving}
                 className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
@@ -491,12 +692,10 @@ function ReviewCard({
               </button>
             </div>
           </div>
-        ) : (
+        ) : review ? (
           <div className="space-y-3">
             <div>
-              <span className="text-sm font-medium text-gray-700">
-                Rating:
-              </span>
+              <span className="text-sm font-medium text-gray-700">Rating:</span>
               <span className="ml-2 text-2xl font-bold text-blue-600">
                 {review.rating.toFixed(1)}
               </span>
@@ -514,9 +713,7 @@ function ReviewCard({
 
             {review.review_text && (
               <div>
-                <span className="text-sm font-medium text-gray-700">
-                  Review:
-                </span>
+                <span className="text-sm font-medium text-gray-700">Review:</span>
                 <p className="text-gray-900 mt-1 whitespace-pre-wrap">
                   {review.review_text}
                 </p>
@@ -525,18 +722,28 @@ function ReviewCard({
 
             <div className="flex gap-2 pt-2">
               <button
-                onClick={onEdit}
+                onClick={() => onStartEditing(review)}
                 className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
               >
                 Edit
               </button>
               <button
-                onClick={onDelete}
+                onClick={() => onDeleteReview(review.id)}
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
               >
                 Delete
               </button>
             </div>
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-gray-500 mb-4">No review yet</p>
+            <button
+              onClick={onStartAdding}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+            >
+              Add Review
+            </button>
           </div>
         )}
       </div>

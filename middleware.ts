@@ -99,7 +99,11 @@ export async function middleware(request: NextRequest) {
 
   // Protect /dashboard route (requires authentication, not curator-only)
   if (pathname.startsWith('/dashboard')) {
-    if (!session) {
+    // In development mode, allow bypassing authentication with ?dev=true
+    const isDevelopment = process.env.NODE_ENV === 'development'
+    const devBypass = request.nextUrl.searchParams.get('dev') === 'true'
+
+    if (!session && !(isDevelopment && devBypass)) {
       // Not authenticated - redirect to login
       const redirectUrl = new URL('/login', request.url)
       redirectUrl.searchParams.set('redirect', pathname)

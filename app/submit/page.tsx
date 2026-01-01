@@ -80,6 +80,11 @@ export default function SubmitPage() {
     fetchLatestWeek();
   }, []);
 
+  // Check if deadline has passed
+  const isPastDeadline = weekData?.response_deadline
+    ? new Date(weekData.response_deadline) < new Date()
+    : false;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -191,9 +196,38 @@ export default function SubmitPage() {
 
         {weekData && (
           <div className="mb-8 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6">
-            <h2 className="text-xl font-semibold mb-6">
-              Week {weekData.week_number}
-            </h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold">
+                Week {weekData.week_number}
+              </h2>
+              {weekData.response_deadline && (
+                <p className="text-sm text-zinc-400">
+                  Deadline: {new Date(weekData.response_deadline).toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit'
+                  })}
+                </p>
+              )}
+            </div>
+
+            {isPastDeadline && (
+              <div className="mb-6 rounded-lg border border-amber-500/50 bg-amber-900/20 p-4">
+                <div className="flex items-start gap-3">
+                  <span className="text-amber-500 text-xl">⚠️</span>
+                  <div>
+                    <p className="text-amber-200 font-medium">
+                      This week's deadline has passed
+                    </p>
+                    <p className="text-amber-300/80 text-sm mt-1">
+                      You can still submit your review, but it's past the original deadline.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Contemporary Album */}

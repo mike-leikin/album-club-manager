@@ -58,6 +58,15 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Review Editing**: Edit ratings, favorite tracks, and review text inline
 - **Review Deletion**: Delete reviews with confirmation dialog
 - **Personal Statistics**: Track participation rate and average ratings
+
+### 📅 Week Lifecycle & Deadlines (v2.3)
+- **All Weeks Visible**: Dashboard shows current week + all previous weeks
+- **Current Week Highlighting**: Green border and badge for active week
+- **Past Deadline Warnings**: Non-blocking amber badges when deadline has passed
+- **Add Reviews Anytime**: Submit reviews to any week (past or present)
+- **No Album Set Indicators**: Clear placeholders when curator hasn't set an album
+- **Deadline Display**: Prominently show deadlines on submit form and dashboard
+- **Catch Up on Missed Weeks**: Easily find and review weeks you missed
 - **Post-Submission Flow**: Authenticated users redirect to dashboard after submitting
 
 ## Tech Stack
@@ -319,7 +328,8 @@ For production deployment with custom email domain:
 
 See [NEXT_STEPS.md](NEXT_STEPS.md) for the complete feature roadmap and future enhancements.
 
-### ✅ Completed Features (v2.2)
+### ✅ Completed Features (v2.3)
+- ✅ **Week Lifecycle Management** (v2.3) - All weeks visible, deadline warnings, add reviews anytime
 - ✅ Data backup & export system
 - ✅ Email delivery tracking & audit trail
 - ✅ Error monitoring & structured logging
@@ -332,11 +342,12 @@ See [NEXT_STEPS.md](NEXT_STEPS.md) for the complete feature roadmap and future e
 - ✅ Post-submission redirect to dashboard
 
 ### High Priorities
-- Deadline enforcement & week lifecycle management
+- Hard deadline enforcement (block submissions after deadline)
 - Admin review moderation tools (edit/delete any review)
 - Testing infrastructure
 - Curator management UI (promote/demote without SQL)
 - Review history audit trail (track changes over time)
+- Automated email reminders before deadlines
 
 ## Contributing
 
@@ -345,6 +356,18 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## License
 
 MIT
+
+## Documentation
+
+- [NEXT_STEPS.md](NEXT_STEPS.md) - Complete feature roadmap and future enhancements
+- [WEEK_LIFECYCLE.md](WEEK_LIFECYCLE.md) - Week lifecycle enhancement documentation (v2.3)
+- [CHANGELOG.md](CHANGELOG.md) - Complete version history
+- [PARTICIPANT_DASHBOARD.md](PARTICIPANT_DASHBOARD.md) - Participant dashboard features (v2.2)
+- [AUTH_GUIDE.md](AUTH_GUIDE.md) - Authentication setup and configuration
+- [MIGRATIONS_GUIDE.md](MIGRATIONS_GUIDE.md) - Database migration system
+- [EMAIL_TRACKING_SETUP.md](EMAIL_TRACKING_SETUP.md) - Email delivery tracking
+- [ERROR_MONITORING_SETUP.md](ERROR_MONITORING_SETUP.md) - Sentry integration
+- [SAFE_PARTICIPANT_MANAGEMENT.md](SAFE_PARTICIPANT_MANAGEMENT.md) - Soft delete and restore
 
 ## Support
 
