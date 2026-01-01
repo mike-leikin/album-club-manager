@@ -117,6 +117,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
+  // If accessing signup page while authenticated, redirect to dashboard
+  if (pathname === '/signup' && session) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+
   return response
 }
 
@@ -124,6 +129,7 @@ export const config = {
   matcher: [
     '/admin/:path*',
     '/login',
+    '/signup',
     '/dashboard/:path*',
   ],
 }

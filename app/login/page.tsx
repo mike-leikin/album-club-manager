@@ -184,6 +184,13 @@ function LoginContent() {
           >
             Back to home
           </a>
+          <span className="mx-2 text-zinc-600">•</span>
+          <a
+            href="/signup"
+            className="text-sm text-emerald-400 hover:text-emerald-300 underline"
+          >
+            Create an account
+          </a>
         </div>
       </div>
     </main>

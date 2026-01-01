@@ -41,6 +41,14 @@ export default function HomePage() {
           >
             {isLoading ? 'Loading...' : isAuthenticated ? 'Go to Dashboard' : 'Sign In'}
           </button>
+          {!isAuthenticated && (
+            <a
+              href="/signup"
+              className="rounded-lg border border-zinc-700 px-6 py-3 font-medium text-zinc-200 transition hover:border-zinc-500 text-center"
+            >
+              Create an account
+            </a>
+          )}
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a
               href="/reviews"
