@@ -29,22 +29,37 @@
    - Draft reviews with auto-save (future enhancement)
    - Preview before submission (future enhancement)
 
-3. **Testing Infrastructure**
-   - Unit tests for critical API routes
-   - Integration tests for review submission flow
-   - Email sending tests with mocks
-   - Component tests for admin dashboard
-   - CI/CD pipeline with automated testing
-   - **Current issue**: Zero test coverage; refactoring is dangerous
+3. **Testing Infrastructure** 🔄 IN PROGRESS
+   - ✅ Testing framework setup (Vitest + React Testing Library + MSW) (COMPLETE)
+   - ✅ Mock infrastructure (Supabase, Resend, factories) (COMPLETE)
+   - ✅ Test 1: Review Submission API - 18/18 tests passing (COMPLETE)
+   - ⚠️ Test 2: Email Sending API - 4/13 tests passing (IN PROGRESS - needs Supabase mock fixes)
+   - ⏳ Test 3: Participant CRUD API - GET/POST endpoints (PENDING)
+   - ⏳ Test 4: Participant Update/Delete API - PUT/DELETE endpoints (PENDING)
+   - ⏳ Test 5: My Reviews Dashboard API (PENDING)
+   - ⏳ Test 6: ParticipantsManager Component (PENDING)
+   - ⏳ Test 7: SpotifySearch Component (PENDING)
+   - ⏳ Test 8: Dashboard Page Component (PENDING)
+   - ⏳ CI/CD Pipeline - GitHub Actions workflow with coverage reporting (PENDING)
+   - ⏳ Documentation - TESTING.md guide (PENDING)
+   - **Current status**: 30/X tests passing, ~15-20% coverage estimated
+   - **See**: [docs/TESTING_IMPLEMENTATION_STATUS.md](docs/TESTING_IMPLEMENTATION_STATUS.md) for detailed progress
 
-4. **Enhanced Authentication Features** (Basic auth ✅ COMPLETE):
+4. **Enhanced Authentication Features** ✅ COMPLETE (v2.5):
    - ✅ Participant dashboard (view personal review history with statistics) (v2.2 COMPLETE)
    - ✅ Review editing and deletion for participants (v2.2 COMPLETE)
    - ✅ Curator dual-access (admin panel + personal dashboard) (v2.2 COMPLETE)
    - ✅ Post-submission redirect to dashboard (v2.2 COMPLETE)
+   - ✅ Public sign-up form with name collection (v2.5 COMPLETE)
+   - ✅ Welcome page for new users (v2.5 COMPLETE)
+   - ✅ Terms of service and privacy policy pages (v2.5 COMPLETE)
+   - ✅ Smart account linking for existing participants (v2.5 COMPLETE)
+   - ✅ Navigation updates with sign-up links (v2.5 COMPLETE)
    - Curator management UI (promote/demote curators without SQL) (future enhancement)
-   - Social login options (GitHub, Microsoft, etc.) (future enhancement)
-   - Email verification for reviews (prevent spam submissions) (future enhancement)
+   - Social login options (GitHub, Microsoft, etc.) - Google OAuth ready but disabled (future enhancement)
+   - Rate limiting for sign-up form (future enhancement)
+   - Custom welcome email template (currently using Supabase default) (future enhancement)
+   - Curator notification emails on new sign-up (future enhancement)
    - Advanced permissions (read-only curator role, team-based permissions) (future enhancement)
 
 5. **Music review aggregation tool**:
@@ -107,7 +122,7 @@
 
 **All Core Features Complete!** 🎉
 
-**Version 2.4** - Public Reviews Feature Complete (2026-01-01)
+**Version 2.5** - Public Sign-Up Feature Complete (2026-01-01)
 
 - ✅ **Spotify Integration**: Fully operational with auto-populate and album art
 - ✅ **RS 500 Integration**: Complete with search, filter, and usage tracking
@@ -124,10 +139,26 @@
 - ✅ **Participant Dashboard**: Personal review history, editing, and statistics
 - ✅ **Week Lifecycle**: All weeks visible, past deadline warnings, add reviews to any week
 - ✅ **Public Reviews**: Browse all reviews for completed weeks with first names only
+- ✅ **Public Sign-Up**: Self-service account creation with name collection and onboarding
 
 **The app is production-ready and fully operational!**
 
 **Latest Session Accomplishments (2026-01-01)**:
+
+**v2.5 - Public Sign-Up Feature:**
+- ✅ **Sign-Up Page**: Public form at `/signup` with name and email collection
+- ✅ **Sign-Up API**: Robust validation, smart account linking, duplicate detection
+- ✅ **Welcome Page**: Post-signup greeting at `/welcome` with quick links
+- ✅ **Terms & Privacy**: Legal pages at `/terms` and `/privacy` with community guidelines
+- ✅ **Smart Account Linking**: Auto-links existing participants (curator-added) to auth accounts
+- ✅ **Name Intelligence**: Only updates placeholder names, preserves real names
+- ✅ **Input Validation**: Client and server-side validation with sanitization
+- ✅ **Navigation Updates**: Sign-up links in login page and home page
+- ✅ **Auth Redirect**: Already authenticated users redirect to dashboard
+- ✅ **Success Flow**: "Check your email" confirmation with magic link
+- ✅ **Mobile Responsive**: Clean, modern UI that works on all devices
+- ✅ **Error Handling**: User-friendly error messages (duplicate account, validation, etc.)
+
 
 **v2.3 - Week Lifecycle Enhancement:**
 - ✅ **Enhanced Dashboard**: Shows all weeks (current + previous), not just weeks with reviews
@@ -311,23 +342,33 @@
 - `npm run migrate:rollback` - Rollback last migration
 - See [MIGRATIONS_GUIDE.md](MIGRATIONS_GUIDE.md) for full documentation
 
-### Authentication & Authorization ✅ COMPLETE!
-- ✅ Supabase Auth with Google OAuth and Magic Link (passwordless email)
+### Authentication & Authorization ✅ COMPLETE! (v2.5 with Sign-Up)
+- ✅ Supabase Auth with Google OAuth (ready) and Magic Link (passwordless email)
+- ✅ Public sign-up form at `/signup` with name collection
+- ✅ Welcome page for first-time users at `/welcome`
+- ✅ Terms of service and privacy policy pages
+- ✅ Smart account linking: existing participants can claim their accounts
 - ✅ Curator permission system with `is_curator` flag
 - ✅ Protected /admin dashboard and all admin API routes
 - ✅ Middleware-based route protection
 - ✅ Row Level Security (RLS) policies on all tables
-- ✅ Auto-linking of participants to auth accounts on signup
+- ✅ Auto-linking of participants to auth accounts on signup via database trigger
 - ✅ Unauthorized access page for non-curators
 - ✅ Session management with secure cookies
 
 **What's Built**:
 - `middleware.ts` - Route protection middleware
 - `lib/auth/supabaseAuthClient.ts` - Auth client setup
+- `lib/auth/supabaseAuthClientBrowser.ts` - Browser auth client
 - `lib/auth/utils.ts` - Session helpers
 - `lib/auth/apiAuth.ts` - API route protection utilities
 - `app/login/page.tsx` - Login UI with Google OAuth and Magic Link
-- `app/auth/callback/route.ts` - OAuth callback handler
+- `app/signup/page.tsx` - Public sign-up form with name and email
+- `app/api/auth/signup/route.ts` - Sign-up API with validation and account linking
+- `app/welcome/page.tsx` - Welcome page for new users
+- `app/terms/page.tsx` - Terms of service page
+- `app/privacy/page.tsx` - Privacy policy page
+- `app/auth/callback/route.ts` - OAuth/magic link callback handler
 - `app/unauthorized/page.tsx` - Access denied page
 - `supabase/migrations/006_add_authentication.sql` - Auth schema and RLS policies
 - See [AUTH_GUIDE.md](AUTH_GUIDE.md) for configuration details
