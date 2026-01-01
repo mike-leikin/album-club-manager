@@ -31,28 +31,44 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const supabase = createServerClient();
-    const { data, error } = await supabase
-      .from("weeks")
-      .select("*")
-      .order("week_number", { ascending: false })
-      .limit(1)
-      .single();
+    const { searchParams } = new URL(request.url);
+    const all = searchParams.get('all') === 'true';
 
-    if (error) {
-      // If no rows found, return null instead of error
-      if (error.code === 'PGRST116') {
-        return NextResponse.json({ data: null });
+    if (all) {
+      // Return all weeks
+      const { data, error } = await supabase
+        .from("weeks")
+        .select("*")
+        .order("week_number", { ascending: false });
+
+      if (error) throw error;
+
+      return NextResponse.json({ data: data || [] });
+    } else {
+      // Return only the latest week (existing behavior)
+      const { data, error } = await supabase
+        .from("weeks")
+        .select("*")
+        .order("week_number", { ascending: false })
+        .limit(1)
+        .single();
+
+      if (error) {
+        // If no rows found, return null instead of error
+        if (error.code === 'PGRST116') {
+          return NextResponse.json({ data: null });
+        }
+        throw error;
       }
-      throw error;
-    }
 
-    return NextResponse.json({ data });
+      return NextResponse.json({ data });
+    }
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Unable to load latest week";
+      error instanceof Error ? error.message : "Unable to load weeks";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

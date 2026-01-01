@@ -69,6 +69,16 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Catch Up on Missed Weeks**: Easily find and review weeks you missed
 - **Post-Submission Flow**: Authenticated users redirect to dashboard after submitting
 
+### 🌐 Public Reviews (v2.4)
+- **Browse All Reviews**: Public page at `/reviews` shows all past weeks
+- **Privacy Protection**: Reviews display first names only (full names hidden)
+- **Deadline-Based Visibility**: Current week locked until deadline passes
+- **Lazy Loading**: Reviews fetched only when week is expanded
+- **Album Grouping**: Reviews organized by contemporary/classic albums
+- **Average Ratings**: Shows average rating and review count for each album
+- **Full Details**: Ratings, favorite tracks, and complete review text
+- **No Authentication**: Anyone can browse reviews for completed weeks
+
 ## Tech Stack
 
 - **Framework**: Next.js 16 (App Router)

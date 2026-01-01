@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.4.0] - 2026-01-01
+
+### Public Reviews Feature
+
+**Major Features:**
+
+#### Public Reviews Page
+- **Browse All Reviews**: Public `/reviews` page shows all weeks past their deadline
+- **Privacy Protection**: Reviews display first names only (full names hidden)
+- **Smart Visibility**: Current week locked until deadline passes, then reviews become visible
+- **Lazy Loading**: Reviews fetched only when week is expanded for better performance
+- **Full Details**: Shows complete review information (rating, favorite track, review text)
+
+#### User Experience
+- **Expandable Weeks**: Accordion-style UI - click to expand and view all reviews
+- **Album Grouping**: Reviews organized by contemporary/classic albums
+- **Average Ratings**: Shows average rating for each album with review count
+- **Album Artwork**: Full album metadata and artwork displayed
+- **Locked State**: Clear "🔒 Locked" indicator for current week until deadline
+- **Empty States**: Helpful messages when no reviews submitted yet
+
+#### Navigation
+- **Dashboard Link**: "Browse Reviews" button in participant dashboard header
+- **Home Page Link**: "Browse reviews" link on landing page
+- **Easy Access**: Public page - no authentication required
+
+**Files Changed:**
+- `lib/utils/names.ts` - New utility to extract first names from full names
+- `app/reviews/page.tsx` - Complete public reviews browsing page (new)
+- `app/api/weeks/route.ts` - Added `?all=true` parameter to return all weeks
+- `app/dashboard/page.tsx` - Added "Browse Reviews" navigation link
+- `app/page.tsx` - Added "Browse reviews" link to home page
+
+**Technical Details:**
+- First name extraction: `getFirstName()` utility handles edge cases (single name, empty, etc.)
+- Lazy loading: Reviews API called only when week section expanded
+- Backwards compatible: `/api/weeks` still returns single week by default
+- Performance optimized: Week metadata loaded upfront, reviews on-demand
+- TypeScript types: `WeekWithReviews`, `AlbumReviews`, `ReviewWithParticipant`
+
+---
+
 ## [2.3.0] - 2026-01-01
 
 ### Week Lifecycle Enhancement
@@ -303,4 +345,4 @@ Format: `MAJOR.MINOR.PATCH`
 - **MINOR**: New features, backwards compatible
 - **PATCH**: Bug fixes, minor improvements
 
-**Current Version:** 2.3.0
+**Current Version:** 2.4.0

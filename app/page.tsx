@@ -41,12 +41,21 @@ export default function HomePage() {
           >
             {isLoading ? 'Loading...' : isAuthenticated ? 'Go to Dashboard' : 'Sign In'}
           </button>
-          <a
-            href="/submit"
-            className="text-sm text-zinc-400 hover:text-zinc-300 underline"
-          >
-            Submit a review
-          </a>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <a
+              href="/reviews"
+              className="text-sm text-zinc-400 hover:text-zinc-300 underline"
+            >
+              Browse reviews
+            </a>
+            <span className="hidden sm:inline text-zinc-600">•</span>
+            <a
+              href="/submit"
+              className="text-sm text-zinc-400 hover:text-zinc-300 underline"
+            >
+              Submit a review
+            </a>
+          </div>
         </div>
       </div>
     </main>

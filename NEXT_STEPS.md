@@ -52,12 +52,15 @@
    - AI-powered suggestions for contemporary albums
    - Filter by genre, release date, critic ratings
 
-6. **Public landing page improvements**:
-   - Allow non-admins to browse historical reviews and albums
-   - Public archive/history page with all past weeks
-   - Filter by album, artist, or participant
-   - Read-only view of reviews and ratings
-   - Beautiful landing page with recent activity
+6. **Public landing page improvements** (Basic browsing ✅ COMPLETE):
+   - ✅ Public reviews page at `/reviews` (v2.4 COMPLETE)
+   - ✅ Browse all weeks past deadline (v2.4 COMPLETE)
+   - ✅ Read-only view of reviews with first names only (v2.4 COMPLETE)
+   - ✅ Locked state for current week (deadline not passed) (v2.4 COMPLETE)
+   - ✅ Lazy loading of reviews (performance optimized) (v2.4 COMPLETE)
+   - Filter by album, artist, or participant (future enhancement)
+   - Search functionality (future enhancement)
+   - Beautiful landing page with recent activity (future enhancement)
 
 7. **Enhanced Data Validation**
    - Duplicate review prevention (race condition handling)
@@ -104,7 +107,7 @@
 
 **All Core Features Complete!** 🎉
 
-**Version 2.3** - Week Lifecycle Enhancement Complete (2026-01-01)
+**Version 2.4** - Public Reviews Feature Complete (2026-01-01)
 
 - ✅ **Spotify Integration**: Fully operational with auto-populate and album art
 - ✅ **RS 500 Integration**: Complete with search, filter, and usage tracking
@@ -120,10 +123,13 @@
 - ✅ **Authentication & Authorization**: Magic Link, curator permissions, protected routes
 - ✅ **Participant Dashboard**: Personal review history, editing, and statistics
 - ✅ **Week Lifecycle**: All weeks visible, past deadline warnings, add reviews to any week
+- ✅ **Public Reviews**: Browse all reviews for completed weeks with first names only
 
 **The app is production-ready and fully operational!**
 
 **Latest Session Accomplishments (2026-01-01)**:
+
+**v2.3 - Week Lifecycle Enhancement:**
 - ✅ **Enhanced Dashboard**: Shows all weeks (current + previous), not just weeks with reviews
 - ✅ **Current Week Highlighting**: Green border and "Current" badge for active week
 - ✅ **Past Deadline Warnings**: Amber badges and inline warnings (non-blocking)
@@ -134,6 +140,17 @@
 - ✅ **Development Mode**: Bypass authentication with `?dev=true&email=` for testing
 - ✅ **API Enhancement**: `/api/my-reviews` returns all weeks with review status
 - ✅ **Inline Review Forms**: Add and edit reviews directly in dashboard
+
+**v2.4 - Public Reviews Feature:**
+- ✅ **Public Reviews Page**: Browse all reviews at `/reviews` without authentication
+- ✅ **Privacy Protection**: Shows only first names (extracted from full names)
+- ✅ **Smart Visibility**: Reviews locked until week deadline passes
+- ✅ **Lazy Loading**: Reviews fetched only when week is expanded (performance optimized)
+- ✅ **First Name Utility**: Created `lib/utils/names.ts` for name extraction
+- ✅ **API Enhancement**: `/api/weeks?all=true` returns all weeks (backwards compatible)
+- ✅ **Navigation Links**: Added "Browse Reviews" to dashboard and home page
+- ✅ **Expandable UI**: Accordion-style week sections with album grouping
+- ✅ **Full Details**: Shows ratings, favorite tracks, and review text
 
 **Production Infrastructure**:
 - Custom domain: `albumclub.club` (fully operational)
@@ -359,6 +376,22 @@ SELECT name, email FROM participants WHERE is_curator = true;
 - ✅ Deadline display on submit form with past-deadline warning banner
 - ✅ Inline review forms for adding/editing reviews in dashboard
 - ✅ Development mode bypass for local testing (`?dev=true&email=`)
+
+### Public Reviews Feature ✅ COMPLETE! (v2.4)
+- ✅ Public reviews page accessible at `/reviews` (no authentication required)
+- ✅ Browse all weeks that have passed their deadline
+- ✅ Reviews show first names only (privacy protection via `getFirstName()` utility)
+- ✅ Full review details: ratings, favorite tracks, review text
+- ✅ Current week shows locked state until deadline passes
+- ✅ Lazy loading: reviews fetched only when week is expanded
+- ✅ Album artwork and metadata displayed for each album
+- ✅ Reviews grouped by album type (contemporary/classic)
+- ✅ Average ratings shown for each album
+- ✅ Expandable/collapsible accordion UI for weeks
+- ✅ API enhancement: `/api/weeks` supports `?all=true` parameter
+- ✅ Navigation links added to dashboard and home page
+- ✅ Responsive design for mobile devices
+- ✅ Empty states for weeks with no reviews
 
 **What's Built**:
 - `/app/api/my-reviews/route.ts` - Enhanced to return all weeks with review status
