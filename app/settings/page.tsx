@@ -35,7 +35,15 @@ export default function SettingsPage() {
         .eq('auth_user_id', session.user.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        throw error;
+      }
 
       setParticipant(participantData);
       setEmailSubscribed((participantData as any)?.email_subscribed ?? true);
