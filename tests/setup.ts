@@ -14,7 +14,6 @@ process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-service-role-key'
 process.env.RESEND_API_KEY = 'test-resend-key'
 process.env.NEXT_PUBLIC_APP_URL = 'http://localhost:3000'
 process.env.RESEND_FROM_EMAIL = 'test@example.com'
-process.env.NODE_ENV = 'test'
 
 // Mock Sentry
 vi.mock('@sentry/nextjs', () => ({
