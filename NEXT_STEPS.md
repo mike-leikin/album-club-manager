@@ -46,7 +46,13 @@
    - **See**: [docs/TESTING_IMPLEMENTATION_STATUS.md](docs/TESTING_IMPLEMENTATION_STATUS.md) for detailed progress
    - **Quick Start**: [docs/TESTING_QUICK_START.md](docs/TESTING_QUICK_START.md)
 
-4. **Enhanced Authentication Features** ✅ COMPLETE (v2.5):
+4. **User Account Management & Settings** ✅ COMPLETE (v2.6):
+   - ✅ Account settings page at `/settings` (v2.6 COMPLETE)
+   - ✅ Edit name and email address (v2.6 COMPLETE)
+   - ✅ Email subscription preferences toggle (v2.6 COMPLETE)
+   - ✅ Self-service account deletion with review preservation (v2.6 COMPLETE)
+   - ✅ Unsubscribe system with secure tokens (v2.6 COMPLETE)
+   - ✅ Resubscribe capability (v2.6 COMPLETE)
    - ✅ Participant dashboard (view personal review history with statistics) (v2.2 COMPLETE)
    - ✅ Review editing and deletion for participants (v2.2 COMPLETE)
    - ✅ Curator dual-access (admin panel + personal dashboard) (v2.2 COMPLETE)
@@ -62,6 +68,8 @@
    - Custom welcome email template (currently using Supabase default) (future enhancement)
    - Curator notification emails on new sign-up (future enhancement)
    - Advanced permissions (read-only curator role, team-based permissions) (future enhancement)
+   - Password change option (currently magic link only) (future enhancement)
+   - Two-factor authentication (future enhancement)
 
 5. **Music review aggregation tool**:
    - Scan recent music reviews from trusted sources (Pitchfork, NPR Music, AllMusic, etc.)

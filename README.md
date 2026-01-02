@@ -25,6 +25,7 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Custom Domain**: Emails sent from `weekly@albumclub.club` with full SPF/DKIM verification
 - **Unsubscribe System**: Secure token-based unsubscribe links in all emails
 - **Subscription Management**: Users can unsubscribe while remaining active members
+- **Email Preferences**: Toggle email subscriptions from Settings page without deleting account
 
 ### 👥 Participant Management
 - **Bulk CSV Import**: Add multiple participants at once via CSV upload
@@ -43,8 +44,10 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Custom Email Template**: Branded magic link emails matching Album Club design
 - **Participant Dashboard**: Personal review history, editing, and statistics for all users
 - **Curator Dual-Access**: Curators can access both admin panel and their own reviews
-- **Account Settings**: Email preferences and account management at `/settings`
-- **Account Deletion**: Self-service soft delete with review preservation
+- **Account Settings**: Comprehensive user settings at `/settings`
+  - Edit name and email address
+  - Manage email subscription preferences
+  - Delete account with review preservation
 
 ### 📊 Admin Dashboard
 - **Week Management**: Create and edit weekly album selections
@@ -351,7 +354,9 @@ For production deployment with custom email domain:
 
 See [NEXT_STEPS.md](NEXT_STEPS.md) for the complete feature roadmap and future enhancements.
 
-### ✅ Completed Features (v2.5)
+### ✅ Completed Features (v2.6)
+- ✅ **User Account Management** (v2.6) - Settings page with profile editing, email preferences, account deletion
+- ✅ **Email Preferences** (v2.6) - Unsubscribe system with resubscribe capability
 - ✅ **Reviewer-Friendly Landing Page** (v2.5) - Welcoming design with smart routing for all users
 - ✅ **Public Reviews** (v2.4) - Browse all past reviews with privacy protection
 - ✅ **Week Lifecycle Management** (v2.3) - All weeks visible, deadline warnings, add reviews anytime
