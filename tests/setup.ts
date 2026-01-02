@@ -54,7 +54,7 @@ global.alert = vi.fn()
 if (!global.crypto) {
   global.crypto = {} as Crypto
 }
-global.crypto.randomUUID = () => 'test-uuid-1234'
+global.crypto.randomUUID = () => 'test-uuid-1234' as `${string}-${string}-${string}-${string}-${string}`
 
 // Mock fetch if not available
 if (!global.fetch) {

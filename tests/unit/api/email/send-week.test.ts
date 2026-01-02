@@ -77,10 +77,10 @@ describe('POST /api/email/send-week', () => {
       week_number: 1,
       contemporary_title: 'Test Album',
       contemporary_artist: 'Test Artist',
-      contemporary_year: 2024,
+      contemporary_year: '2024',
       classic_title: 'Classic Album',
       classic_artist: 'Classic Artist',
-      classic_year: 1975,
+      classic_year: '1975',
       response_deadline: '2024-12-31',
     })
 
