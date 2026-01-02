@@ -52,6 +52,7 @@ export default function AdminPage() {
   const [responseDeadline, setResponseDeadline] = useState(
     new Date().toISOString().split("T")[0],
   );
+  const [curatorMessage, setCuratorMessage] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingPreviousWeek, setIsLoadingPreviousWeek] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
@@ -159,6 +160,12 @@ export default function AdminPage() {
 
   bodyLines.push("Hi all,");
   bodyLines.push("");
+
+  // Add curator message if present
+  if (curatorMessage && curatorMessage.trim()) {
+    bodyLines.push(curatorMessage.trim());
+    bodyLines.push("");
+  }
 
   // Add previous week's results if available
   if (reviewStats && reviewStats.contemporary.reviewCount > 0 || reviewStats && reviewStats.classic.reviewCount > 0) {
@@ -383,6 +390,8 @@ export default function AdminPage() {
         rollingStoneRank: prevWeek.rs_rank ? String(prevWeek.rs_rank) : "",
       });
 
+      setCuratorMessage(prevWeek.curator_message ?? "");
+
       toast.success(`Copied album data from Week ${previousWeekNum}`);
     } catch (error) {
       toast.error(
@@ -451,6 +460,7 @@ export default function AdminPage() {
     const payload = {
       week_number: parsedWeekNumber,
       response_deadline: normalizeText(responseDeadline),
+      curator_message: normalizeText(curatorMessage),
       contemporary_title: normalizeText(contemporary.title),
       contemporary_artist: normalizeText(contemporary.artist),
       contemporary_year: normalizeText(contemporary.year),
@@ -635,6 +645,24 @@ export default function AdminPage() {
                 className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none"
               />
             </div>
+          </div>
+
+          {/* Curator message */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-zinc-300 mb-2">
+              Custom Message (Optional)
+            </label>
+            <textarea
+              value={curatorMessage}
+              onChange={(e) => setCuratorMessage(e.target.value)}
+              className="w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none resize-y"
+              rows={4}
+              placeholder="Add a personal note or context for this week's picks..."
+              maxLength={500}
+            />
+            <p className="text-xs text-zinc-500 mt-1">
+              {curatorMessage.length}/500 characters
+            </p>
           </div>
 
           {/* Contemporary album */}

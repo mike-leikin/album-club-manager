@@ -46,10 +46,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fetch all participants
+    // Fetch all active, subscribed participants
     const { data: participants, error: participantsError } = await supabase
       .from("participants")
       .select("*")
+      .is("deleted_at", null)
+      .eq("email_subscribed", true)
       .order("name");
 
     if (participantsError || !participants || participants.length === 0) {
@@ -145,6 +147,7 @@ export async function POST(request: NextRequest) {
     // Send individual emails
     const emailPromises = participants.map(async (participant: any) => {
       const submitUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/submit?email=${encodeURIComponent(participant.email)}`;
+      const unsubscribeUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/unsubscribe?token=${participant.unsubscribe_token}`;
       const firstName = participant.name.split(' ')[0];
 
       // Build HTML email body
@@ -177,6 +180,27 @@ export async function POST(request: NextRequest) {
             </td>
           </tr>
 `;
+
+      // Add curator message if present
+      if (week.curator_message) {
+        const escapedMessage = week.curator_message
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+
+        htmlBody += `
+          <!-- Curator Message -->
+          <tr>
+            <td style="padding: 0 32px 20px;">
+              <div style="background: #1e293b; border-left: 3px solid #22c55e; padding: 15px; border-radius: 4px;">
+                <p style="color: #e2e8f0; margin: 0; white-space: pre-wrap; font-size: 15px; line-height: 1.6;">${escapedMessage}</p>
+              </div>
+            </td>
+          </tr>
+`;
+      }
 
       // Add previous week results if available
       if (reviewStats) {
@@ -367,6 +391,15 @@ export async function POST(request: NextRequest) {
             </td>
           </tr>
 
+          <!-- Unsubscribe -->
+          <tr>
+            <td style="padding: 20px 32px; text-align: center; background-color: #0a0a0a;">
+              <p style="margin: 0; color: #525252; font-size: 11px;">
+                <a href="${unsubscribeUrl}" style="color: #737373; text-decoration: underline;">Unsubscribe from weekly emails</a>
+              </p>
+            </td>
+          </tr>
+
         </table>
       </td>
     </tr>
@@ -376,6 +409,11 @@ export async function POST(request: NextRequest) {
 
       // Build plain text fallback
       let textBody = `Hi ${firstName},\n\n`;
+
+      // Add curator message if present
+      if (week.curator_message) {
+        textBody += `${week.curator_message}\n\n`;
+      }
 
       if (reviewStats) {
         textBody += `=== Week ${reviewStats.prevWeek} Results ===\n\n`;
@@ -436,7 +474,9 @@ export async function POST(request: NextRequest) {
         textBody += `Responses by: ${formatDeadline(week.response_deadline)}\n\n`;
       }
 
-      textBody += `- Mike`;
+      textBody += `- Mike\n\n`;
+      textBody += `---\n`;
+      textBody += `Unsubscribe: ${unsubscribeUrl}`;
 
       try {
         const result = await resend.emails.send({

@@ -29,6 +29,7 @@ export interface Database {
           classic_spotify_url: string | null
           classic_album_art_url: string | null
           rs_rank: number | null
+          curator_message: string | null
           created_at: string
         }
         Insert: {
@@ -46,6 +47,7 @@ export interface Database {
           classic_spotify_url?: string | null
           classic_album_art_url?: string | null
           rs_rank?: number | null
+          curator_message?: string | null
           created_at?: string
         }
         Update: {
@@ -63,6 +65,7 @@ export interface Database {
           classic_spotify_url?: string | null
           classic_album_art_url?: string | null
           rs_rank?: number | null
+          curator_message?: string | null
           created_at?: string
         }
       }
@@ -73,6 +76,8 @@ export interface Database {
           email: string
           auth_user_id: string | null
           is_curator: boolean
+          email_subscribed: boolean
+          unsubscribe_token: string
           created_at: string
           updated_at: string
           deleted_at: string | null
@@ -83,6 +88,8 @@ export interface Database {
           email: string
           auth_user_id?: string | null
           is_curator?: boolean
+          email_subscribed?: boolean
+          unsubscribe_token?: string
           created_at?: string
           updated_at?: string
           deleted_at?: string | null
@@ -93,6 +100,8 @@ export interface Database {
           email?: string
           auth_user_id?: string | null
           is_curator?: boolean
+          email_subscribed?: boolean
+          unsubscribe_token?: string
           created_at?: string
           updated_at?: string
           deleted_at?: string | null

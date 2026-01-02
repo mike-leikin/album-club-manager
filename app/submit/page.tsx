@@ -360,7 +360,7 @@ export default function SubmitPage() {
                   value={contempRating}
                   onChange={(e) => setContempRating(e.target.value)}
                   className="w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none"
-                  placeholder="8.5"
+                  placeholder=""
                 />
               </div>
 
@@ -430,7 +430,7 @@ export default function SubmitPage() {
                   value={classicRating}
                   onChange={(e) => setClassicRating(e.target.value)}
                   className="w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none"
-                  placeholder="9.2"
+                  placeholder=""
                 />
               </div>
 
