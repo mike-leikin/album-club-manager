@@ -126,7 +126,7 @@
 
 **All Core Features Complete!** 🎉
 
-**Version 2.5** - Public Sign-Up Feature Complete (2026-01-01)
+**Version 2.6** - Pre-Launch Features Complete (2026-01-02)
 
 - ✅ **Spotify Integration**: Fully operational with auto-populate and album art
 - ✅ **RS 500 Integration**: Complete with search, filter, and usage tracking
@@ -144,10 +144,36 @@
 - ✅ **Week Lifecycle**: All weeks visible, past deadline warnings, add reviews to any week
 - ✅ **Public Reviews**: Browse all reviews for completed weeks with first names only
 - ✅ **Public Sign-Up**: Self-service account creation with name collection and onboarding
+- ✅ **Curator Messages**: Add optional personal notes to weekly emails
+- ✅ **Unsubscribe System**: Token-based unsubscribe with account settings
+- ✅ **Account Deletion**: Self-service soft delete with review preservation
 
 **The app is production-ready and fully operational!**
 
-**Latest Session Accomplishments (2026-01-01)**:
+**Latest Session Accomplishments (2026-01-02)**:
+
+**v2.6 - Pre-Launch Features:**
+- ✅ **Remove Default Ratings**: Eliminated misleading placeholder values (8.5, 9.2) from rating inputs
+- ✅ **Curator Custom Message**: Optional personal notes in weekly emails (500 char limit with counter)
+  - Database field: `weeks.curator_message`
+  - Appears in HTML and plain text email templates
+  - Included in email preview and copy-from-previous-week
+- ✅ **User Unsubscribe System**: Token-based unsubscribe with full resubscribe capability
+  - Database fields: `participants.email_subscribed`, `participants.unsubscribe_token`
+  - Unsubscribe page at `/unsubscribe?token=xxx`
+  - Unsubscribe links in all email templates (HTML & text)
+  - Email sending filters for subscribed users only
+  - Unsubscribed users can still log in and submit reviews
+- ✅ **Account Settings**: User preference management at `/settings`
+  - Email subscription toggle
+  - Account information display
+  - Self-service account deletion
+  - Settings link in dashboard navigation
+- ✅ **Account Deletion**: Soft delete with review preservation
+  - API endpoint at `/api/account/delete`
+  - Double confirmation required
+  - Automatic sign-out after deletion
+  - Reviews preserved (participant_id set to NULL)
 
 **v2.5 - Public Sign-Up Feature:**
 - ✅ **Sign-Up Page**: Public form at `/signup` with name and email collection

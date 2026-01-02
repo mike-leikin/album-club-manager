@@ -19,9 +19,12 @@ Album Club Manager streamlines the process of running a weekly music club where 
 ### 📧 Automated Email System
 - **One-Click Email Sending**: Send personalized emails to all participants from the admin dashboard
 - **Professional HTML Templates**: Beautiful, responsive email design with album artwork
+- **Curator Messages**: Add optional personal notes to weekly emails (500 character limit)
 - **Personalized Review Links**: Each participant gets a unique link with their email pre-filled
 - **Previous Week Results**: Automatically include ratings and favorite tracks from the previous week
 - **Custom Domain**: Emails sent from `weekly@albumclub.club` with full SPF/DKIM verification
+- **Unsubscribe System**: Secure token-based unsubscribe links in all emails
+- **Subscription Management**: Users can unsubscribe while remaining active members
 
 ### 👥 Participant Management
 - **Bulk CSV Import**: Add multiple participants at once via CSV upload
@@ -32,6 +35,7 @@ Album Club Manager streamlines the process of running a weekly music club where 
 ### 🔐 Authentication & Access Control
 - **Magic Link**: Passwordless email login for seamless authentication
 - **Google OAuth**: Available but currently disabled in UI (ready to re-enable)
+- **Public Sign-Up**: Self-service account creation at `/signup`
 - **Curator Permissions**: Role-based access control with `is_curator` flag
 - **Protected Routes**: Admin dashboard and participant dashboard require authentication
 - **Auto-linking**: Existing participants automatically linked to auth accounts on signup
@@ -39,6 +43,8 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Custom Email Template**: Branded magic link emails matching Album Club design
 - **Participant Dashboard**: Personal review history, editing, and statistics for all users
 - **Curator Dual-Access**: Curators can access both admin panel and their own reviews
+- **Account Settings**: Email preferences and account management at `/settings`
+- **Account Deletion**: Self-service soft delete with review preservation
 
 ### 📊 Admin Dashboard
 - **Week Management**: Create and edit weekly album selections
@@ -51,6 +57,7 @@ Album Club Manager streamlines the process of running a weekly music club where 
 
 ### 📝 Review Submission & Management
 - **Simple Form**: Participants rate albums (1.0-10.0) and share favorite tracks
+- **No Default Ratings**: Empty fields prevent rating bias
 - **Email Pre-population**: Review links auto-fill participant email addresses
 - **Unlimited Text**: No character limits on review comments
 - **Mobile Responsive**: Works seamlessly on all devices
