@@ -79,6 +79,12 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Full Details**: Ratings, favorite tracks, and complete review text
 - **No Authentication**: Anyone can browse reviews for completed weeks
 
+### 🎨 Reviewer-Friendly Landing Page (v2.5)
+- **Welcoming Design**: Updated branding and copy for all users, not just curators
+- **Smart Routing**: Automatic role-based navigation (curators → admin, reviewers → dashboard)
+- **Public Access**: Links to browse reviews and submit without signing in
+- **Account Creation**: Easy signup flow for new participants
+
 ## Tech Stack
 
 - **Framework**: Next.js 16 (App Router)
@@ -338,8 +344,11 @@ For production deployment with custom email domain:
 
 See [NEXT_STEPS.md](NEXT_STEPS.md) for the complete feature roadmap and future enhancements.
 
-### ✅ Completed Features (v2.3)
+### ✅ Completed Features (v2.5)
+- ✅ **Reviewer-Friendly Landing Page** (v2.5) - Welcoming design with smart routing for all users
+- ✅ **Public Reviews** (v2.4) - Browse all past reviews with privacy protection
 - ✅ **Week Lifecycle Management** (v2.3) - All weeks visible, deadline warnings, add reviews anytime
+- ✅ **Testing Infrastructure** (v2.4) - 57 passing tests with Vitest, 100% line coverage on tested routes
 - ✅ Data backup & export system
 - ✅ Email delivery tracking & audit trail
 - ✅ Error monitoring & structured logging
@@ -354,7 +363,8 @@ See [NEXT_STEPS.md](NEXT_STEPS.md) for the complete feature roadmap and future e
 ### High Priorities
 - Hard deadline enforcement (block submissions after deadline)
 - Admin review moderation tools (edit/delete any review)
-- Testing infrastructure
+- Testing: Complete remaining API route tests (2/5 remaining)
+- Testing: Set up CI/CD pipeline with GitHub Actions
 - Curator management UI (promote/demote without SQL)
 - Review history audit trail (track changes over time)
 - Automated email reminders before deadlines
@@ -370,8 +380,10 @@ MIT
 ## Documentation
 
 - [NEXT_STEPS.md](NEXT_STEPS.md) - Complete feature roadmap and future enhancements
-- [WEEK_LIFECYCLE.md](WEEK_LIFECYCLE.md) - Week lifecycle enhancement documentation (v2.3)
 - [CHANGELOG.md](CHANGELOG.md) - Complete version history
+- [TESTING_QUICK_START.md](docs/TESTING_QUICK_START.md) - Testing infrastructure quick start guide
+- [TESTING_IMPLEMENTATION_STATUS.md](docs/TESTING_IMPLEMENTATION_STATUS.md) - Detailed testing progress and plans
+- [WEEK_LIFECYCLE.md](WEEK_LIFECYCLE.md) - Week lifecycle enhancement documentation (v2.3)
 - [PARTICIPANT_DASHBOARD.md](PARTICIPANT_DASHBOARD.md) - Participant dashboard features (v2.2)
 - [AUTH_GUIDE.md](AUTH_GUIDE.md) - Authentication setup and configuration
 - [MIGRATIONS_GUIDE.md](MIGRATIONS_GUIDE.md) - Database migration system

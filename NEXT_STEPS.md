@@ -29,12 +29,12 @@
    - Draft reviews with auto-save (future enhancement)
    - Preview before submission (future enhancement)
 
-3. **Testing Infrastructure** 🔄 IN PROGRESS
+3. **Testing Infrastructure** 🔄 IN PROGRESS (60% COMPLETE)
    - ✅ Testing framework setup (Vitest + React Testing Library + MSW) (COMPLETE)
    - ✅ Mock infrastructure (Supabase, Resend, factories) (COMPLETE)
-   - ✅ Test 1: Review Submission API - 18/18 tests passing (COMPLETE)
-   - ⚠️ Test 2: Email Sending API - 4/13 tests passing (IN PROGRESS - needs Supabase mock fixes)
-   - ⏳ Test 3: Participant CRUD API - GET/POST endpoints (PENDING)
+   - ✅ Test 1: Review Submission API - 18/18 tests passing, 100% line coverage (COMPLETE)
+   - ✅ Test 2: Email Sending API - 15/15 tests passing, 100% line coverage (COMPLETE)
+   - ✅ Test 3: Participant CRUD API - 16/16 tests passing, 100% line coverage (COMPLETE)
    - ⏳ Test 4: Participant Update/Delete API - PUT/DELETE endpoints (PENDING)
    - ⏳ Test 5: My Reviews Dashboard API (PENDING)
    - ⏳ Test 6: ParticipantsManager Component (PENDING)
@@ -42,8 +42,9 @@
    - ⏳ Test 8: Dashboard Page Component (PENDING)
    - ⏳ CI/CD Pipeline - GitHub Actions workflow with coverage reporting (PENDING)
    - ⏳ Documentation - TESTING.md guide (PENDING)
-   - **Current status**: 30/X tests passing, ~15-20% coverage estimated
+   - **Current status**: 57 tests passing (4 test files), 100% line coverage on tested routes
    - **See**: [docs/TESTING_IMPLEMENTATION_STATUS.md](docs/TESTING_IMPLEMENTATION_STATUS.md) for detailed progress
+   - **Quick Start**: [docs/TESTING_QUICK_START.md](docs/TESTING_QUICK_START.md)
 
 4. **Enhanced Authentication Features** ✅ COMPLETE (v2.5):
    - ✅ Participant dashboard (view personal review history with statistics) (v2.2 COMPLETE)
@@ -67,15 +68,18 @@
    - AI-powered suggestions for contemporary albums
    - Filter by genre, release date, critic ratings
 
-6. **Public landing page improvements** (Basic browsing ✅ COMPLETE):
+6. **Public landing page improvements** ✅ COMPLETE (v2.5):
    - ✅ Public reviews page at `/reviews` (v2.4 COMPLETE)
    - ✅ Browse all weeks past deadline (v2.4 COMPLETE)
    - ✅ Read-only view of reviews with first names only (v2.4 COMPLETE)
    - ✅ Locked state for current week (deadline not passed) (v2.4 COMPLETE)
    - ✅ Lazy loading of reviews (performance optimized) (v2.4 COMPLETE)
+   - ✅ Reviewer-friendly landing page with welcoming copy (v2.5 COMPLETE)
+   - ✅ Smart role-based routing (curators → admin, reviewers → dashboard) (v2.5 COMPLETE)
+   - ✅ Public access links (browse reviews, submit review) (v2.5 COMPLETE)
    - Filter by album, artist, or participant (future enhancement)
    - Search functionality (future enhancement)
-   - Beautiful landing page with recent activity (future enhancement)
+   - Recent activity feed on landing page (future enhancement)
 
 7. **Enhanced Data Validation**
    - Duplicate review prevention (race condition handling)
