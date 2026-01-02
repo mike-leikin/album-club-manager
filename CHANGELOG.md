@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.5.0] - 2026-01-01
+
+### Landing Page UX Enhancement
+
+**Major Features:**
+
+#### Reviewer-Focused Landing Page
+- **Updated Branding**: Changed from "Album Club Manager" to "Album Club" for broader appeal
+- **Welcoming Copy**: New description "Discover new music, share your thoughts, and explore albums together"
+- **Smart Routing**: Role-based navigation - curators to admin, reviewers to dashboard
+- **Simplified Experience**: Landing page now welcoming for all users, not just curators
+
+**Files Changed:**
+- `app/page.tsx` - Updated title, description, and role-based routing logic
+
+**Technical Details:**
+- Added `isCurator` state check on landing page
+- Automatic routing: curators → `/admin`, regular users → `/dashboard`
+- TypeScript type assertion for participant query
+- Maintains backwards compatibility for curator workflows
+
+---
+
 ## [2.4.0] - 2026-01-01
 
 ### Public Reviews Feature

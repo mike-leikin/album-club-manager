@@ -7,20 +7,37 @@ import { useRouter } from 'next/navigation'
 
 export default function HomePage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isCurator, setIsCurator] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
   const supabase = createAuthClient()
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
       setIsAuthenticated(!!session)
+
+      if (session) {
+        // Check if user is a curator
+        const { data: participant } = await supabase
+          .from('participants')
+          .select('is_curator')
+          .eq('auth_user_id', session.user.id)
+          .single() as { data: { is_curator: boolean } | null }
+
+        setIsCurator(participant?.is_curator || false)
+      }
+
       setIsLoading(false)
-    })
+    }
+
+    checkAuth()
   }, [supabase])
 
   const handleGetStarted = () => {
     if (isAuthenticated) {
-      router.push('/admin')
+      // Route curators to admin, regular users to dashboard
+      router.push(isCurator ? '/admin' : '/dashboard')
     } else {
       router.push('/login')
     }
@@ -29,9 +46,9 @@ export default function HomePage() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-black text-gray-50">
       <div className="max-w-xl text-center space-y-6 p-8">
-        <h1 className="text-4xl font-bold">Album Club Manager</h1>
+        <h1 className="text-4xl font-bold">Album Club</h1>
         <p className="text-lg text-zinc-400">
-          A helper app for selecting albums, generating emails, and reviewing ratings.
+          Discover new music, share your thoughts, and explore albums together.
         </p>
         <div className="flex flex-col gap-3 mt-8">
           <button
