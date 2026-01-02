@@ -12,6 +12,8 @@ export function createMockParticipant(
     email: `user${participantIdCounter}@test.com`,
     auth_user_id: null,
     is_curator: false,
+    email_subscribed: true,
+    unsubscribe_token: `token-${participantIdCounter}`,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     deleted_at: null,

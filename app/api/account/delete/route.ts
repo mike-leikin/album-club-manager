@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabaseClient";
-import { cookies } from "next/headers";
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     const supabase = createServerClient();
 
@@ -19,7 +18,7 @@ export async function POST(request: NextRequest) {
     // Get participant data
     const { data: participant, error: fetchError } = await supabase
       .from("participants")
-      .select("id, email, name")
+      .select("*")
       .eq("auth_user_id", session.user.id)
       .single();
 
@@ -31,10 +30,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Soft delete the participant (set deleted_at timestamp)
-    const { error: updateError } = await supabase
-      .from("participants")
-      .update({ deleted_at: new Date().toISOString() })
-      .eq("id", participant.id);
+    const { error: updateError } = await (supabase
+      .from("participants") as any)
+      .update({
+        deleted_at: new Date().toISOString()
+      })
+      .eq("id", (participant as any).id);
 
     if (updateError) {
       return NextResponse.json(

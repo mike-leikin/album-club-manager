@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     // Find participant by unsubscribe token
     const { data: participant, error: fetchError } = await supabase
       .from("participants")
-      .select("id, email, name, email_subscribed")
+      .select("*")
       .eq("unsubscribe_token", token)
       .single();
 
@@ -29,10 +29,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Update email subscription status
-    const { error: updateError } = await supabase
-      .from("participants")
-      .update({ email_subscribed: !resubscribe })
-      .eq("id", participant.id);
+    const { error: updateError } = await (supabase
+      .from("participants") as any)
+      .update({
+        email_subscribed: !resubscribe
+      })
+      .eq("id", (participant as any).id);
 
     if (updateError) {
       return NextResponse.json(
@@ -43,8 +45,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      name: participant.name,
-      email: participant.email,
+      name: (participant as any).name,
+      email: (participant as any).email,
       subscribed: !resubscribe,
       message: resubscribe
         ? "You have been resubscribed to weekly emails"

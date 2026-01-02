@@ -38,7 +38,7 @@ export default function SettingsPage() {
       if (error) throw error;
 
       setParticipant(participantData);
-      setEmailSubscribed(participantData.email_subscribed ?? true);
+      setEmailSubscribed((participantData as any)?.email_subscribed ?? true);
     } catch (error) {
       console.error('Failed to load settings:', error);
       toast.error('Failed to load your settings');
@@ -51,10 +51,10 @@ export default function SettingsPage() {
     setIsSaving(true);
     try {
       const supabase = createAuthClient();
-      const { error } = await supabase
-        .from('participants')
+      const { error } = await (supabase
+        .from('participants') as any)
         .update({ email_subscribed: emailSubscribed })
-        .eq('id', participant.id);
+        .eq('id', (participant as any)?.id);
 
       if (error) throw error;
 
