@@ -14,6 +14,11 @@ export default function SettingsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  // Editable fields
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+
   useEffect(() => {
     loadUserSettings();
   }, []);
@@ -47,11 +52,35 @@ export default function SettingsPage() {
 
       setParticipant(participantData);
       setEmailSubscribed((participantData as any)?.email_subscribed ?? true);
+      setName((participantData as any)?.name || '');
+      setEmail((participantData as any)?.email || '');
     } catch (error) {
       console.error('Failed to load settings:', error);
       toast.error('Failed to load your settings');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUpdateProfile = async () => {
+    setIsSaving(true);
+    try {
+      const supabase = createAuthClient();
+      const { error } = await (supabase
+        .from('participants') as any)
+        .update({ name, email })
+        .eq('id', (participant as any)?.id);
+
+      if (error) throw error;
+
+      setParticipant({ ...participant, name, email });
+      setIsEditingProfile(false);
+      toast.success('Profile updated successfully');
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      toast.error('Failed to update profile');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -124,20 +153,80 @@ export default function SettingsPage() {
 
         {/* Account Info */}
         <div className="mb-6 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6">
-          <h2 className="mb-4 text-xl font-semibold text-white">Account Information</h2>
-          <div className="space-y-3">
-            <div>
-              <label className="block text-sm font-medium text-zinc-400">Name</label>
-              <p className="mt-1 text-zinc-100">{participant?.name}</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-zinc-400">Email</label>
-              <p className="mt-1 text-zinc-100">{participant?.email}</p>
-            </div>
-            {participant?.is_curator && (
-              <div className="mt-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3">
-                <p className="text-sm font-medium text-emerald-400">✓ Curator Account</p>
-              </div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-white">Account Information</h2>
+            {!isEditingProfile && (
+              <button
+                onClick={() => setIsEditingProfile(true)}
+                className="text-sm text-emerald-400 hover:text-emerald-300 transition"
+              >
+                Edit
+              </button>
+            )}
+          </div>
+          <div className="space-y-4">
+            {isEditingProfile ? (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-zinc-400 mb-2">Name</label>
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-zinc-100 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-zinc-400 mb-2">Email</label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-zinc-100 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  />
+                </div>
+                {participant?.is_curator && (
+                  <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3">
+                    <p className="text-sm font-medium text-emerald-400">✓ Curator Account</p>
+                  </div>
+                )}
+                <div className="flex gap-2 pt-2">
+                  <button
+                    onClick={handleUpdateProfile}
+                    disabled={isSaving}
+                    className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition text-sm font-medium"
+                  >
+                    {isSaving ? 'Saving...' : 'Save Changes'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsEditingProfile(false);
+                      setName(participant?.name || '');
+                      setEmail(participant?.email || '');
+                    }}
+                    disabled={isSaving}
+                    className="px-4 py-2 border border-zinc-700 text-zinc-300 rounded-lg hover:bg-zinc-800 disabled:opacity-50 transition text-sm font-medium"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-zinc-400">Name</label>
+                  <p className="mt-1 text-zinc-100">{participant?.name}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-zinc-400">Email</label>
+                  <p className="mt-1 text-zinc-100">{participant?.email}</p>
+                </div>
+                {participant?.is_curator && (
+                  <div className="mt-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3">
+                    <p className="text-sm font-medium text-emerald-400">✓ Curator Account</p>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
