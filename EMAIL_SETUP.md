@@ -22,10 +22,13 @@ Add these to your `.env.local` file:
 ```bash
 RESEND_API_KEY=re_your_api_key_here
 RESEND_FROM_EMAIL="Album Club <weekly@yourdomain.com>"
+RESEND_REPLY_TO_EMAIL="Your Name <your.personal.email@gmail.com>"
 NEXT_PUBLIC_APP_URL=https://yourdomain.com
 ```
 
-**Note**: Replace `yourdomain.com` with your actual domain. Use the root domain (not a subdomain) for email sending.
+**Note**:
+- Replace `yourdomain.com` with your actual domain. Use the root domain (not a subdomain) for email sending.
+- The `RESEND_REPLY_TO_EMAIL` configures where participant replies will be sent. When someone replies to a weekly email, it will go to this address instead of `weekly@yourdomain.com`.
 
 ### 4. Verify Your Domain (Optional but Recommended)
 
@@ -46,9 +49,29 @@ Once domain is verified, update `.env.local`:
 
 ```bash
 RESEND_FROM_EMAIL="Album Club <weekly@yourdomain.com>"
+RESEND_REPLY_TO_EMAIL="Your Name <your.personal.email@gmail.com>"
 ```
 
-**Important**: Use your root domain (e.g., `albumclub.club`), not a subdomain (e.g., `send.albumclub.club`). Only the root domain needs to be verified in Resend.
+**Important**:
+- Use your root domain (e.g., `albumclub.club`), not a subdomain (e.g., `send.albumclub.club`). Only the root domain needs to be verified in Resend.
+- Set `RESEND_REPLY_TO_EMAIL` to your personal email address to receive replies from participants.
+
+## Reply Handling
+
+When participants reply to weekly album emails, their responses will be routed to the email address configured in `RESEND_REPLY_TO_EMAIL`. This allows you to:
+
+- Receive participant questions or feedback directly in your personal inbox
+- Keep the professional "Album Club" sending address (`weekly@yourdomain.com`)
+- Respond to participants from your personal email
+
+**Example**: If you set `RESEND_REPLY_TO_EMAIL="Mike <mike@gmail.com>"`, when a participant clicks "Reply" to the weekly email:
+- They see: `To: Mike <mike@gmail.com>` (not `weekly@albumclub.club`)
+- Their reply goes directly to your personal inbox
+- You can respond from your personal email as normal
+
+This setting is applied to both:
+- Weekly album announcement emails
+- Email retry attempts (if needed)
 
 ## How to Use
 
