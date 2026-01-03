@@ -9,6 +9,9 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const cookieStore = request.cookies
+    let finalRedirect = explicitRedirect || '/choose-role'
+
+    const response = NextResponse.redirect(`${origin}${finalRedirect}`)
 
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -19,10 +22,18 @@ export async function GET(request: NextRequest) {
             return cookieStore.get(name)?.value
           },
           set(name: string, value: string, options: CookieOptions) {
-            // Will be set below
+            response.cookies.set({
+              name,
+              value,
+              ...options,
+            })
           },
           remove(name: string, options: CookieOptions) {
-            // Will be set below
+            response.cookies.set({
+              name,
+              value: '',
+              ...options,
+            })
           },
         },
       }
@@ -31,9 +42,6 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error && data.session) {
-      // Determine redirect based on user role and explicit redirect param
-      let finalRedirect = explicitRedirect || '/choose-role'
-
       // If no explicit redirect, check if user is a curator
       if (!explicitRedirect) {
         const { data: participant } = await supabase
@@ -47,12 +55,12 @@ export async function GET(request: NextRequest) {
         } else {
           finalRedirect = '/dashboard'
         }
+
+        // Update redirect URL if it changed
+        return NextResponse.redirect(`${origin}${finalRedirect}`, {
+          headers: response.headers,
+        })
       }
-
-      const response = NextResponse.redirect(`${origin}${finalRedirect}`)
-
-      // Set cookies in response
-      const sessionCookies = await supabase.auth.getSession()
 
       return response
     }
