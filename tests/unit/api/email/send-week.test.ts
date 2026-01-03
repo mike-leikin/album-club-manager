@@ -275,7 +275,8 @@ describe('POST /api/email/send-week', () => {
       mockSupabase.is.mockReturnValueOnce(mockSupabase)
       mockSupabase.eq
         .mockReturnValueOnce(mockSupabase)   // For participants eq(email_subscribed)
-        .mockResolvedValueOnce({              // For reviews eq(week_number)
+        .mockReturnValueOnce(mockSupabase)   // For reviews eq(week_number)
+        .mockResolvedValueOnce({             // For reviews eq(moderation_status)
           data: mockPreviousWeekReviews,
           error: null,
         })
