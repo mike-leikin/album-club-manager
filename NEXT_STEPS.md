@@ -13,6 +13,7 @@
    - ✅ Add reviews to any week (past or present) (v2.3 COMPLETE)
    - ✅ "No album set" placeholders for missing albums (v2.3 COMPLETE)
    - ✅ Deadline display on submit form and dashboard (v2.3 COMPLETE)
+   - ✅ Date-based week labels in dashboard and emails (v2.7 COMPLETE)
    - Hard deadline enforcement (block submissions after deadline) (future enhancement)
    - Week states: draft, active, closed, archived (future enhancement)
    - Lock past weeks to prevent accidental edits (future enhancement)

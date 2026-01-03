@@ -22,6 +22,7 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Curator Messages**: Add optional personal notes to weekly emails (500 character limit)
 - **Personalized Review Links**: Each participant gets a unique link with their email pre-filled
 - **Previous Week Results**: Automatically include ratings and favorite tracks from the previous week
+- **Date-Based Week Labels**: Emails use the send date (e.g., "Jan 4, 2026") instead of Week numbers
 - **Custom Domain**: Emails sent from `weekly@albumclub.club` with full SPF/DKIM verification
 - **Unsubscribe System**: Secure token-based unsubscribe links in all emails
 - **Subscription Management**: Users can unsubscribe while remaining active members
@@ -76,6 +77,7 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Add Reviews Anytime**: Submit reviews to any week (past or present)
 - **No Album Set Indicators**: Clear placeholders when curator hasn't set an album
 - **Deadline Display**: Prominently show deadlines on submit form and dashboard
+- **Date-Based Week Labels**: Dashboard shows weeks by send date instead of Week numbers
 - **Catch Up on Missed Weeks**: Easily find and review weeks you missed
 - **Post-Submission Flow**: Authenticated users redirect to dashboard after submitting
 
