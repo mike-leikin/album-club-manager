@@ -20,8 +20,14 @@
    - Automated email reminders before deadline (24 hours, 1 hour) (future enhancement)
    - Timezone handling for deadlines (future enhancement)
 
-2. **Review Moderation & Editing Tools** (Participant features ✅ COMPLETE)
-   - Admin UI to edit/delete inappropriate reviews (future enhancement)
+2. **Review Moderation & Editing Tools** ✅ COMPLETE (v2.9)
+   - ✅ Admin UI to edit/delete inappropriate reviews (v2.9 COMPLETE)
+   - ✅ Manual approval workflow - all new reviews require curator approval (v2.9 COMPLETE)
+   - ✅ Reviews tab in admin panel with filters and bulk actions (v2.9 COMPLETE)
+   - ✅ Approve, hide/unhide, edit, and delete reviews (v2.9 COMPLETE)
+   - ✅ Moderation notes (internal curator-only comments) (v2.9 COMPLETE)
+   - ✅ Status badges in participant dashboard (Pending/Hidden) (v2.9 COMPLETE)
+   - ✅ Public page and emails only show approved reviews (v2.9 COMPLETE)
    - ✅ Participant dashboard to view and edit their own reviews (v2.2 COMPLETE)
    - ✅ Review editing with inline form (rating, favorite track, review text) (v2.2 COMPLETE)
    - ✅ Review deletion with confirmation dialog (v2.2 COMPLETE)
@@ -138,7 +144,7 @@
 
 **All Core Features Complete!** 🎉
 
-**Version 2.8** - Production Deployment Improvements (2026-01-03)
+**Version 2.9** - Review Moderation & Curator Role Selection (2026-01-03)
 
 - ✅ **Spotify Integration**: Fully operational with auto-populate and album art
 - ✅ **RS 500 Integration**: Complete with search, filter, and usage tracking
@@ -159,10 +165,36 @@
 - ✅ **Curator Messages**: Add optional personal notes to weekly emails
 - ✅ **Unsubscribe System**: Token-based unsubscribe with account settings
 - ✅ **Account Deletion**: Self-service soft delete with review preservation
+- ✅ **Review Moderation**: Manual approval workflow with admin panel (v2.9)
+- ✅ **Curator Role Selector**: Choose between admin panel or personal dashboard (v2.9)
 
 **The app is production-ready and fully operational!**
 
 **Latest Session Accomplishments (2026-01-03)**:
+
+**v2.9 - Review Moderation & Curator Role Selection:**
+- ✅ **Review Moderation System**: Complete manual approval workflow
+  - Database migration: `moderation_status`, `moderated_at`, `moderated_by`, `moderation_notes`
+  - New "Reviews" tab in admin panel (between Participants and Week History)
+  - Filter by week, status (pending/approved/hidden), album type
+  - Summary cards showing total, pending, approved, hidden counts
+  - Approve, hide/unhide, edit, delete individual reviews
+  - Bulk actions for multiple reviews at once
+  - Edit modal for changing review content and adding internal notes
+  - Status badges in participant dashboard (⏳ Pending Approval, 👁️ Hidden)
+  - Public reviews page only shows approved reviews
+  - Email stats only include approved reviews
+  - All existing reviews auto-approved (grandfathered in)
+
+- ✅ **Curator Role Selector**: New `/choose-role` page for curators
+  - Curators see role choice after login: Curator Dashboard or My Reviews
+  - Regular participants skip chooser, go straight to dashboard
+  - Clean UI matching app design with hover effects
+  - Sign-out option included
+
+- ✅ **Data Cleanup Script**: SQL script to clear test data while preserving participants
+
+**Previous Session Accomplishments (2026-01-03)**:
 
 **v2.8 - Production Deployment Improvements:**
 - ✅ **Pre-deployment Testing**: Configured `prebuild` npm hook to run tests before Vercel builds

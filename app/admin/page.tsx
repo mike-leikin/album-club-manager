@@ -1004,6 +1004,9 @@ export default function AdminPage() {
         {/* Participants Tab */}
         {activeTab === "participants" && <ParticipantsManager />}
 
+        {/* Reviews Tab */}
+        {activeTab === "reviews" && <AdminReviewsTab />}
+
         {/* Email Preview Modal */}
         {showEmailPreview && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">

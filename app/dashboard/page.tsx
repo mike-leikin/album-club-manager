@@ -724,12 +724,25 @@ function AlbumSlot({
           </div>
         ) : review ? (
           <div className="space-y-3">
-            <div>
-              <span className="text-sm font-medium text-gray-700">Rating:</span>
-              <span className="ml-2 text-2xl font-bold text-blue-600">
-                {review.rating.toFixed(1)}
-              </span>
-              <span className="text-gray-500">/10</span>
+            <div className="flex items-center gap-3">
+              <div>
+                <span className="text-sm font-medium text-gray-700">Rating:</span>
+                <span className="ml-2 text-2xl font-bold text-blue-600">
+                  {review.rating.toFixed(1)}
+                </span>
+                <span className="text-gray-500">/10</span>
+              </div>
+              {/* Status badges */}
+              {review.moderation_status === 'pending' && (
+                <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-800">
+                  ⏳ Pending Approval
+                </span>
+              )}
+              {review.moderation_status === 'hidden' && (
+                <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-medium text-red-800">
+                  👁️ Hidden
+                </span>
+              )}
             </div>
 
             {review.favorite_track && (

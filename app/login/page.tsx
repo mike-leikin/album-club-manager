@@ -11,7 +11,7 @@ function LoginContent() {
   const [magicLinkSent, setMagicLinkSent] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
-  const redirectTo = searchParams.get('redirect') || '/admin'
+  const redirectTo = searchParams.get('redirect') || '/choose-role'
 
   const supabase = createAuthClient()
 
