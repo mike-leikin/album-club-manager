@@ -173,6 +173,7 @@ export async function POST(request: NextRequest) {
       try {
         const result = await resend.emails.send({
           from: process.env.RESEND_FROM_EMAIL || "Album Club <onboarding@resend.dev>",
+          reply_to: process.env.RESEND_REPLY_TO_EMAIL,
           to: participant.email,
           subject: `Album Club – Week ${weekNumber}`,
           html: htmlBody,
