@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
 
     logger.info("Participants loaded", { count: participants.length, weekNumber, requestId });
 
-    // Fetch previous week's review stats (if available)
+    // Fetch previous week's review stats (if available, only approved reviews)
     let reviewStats = null;
     const prevWeek = weekNumber - 1;
     if (prevWeek > 0) {
@@ -74,7 +74,8 @@ export async function POST(request: NextRequest) {
           *,
           participant:participants(name)
         `)
-        .eq("week_number", prevWeek);
+        .eq("week_number", prevWeek)
+        .eq("moderation_status", "approved");
 
       if (stats && stats.length > 0) {
         // Calculate stats
@@ -481,7 +482,7 @@ export async function POST(request: NextRequest) {
       try {
         const result = await resend.emails.send({
           from: process.env.RESEND_FROM_EMAIL || "Album Club <onboarding@resend.dev>",
-          reply_to: process.env.RESEND_REPLY_TO_EMAIL,
+          replyTo: process.env.RESEND_REPLY_TO_EMAIL,
           to: participant.email,
           subject: `Album Club – Week ${weekNumber}`,
           html: htmlBody,

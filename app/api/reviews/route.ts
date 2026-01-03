@@ -36,7 +36,7 @@ export async function GET(request: Request) {
 
     const supabase = createServerClient() as any;
 
-    // Fetch reviews with participant info
+    // Fetch reviews with participant info (only approved reviews for public)
     const { data: reviews, error: reviewsError } = await supabase
       .from("reviews")
       .select(
@@ -46,6 +46,7 @@ export async function GET(request: Request) {
       `
       )
       .eq("week_number", parseInt(weekNumber))
+      .eq("moderation_status", "approved")
       .order("created_at", { ascending: false });
 
     if (reviewsError) {

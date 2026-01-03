@@ -119,6 +119,10 @@ export interface Database {
           album_recommendation: string | null
           created_at: string
           updated_at: string
+          moderation_status: 'pending' | 'approved' | 'hidden'
+          moderated_at: string | null
+          moderated_by: string | null
+          moderation_notes: string | null
         }
         Insert: {
           id?: string
@@ -131,6 +135,10 @@ export interface Database {
           album_recommendation?: string | null
           created_at?: string
           updated_at?: string
+          moderation_status?: 'pending' | 'approved' | 'hidden'
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_notes?: string | null
         }
         Update: {
           id?: string
@@ -143,6 +151,10 @@ export interface Database {
           album_recommendation?: string | null
           created_at?: string
           updated_at?: string
+          moderation_status?: 'pending' | 'approved' | 'hidden'
+          moderated_at?: string | null
+          moderated_by?: string | null
+          moderation_notes?: string | null
         }
       }
       rs_500_albums: {
@@ -227,9 +239,18 @@ export type ReviewWithParticipant = Review & {
   participant: Participant
 }
 
+export type ReviewWithModeration = Review & {
+  participant?: Participant
+  moderator?: Participant | null
+}
+
 export type WeekWithReviews = Week & {
   reviews?: ReviewWithParticipant[]
 }
+
+// Moderation types
+export type ModerationAction = 'approve' | 'hide' | 'unhide'
+export type ModerationStatus = 'pending' | 'approved' | 'hidden'
 
 // Stats types
 export type AlbumStats = {

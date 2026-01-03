@@ -84,6 +84,7 @@ export async function POST(request: Request) {
         rating: body.contemporary.rating,
         favorite_track: body.contemporary.favorite_track?.trim() || null,
         review_text: body.contemporary.review_text?.trim() || null,
+        moderation_status: 'pending',
       });
     }
 
@@ -111,6 +112,7 @@ export async function POST(request: Request) {
         rating: body.classic.rating,
         favorite_track: body.classic.favorite_track?.trim() || null,
         review_text: body.classic.review_text?.trim() || null,
+        moderation_status: 'pending',
       });
     }
 
