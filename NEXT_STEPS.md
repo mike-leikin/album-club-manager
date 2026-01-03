@@ -40,11 +40,13 @@
    - ✅ Test 5: My Reviews Dashboard API - 14/14 tests passing (COMPLETE)
    - ✅ Test 6: Utility Functions - 8/8 tests passing (COMPLETE)
    - ✅ CI/CD Pipeline - GitHub Actions workflow with coverage reporting (COMPLETE)
+   - ✅ Pre-deployment testing - Tests automatically run before Vercel builds (v2.8 COMPLETE)
    - ✅ Documentation - TESTING.md comprehensive guide (COMPLETE)
    - ⏳ Component Tests - ParticipantsManager, SpotifySearch, Dashboard (Future enhancement)
    - ⏳ Integration Tests - Full user flows (Future enhancement)
    - **Current status**: 92 tests total, 92 passing (6 test files), 100% pass rate, 100% line coverage on all API routes
    - **CI/CD**: GitHub Actions configured for automated testing on push/PR with Node 18.x and 20.x
+   - **Pre-deployment**: Vercel builds blocked if tests fail via `prebuild` npm hook
    - **See**: [docs/TESTING.md](docs/TESTING.md) for complete testing guide
    - **Quick Start**: [docs/TESTING_QUICK_START.md](docs/TESTING_QUICK_START.md)
 
@@ -136,7 +138,7 @@
 
 **All Core Features Complete!** 🎉
 
-**Version 2.6** - Pre-Launch Features Complete (2026-01-02)
+**Version 2.8** - Production Deployment Improvements (2026-01-03)
 
 - ✅ **Spotify Integration**: Fully operational with auto-populate and album art
 - ✅ **RS 500 Integration**: Complete with search, filter, and usage tracking
@@ -160,7 +162,19 @@
 
 **The app is production-ready and fully operational!**
 
-**Latest Session Accomplishments (2026-01-02)**:
+**Latest Session Accomplishments (2026-01-03)**:
+
+**v2.8 - Production Deployment Improvements:**
+- ✅ **Pre-deployment Testing**: Configured `prebuild` npm hook to run tests before Vercel builds
+  - Added `prebuild` script to package.json that runs `npm run test:run`
+  - Created vercel.json to explicitly configure build process
+  - Production deployments now blocked if any tests fail
+  - Prevents broken code from reaching production
+- ✅ **Next.js 15+ Migration**: Migrated from deprecated middleware to new proxy convention
+  - Renamed middleware.ts to proxy.ts
+  - Changed function name from `middleware` to `proxy`
+  - Maintains all authentication and route protection logic
+  - Eliminates deprecation warnings in production builds
 
 **v2.6 - Pre-Launch Features:**
 - ✅ **Remove Default Ratings**: Eliminated misleading placeholder values (8.5, 9.2) from rating inputs
@@ -382,7 +396,7 @@
 - `npm run migrate:rollback` - Rollback last migration
 - See [MIGRATIONS_GUIDE.md](MIGRATIONS_GUIDE.md) for full documentation
 
-### Authentication & Authorization ✅ COMPLETE! (v2.5 with Sign-Up)
+### Authentication & Authorization ✅ COMPLETE! (v2.5 with Sign-Up, v2.8 with Proxy Migration)
 - ✅ Supabase Auth with Google OAuth (ready) and Magic Link (passwordless email)
 - ✅ Public sign-up form at `/signup` with name collection
 - ✅ Welcome page for first-time users at `/welcome`
@@ -390,14 +404,14 @@
 - ✅ Smart account linking: existing participants can claim their accounts
 - ✅ Curator permission system with `is_curator` flag
 - ✅ Protected /admin dashboard and all admin API routes
-- ✅ Middleware-based route protection
+- ✅ Next.js 15+ proxy-based route protection (migrated from deprecated middleware)
 - ✅ Row Level Security (RLS) policies on all tables
 - ✅ Auto-linking of participants to auth accounts on signup via database trigger
 - ✅ Unauthorized access page for non-curators
 - ✅ Session management with secure cookies
 
 **What's Built**:
-- `middleware.ts` - Route protection middleware
+- `proxy.ts` - Route protection using Next.js 15+ proxy convention (migrated from middleware.ts)
 - `lib/auth/supabaseAuthClient.ts` - Auth client setup
 - `lib/auth/supabaseAuthClientBrowser.ts` - Browser auth client
 - `lib/auth/utils.ts` - Session helpers
