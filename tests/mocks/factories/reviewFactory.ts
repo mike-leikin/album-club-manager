@@ -4,6 +4,13 @@ let reviewIdCounter = 0
 
 export function createMockReview(overrides?: Partial<Review>): Review {
   reviewIdCounter++
+  const {
+    moderation_status = 'approved',
+    moderated_at = null,
+    moderated_by = null,
+    moderation_notes = null,
+    ...rest
+  } = overrides ?? {}
   return {
     id: `review-${reviewIdCounter}`,
     week_number: 1,
@@ -15,7 +22,11 @@ export function createMockReview(overrides?: Partial<Review>): Review {
     album_recommendation: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
-    ...overrides,
+    moderation_status,
+    moderated_at,
+    moderated_by,
+    moderation_notes,
+    ...rest,
   }
 }
 
