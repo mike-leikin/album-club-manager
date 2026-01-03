@@ -64,6 +64,26 @@ export async function POST(request: NextRequest) {
 
     logger.info("Participants loaded", { count: participants.length, weekNumber, requestId });
 
+    const formatWeekLabel = (
+      dateStr: string | null | undefined,
+      fallbackWeekNumber?: number
+    ) => {
+      if (!dateStr) {
+        return fallbackWeekNumber ? `Week ${fallbackWeekNumber}` : "Album Club";
+      }
+      const date = new Date(dateStr);
+      if (Number.isNaN(date.getTime())) {
+        return fallbackWeekNumber ? `Week ${fallbackWeekNumber}` : "Album Club";
+      }
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    };
+
+    const weekLabel = formatWeekLabel(week.created_at, weekNumber);
+
     // Fetch previous week's review stats (if available, only approved reviews)
     let reviewStats = null;
     const prevWeek = weekNumber - 1;
@@ -78,12 +98,23 @@ export async function POST(request: NextRequest) {
         .eq("moderation_status", "approved");
 
       if (stats && stats.length > 0) {
+        let prevWeekLabel = `Week ${prevWeek}`;
+        const { data: prevWeekData, error: prevWeekError } = await supabase
+          .from("weeks")
+          .select("created_at")
+          .eq("week_number", prevWeek)
+          .single();
+        if (!prevWeekError && prevWeekData?.created_at) {
+          prevWeekLabel = formatWeekLabel(prevWeekData.created_at, prevWeek);
+        }
+
         // Calculate stats
         const contempReviews = stats.filter((r: any) => r.contemporary_rating !== null);
         const classicReviews = stats.filter((r: any) => r.classic_rating !== null);
 
         reviewStats = {
           prevWeek,
+          prevWeekLabel,
           contemporary: {
             avgRating: contempReviews.length > 0
               ? (contempReviews.reduce((sum: number, r: any) => sum + r.contemporary_rating, 0) / contempReviews.length).toFixed(1)
@@ -158,7 +189,7 @@ export async function POST(request: NextRequest) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Album Club – Week ${weekNumber}</title>
+  <title>Album Club – ${weekLabel}</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #000000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #000000;">
@@ -170,7 +201,7 @@ export async function POST(request: NextRequest) {
           <tr>
             <td style="padding: 32px 32px 24px; background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%); border-bottom: 1px solid #1f1f1f;">
               <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">Album Club</h1>
-              <p style="margin: 8px 0 0; color: #a1a1a1; font-size: 16px;">Week ${weekNumber}</p>
+              <p style="margin: 8px 0 0; color: #a1a1a1; font-size: 16px;">${weekLabel}</p>
             </td>
           </tr>
 
@@ -210,7 +241,7 @@ export async function POST(request: NextRequest) {
           <tr>
             <td style="padding: 0 32px 24px;">
               <div style="background-color: #111111; border: 1px solid #1f1f1f; border-radius: 12px; padding: 20px;">
-                <h2 style="margin: 0 0 16px; color: #10b981; font-size: 18px; font-weight: 600;">📊 Week ${reviewStats.prevWeek} Results</h2>
+                <h2 style="margin: 0 0 16px; color: #10b981; font-size: 18px; font-weight: 600;">📊 ${reviewStats.prevWeekLabel} Results</h2>
 `;
 
         if (reviewStats.contemporary.count > 0) {
@@ -417,7 +448,7 @@ export async function POST(request: NextRequest) {
       }
 
       if (reviewStats) {
-        textBody += `=== Week ${reviewStats.prevWeek} Results ===\n\n`;
+        textBody += `=== ${reviewStats.prevWeekLabel} Results ===\n\n`;
 
         if (reviewStats.contemporary.count > 0) {
           textBody += `🔊 Contemporary: ${reviewStats.contemporary.avgRating}/10 (${reviewStats.contemporary.count} ${reviewStats.contemporary.count === 1 ? 'review' : 'reviews'})\n`;
@@ -484,7 +515,7 @@ export async function POST(request: NextRequest) {
           from: process.env.RESEND_FROM_EMAIL || "Album Club <onboarding@resend.dev>",
           replyTo: process.env.RESEND_REPLY_TO_EMAIL,
           to: participant.email,
-          subject: `Album Club – Week ${weekNumber}`,
+          subject: `Album Club – ${weekLabel}`,
           html: htmlBody,
           text: textBody,
         });

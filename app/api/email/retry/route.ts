@@ -137,6 +137,26 @@ export async function POST(request: NextRequest) {
       }
     };
 
+    const formatWeekLabel = (
+      dateStr: string | null | undefined,
+      fallbackWeekNumber?: number
+    ) => {
+      if (!dateStr) {
+        return fallbackWeekNumber ? `Week ${fallbackWeekNumber}` : "Album Club";
+      }
+      const date = new Date(dateStr);
+      if (Number.isNaN(date.getTime())) {
+        return fallbackWeekNumber ? `Week ${fallbackWeekNumber}` : "Album Club";
+      }
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    };
+
+    const weekLabel = formatWeekLabel(week.created_at, weekNumber);
+
     // Format deadline
     const formatDeadline = (dateStr: string) => {
       const date = new Date(dateStr);
@@ -158,24 +178,24 @@ export async function POST(request: NextRequest) {
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Album Club – Week ${weekNumber}</title>
+  <title>Album Club – ${weekLabel}</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #000000; font-family: sans-serif;">
-  <h1>Album Club - Week ${weekNumber}</h1>
+  <h1>Album Club - ${weekLabel}</h1>
   <p>Hi ${firstName},</p>
-  <p>This is a retry of the email for Week ${weekNumber}.</p>
+  <p>This is a retry of the email for ${weekLabel}.</p>
   <a href="${submitUrl}">Submit Your Review</a>
 </body>
 </html>`;
 
-      let textBody = `Hi ${firstName},\n\nThis is a retry of the email for Week ${weekNumber}.\n\nSubmit your review here:\n${submitUrl}\n\n- Mike`;
+      let textBody = `Hi ${firstName},\n\nThis is a retry of the email for ${weekLabel}.\n\nSubmit your review here:\n${submitUrl}\n\n- Mike`;
 
       try {
         const result = await resend.emails.send({
           from: process.env.RESEND_FROM_EMAIL || "Album Club <onboarding@resend.dev>",
           replyTo: process.env.RESEND_REPLY_TO_EMAIL,
           to: participant.email,
-          subject: `Album Club – Week ${weekNumber}`,
+          subject: `Album Club – ${weekLabel}`,
           html: htmlBody,
           text: textBody,
         });

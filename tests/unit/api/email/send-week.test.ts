@@ -260,6 +260,7 @@ describe('POST /api/email/send-week', () => {
           participant: { name: 'John Doe' },
         },
       ]
+      const prevWeekCreatedAt = '2026-01-04T00:00:00.000Z'
 
       // Mock week lookup - .eq().single()
       mockSupabase.eq.mockReturnValueOnce(mockSupabase)
@@ -272,6 +273,7 @@ describe('POST /api/email/send-week', () => {
       mockSupabase.select
         .mockReturnValueOnce(mockSupabase)  // For participants select
         .mockReturnValueOnce(mockSupabase)  // For reviews select
+        .mockReturnValueOnce(mockSupabase)  // For previous week label select
       mockSupabase.is.mockReturnValueOnce(mockSupabase)
       mockSupabase.eq
         .mockReturnValueOnce(mockSupabase)   // For participants eq(email_subscribed)
@@ -280,8 +282,13 @@ describe('POST /api/email/send-week', () => {
           data: mockPreviousWeekReviews,
           error: null,
         })
+        .mockReturnValueOnce(mockSupabase)   // For previous week eq(week_number)
       mockSupabase.order.mockResolvedValueOnce({
         data: mockParticipants,
+        error: null,
+      })
+      mockSupabase.single.mockResolvedValueOnce({
+        data: { created_at: prevWeekCreatedAt },
         error: null,
       })
 
@@ -303,8 +310,13 @@ describe('POST /api/email/send-week', () => {
       expect(data.success).toBe(true)
 
       // Verify email content includes stats
+      const prevWeekLabel = new Date(prevWeekCreatedAt).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      })
       const emailCall = mockEmailContainer.send.mock.calls[0][0]
-      expect(emailCall.html).toContain('Week 1 Results')
+      expect(emailCall.html).toContain(`${prevWeekLabel} Results`)
       expect(emailCall.html).toContain('8.5/10')
     })
 

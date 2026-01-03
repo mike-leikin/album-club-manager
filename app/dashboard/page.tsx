@@ -38,6 +38,24 @@ type MyReviewsResponse = {
   };
 };
 
+const formatWeekLabel = (
+  dateStr: string | null | undefined,
+  fallbackWeekNumber?: number
+) => {
+  if (!dateStr) {
+    return fallbackWeekNumber ? `Week ${fallbackWeekNumber}` : "Album Club";
+  }
+  const date = new Date(dateStr);
+  if (Number.isNaN(date.getTime())) {
+    return fallbackWeekNumber ? `Week ${fallbackWeekNumber}` : "Album Club";
+  }
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
 export default function DashboardPage() {
   const [allWeeks, setAllWeeks] = useState<WeekWithReviewStatus[]>([]);
   const [stats, setStats] = useState<ReviewStats | null>(null);
@@ -466,7 +484,7 @@ function WeekCard({
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-              Week {week.week_number}
+              {formatWeekLabel(week.created_at, week.week_number)}
               {isCurrentWeek && (
                 <span className="text-xs font-medium px-2 py-1 bg-green-100 text-green-800 rounded">
                   Current
