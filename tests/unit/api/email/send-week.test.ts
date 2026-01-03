@@ -89,6 +89,7 @@ describe('POST /api/email/send-week', () => {
       from: vi.fn().mockReturnThis(),
       select: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
+      is: vi.fn().mockReturnThis(),
       order: vi.fn().mockReturnThis(),
       single: vi.fn(),
       insert: vi.fn().mockReturnThis(),
@@ -173,14 +174,17 @@ describe('POST /api/email/send-week', () => {
     })
 
     it('returns 404 when no participants found', async () => {
-      // Mock week lookup to succeed
+      // Mock week lookup - .eq().single()
+      mockSupabase.eq.mockReturnValueOnce(mockSupabase) // For week .eq()
       mockSupabase.single.mockResolvedValueOnce({
         data: mockWeek,
         error: null,
       })
 
-      // Mock participants lookup - select() returns this, order() resolves with empty array
-      mockSupabase.select.mockReturnValueOnce(mockSupabase) // For week select
+      // Mock participants lookup - .select().is().eq().order()
+      mockSupabase.select.mockReturnValueOnce(mockSupabase) // For participants select
+      mockSupabase.is.mockReturnValueOnce(mockSupabase)     // For is(deleted_at, null)
+      mockSupabase.eq.mockReturnValueOnce(mockSupabase)     // For eq(email_subscribed, true)
       mockSupabase.order.mockResolvedValueOnce({
         data: [],
         error: null,
@@ -201,14 +205,17 @@ describe('POST /api/email/send-week', () => {
 
   describe('Successful email sending', () => {
     it('sends emails to all participants successfully', async () => {
-      // Mock week lookup
+      // Mock week lookup - .eq().single()
+      mockSupabase.eq.mockReturnValueOnce(mockSupabase)
       mockSupabase.single.mockResolvedValueOnce({
         data: mockWeek,
         error: null,
       })
 
-      // Mock participants lookup
-      mockSupabase.select.mockReturnValueOnce(mockSupabase) // For week select
+      // Mock participants lookup - .select().is().eq().order()
+      mockSupabase.select.mockReturnValueOnce(mockSupabase)
+      mockSupabase.is.mockReturnValueOnce(mockSupabase)
+      mockSupabase.eq.mockReturnValueOnce(mockSupabase)
       mockSupabase.order.mockResolvedValueOnce({
         data: mockParticipants,
         error: null,
@@ -221,6 +228,9 @@ describe('POST /api/email/send-week', () => {
       mockEmailContainer.send
         .mockResolvedValueOnce({ data: { id: 'email-1' } })
         .mockResolvedValueOnce({ data: { id: 'email-2' } })
+
+      // Mock email logging (insert is called for each email)
+      mockSupabase.insert.mockResolvedValue({ data: null, error: null })
 
       const request = new Request('http://localhost/api/email/send-week', {
         method: 'POST',
@@ -251,30 +261,34 @@ describe('POST /api/email/send-week', () => {
         },
       ]
 
-      // Mock week lookup - ends with .eq().single()
-      mockSupabase.eq.mockReturnValueOnce(mockSupabase) // For week .eq() - returns this for .single()
+      // Mock week lookup - .eq().single()
+      mockSupabase.eq.mockReturnValueOnce(mockSupabase)
       mockSupabase.single.mockResolvedValueOnce({
         data: mockWeek,
         error: null,
       })
 
-      // Mock participants
+      // Mock participants - .select().is().eq().order()
       mockSupabase.select
-        .mockReturnValueOnce(mockSupabase)       // For week select
-        .mockReturnValueOnce(mockSupabase)       // For reviews select() chain
-      mockSupabase.order.mockResolvedValueOnce({  // For participants order()
+        .mockReturnValueOnce(mockSupabase)  // For participants select
+        .mockReturnValueOnce(mockSupabase)  // For reviews select
+      mockSupabase.is.mockReturnValueOnce(mockSupabase)
+      mockSupabase.eq
+        .mockReturnValueOnce(mockSupabase)   // For participants eq(email_subscribed)
+        .mockResolvedValueOnce({              // For reviews eq(week_number)
+          data: mockPreviousWeekReviews,
+          error: null,
+        })
+      mockSupabase.order.mockResolvedValueOnce({
         data: mockParticipants,
-        error: null,
-      })
-
-      // Mock previous week reviews query - ends with .eq()
-      mockSupabase.eq.mockResolvedValueOnce({
-        data: mockPreviousWeekReviews,
         error: null,
       })
 
       // Mock email sending
       mockEmailContainer.send.mockResolvedValue({ data: { id: 'email-1' } })
+
+      // Mock email logging
+      mockSupabase.insert.mockResolvedValue({ data: null, error: null })
 
       const request = new Request('http://localhost/api/email/send-week', {
         method: 'POST',
@@ -294,13 +308,17 @@ describe('POST /api/email/send-week', () => {
     })
 
     it('logs email attempts to database', async () => {
-      // Mock week and participants
+      // Mock week lookup - .eq().single()
+      mockSupabase.eq.mockReturnValueOnce(mockSupabase)
       mockSupabase.single.mockResolvedValueOnce({
         data: mockWeek,
         error: null,
       })
 
-      mockSupabase.select.mockReturnValueOnce(mockSupabase) // For week select
+      // Mock participants - .select().is().eq().order()
+      mockSupabase.select.mockReturnValueOnce(mockSupabase)
+      mockSupabase.is.mockReturnValueOnce(mockSupabase)
+      mockSupabase.eq.mockReturnValueOnce(mockSupabase)
       mockSupabase.order.mockResolvedValueOnce({
         data: mockParticipants,
         error: null,
@@ -325,13 +343,17 @@ describe('POST /api/email/send-week', () => {
     })
 
     it('handles partial email failures gracefully', async () => {
-      // Mock week and participants
+      // Mock week lookup - .eq().single()
+      mockSupabase.eq.mockReturnValueOnce(mockSupabase)
       mockSupabase.single.mockResolvedValueOnce({
         data: mockWeek,
         error: null,
       })
 
-      mockSupabase.select.mockReturnValueOnce(mockSupabase) // For week select
+      // Mock participants - .select().is().eq().order()
+      mockSupabase.select.mockReturnValueOnce(mockSupabase)
+      mockSupabase.is.mockReturnValueOnce(mockSupabase)
+      mockSupabase.eq.mockReturnValueOnce(mockSupabase)
       mockSupabase.order.mockResolvedValueOnce({
         data: mockParticipants,
         error: null,
@@ -341,6 +363,9 @@ describe('POST /api/email/send-week', () => {
       mockEmailContainer.send
         .mockResolvedValueOnce({ data: { id: 'email-1' } })
         .mockRejectedValueOnce(new Error('Email service error'))
+
+      // Mock email logging
+      mockSupabase.insert.mockResolvedValue({ data: null, error: null })
 
       const request = new Request('http://localhost/api/email/send-week', {
         method: 'POST',
@@ -360,13 +385,17 @@ describe('POST /api/email/send-week', () => {
 
   describe('Database logging', () => {
     it('continues even if database logging fails', async () => {
-      // Mock week and participants
+      // Mock week lookup - .eq().single()
+      mockSupabase.eq.mockReturnValueOnce(mockSupabase)
       mockSupabase.single.mockResolvedValueOnce({
         data: mockWeek,
         error: null,
       })
 
+      // Mock participants - .select().is().eq().order()
       mockSupabase.select.mockReturnValueOnce(mockSupabase)
+      mockSupabase.is.mockReturnValueOnce(mockSupabase)
+      mockSupabase.eq.mockReturnValueOnce(mockSupabase)
       mockSupabase.order.mockResolvedValueOnce({
         data: [mockParticipants[0]],
         error: null,
@@ -413,19 +442,24 @@ describe('POST /api/email/send-week', () => {
 
   describe('Email content', () => {
     it('includes submit URL with participant email', async () => {
-      // Mock week and participants
+      // Mock week lookup - .eq().single()
+      mockSupabase.eq.mockReturnValueOnce(mockSupabase)
       mockSupabase.single.mockResolvedValueOnce({
         data: mockWeek,
         error: null,
       })
 
-      mockSupabase.select.mockReturnValueOnce(mockSupabase) // For week select
+      // Mock participants - .select().is().eq().order()
+      mockSupabase.select.mockReturnValueOnce(mockSupabase)
+      mockSupabase.is.mockReturnValueOnce(mockSupabase)
+      mockSupabase.eq.mockReturnValueOnce(mockSupabase)
       mockSupabase.order.mockResolvedValueOnce({
         data: [mockParticipants[0]],
         error: null,
       })
 
       mockEmailContainer.send.mockResolvedValue({ data: { id: 'email-1' } })
+      mockSupabase.insert.mockResolvedValue({ data: null, error: null })
 
       const request = new Request('http://localhost/api/email/send-week', {
         method: 'POST',
@@ -440,19 +474,24 @@ describe('POST /api/email/send-week', () => {
     })
 
     it('uses first name in greeting', async () => {
-      // Mock week and participants
+      // Mock week lookup - .eq().single()
+      mockSupabase.eq.mockReturnValueOnce(mockSupabase)
       mockSupabase.single.mockResolvedValueOnce({
         data: mockWeek,
         error: null,
       })
 
-      mockSupabase.select.mockReturnValueOnce(mockSupabase) // For week select
+      // Mock participants - .select().is().eq().order()
+      mockSupabase.select.mockReturnValueOnce(mockSupabase)
+      mockSupabase.is.mockReturnValueOnce(mockSupabase)
+      mockSupabase.eq.mockReturnValueOnce(mockSupabase)
       mockSupabase.order.mockResolvedValueOnce({
         data: [mockParticipants[0]], // John Doe
         error: null,
       })
 
       mockEmailContainer.send.mockResolvedValue({ data: { id: 'email-1' } })
+      mockSupabase.insert.mockResolvedValue({ data: null, error: null })
 
       const request = new Request('http://localhost/api/email/send-week', {
         method: 'POST',
@@ -467,19 +506,24 @@ describe('POST /api/email/send-week', () => {
     })
 
     it('includes both contemporary and classic albums', async () => {
-      // Mock week and participants
+      // Mock week lookup - .eq().single()
+      mockSupabase.eq.mockReturnValueOnce(mockSupabase)
       mockSupabase.single.mockResolvedValueOnce({
         data: mockWeek,
         error: null,
       })
 
-      mockSupabase.select.mockReturnValueOnce(mockSupabase) // For week select
+      // Mock participants - .select().is().eq().order()
+      mockSupabase.select.mockReturnValueOnce(mockSupabase)
+      mockSupabase.is.mockReturnValueOnce(mockSupabase)
+      mockSupabase.eq.mockReturnValueOnce(mockSupabase)
       mockSupabase.order.mockResolvedValueOnce({
         data: [mockParticipants[0]],
         error: null,
       })
 
       mockEmailContainer.send.mockResolvedValue({ data: { id: 'email-1' } })
+      mockSupabase.insert.mockResolvedValue({ data: null, error: null })
 
       const request = new Request('http://localhost/api/email/send-week', {
         method: 'POST',
@@ -496,19 +540,24 @@ describe('POST /api/email/send-week', () => {
     })
 
     it('includes deadline in email', async () => {
-      // Mock week and participants
+      // Mock week lookup - .eq().single()
+      mockSupabase.eq.mockReturnValueOnce(mockSupabase)
       mockSupabase.single.mockResolvedValueOnce({
         data: mockWeek,
         error: null,
       })
 
-      mockSupabase.select.mockReturnValueOnce(mockSupabase) // For week select
+      // Mock participants - .select().is().eq().order()
+      mockSupabase.select.mockReturnValueOnce(mockSupabase)
+      mockSupabase.is.mockReturnValueOnce(mockSupabase)
+      mockSupabase.eq.mockReturnValueOnce(mockSupabase)
       mockSupabase.order.mockResolvedValueOnce({
         data: [mockParticipants[0]],
         error: null,
       })
 
       mockEmailContainer.send.mockResolvedValue({ data: { id: 'email-1' } })
+      mockSupabase.insert.mockResolvedValue({ data: null, error: null })
 
       const request = new Request('http://localhost/api/email/send-week', {
         method: 'POST',

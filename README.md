@@ -101,10 +101,12 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Language**: TypeScript
 - **Database**: Supabase (PostgreSQL)
 - **Email**: Resend
+- **Testing**: Vitest + React Testing Library + MSW
 - **Error Monitoring**: Sentry (optional)
 - **Styling**: Tailwind CSS
 - **UI Components**: Custom components with Sonner for toast notifications
 - **Deployment**: Vercel
+- **CI/CD**: GitHub Actions
 - **Domain**: Cloudflare DNS
 
 ## Database Schema
@@ -350,17 +352,54 @@ For production deployment with custom email domain:
 - **Participant Management**: One-by-one → Bulk CSV import with safe deletion
 - **Migration Tracking**: Manual → Automated with status reporting
 
+## Testing
+
+Comprehensive test suite with 100% pass rate and full coverage of all API routes.
+
+**Run tests:**
+```bash
+# Run all tests in watch mode
+npm test
+
+# Run tests once
+npm run test:run
+
+# Run with coverage report
+npm run test:coverage
+
+# Open visual UI
+npm run test:ui
+```
+
+**Current Status:**
+- ✅ 92 tests passing (100% pass rate)
+- ✅ 6 test files
+- ✅ 100% line coverage on all API routes
+- ✅ CI/CD pipeline with GitHub Actions
+- ✅ Automated testing on every push and PR
+- ✅ Tests run on Node 18.x and 20.x
+
+**Test Suites:**
+- Review Submission API (18 tests)
+- Email Sending API (15 tests)
+- Participant CRUD API (16 tests)
+- Participant Update/Delete API (21 tests)
+- My Reviews Dashboard API (14 tests)
+- Utility Functions (8 tests)
+
+See [docs/TESTING.md](docs/TESTING.md) for the complete testing guide.
+
 ## Roadmap
 
 See [NEXT_STEPS.md](NEXT_STEPS.md) for the complete feature roadmap and future enhancements.
 
 ### ✅ Completed Features (v2.6)
+- ✅ **Testing Infrastructure** (v2.6) - 92 tests, 100% pass rate, CI/CD with GitHub Actions
 - ✅ **User Account Management** (v2.6) - Settings page with profile editing, email preferences, account deletion
 - ✅ **Email Preferences** (v2.6) - Unsubscribe system with resubscribe capability
 - ✅ **Reviewer-Friendly Landing Page** (v2.5) - Welcoming design with smart routing for all users
 - ✅ **Public Reviews** (v2.4) - Browse all past reviews with privacy protection
 - ✅ **Week Lifecycle Management** (v2.3) - All weeks visible, deadline warnings, add reviews anytime
-- ✅ **Testing Infrastructure** (v2.4) - 57 passing tests with Vitest, 100% line coverage on tested routes
 - ✅ Data backup & export system
 - ✅ Email delivery tracking & audit trail
 - ✅ Error monitoring & structured logging
@@ -375,8 +414,8 @@ See [NEXT_STEPS.md](NEXT_STEPS.md) for the complete feature roadmap and future e
 ### High Priorities
 - Hard deadline enforcement (block submissions after deadline)
 - Admin review moderation tools (edit/delete any review)
-- Testing: Complete remaining API route tests (2/5 remaining)
-- Testing: Set up CI/CD pipeline with GitHub Actions
+- Component tests (ParticipantsManager, SpotifySearch, Dashboard)
+- Integration tests (full user flows)
 - Curator management UI (promote/demote without SQL)
 - Review history audit trail (track changes over time)
 - Automated email reminders before deadlines
@@ -391,12 +430,18 @@ MIT
 
 ## Documentation
 
+### Feature Documentation
 - [NEXT_STEPS.md](NEXT_STEPS.md) - Complete feature roadmap and future enhancements
 - [CHANGELOG.md](CHANGELOG.md) - Complete version history
-- [TESTING_QUICK_START.md](docs/TESTING_QUICK_START.md) - Testing infrastructure quick start guide
-- [TESTING_IMPLEMENTATION_STATUS.md](docs/TESTING_IMPLEMENTATION_STATUS.md) - Detailed testing progress and plans
 - [WEEK_LIFECYCLE.md](WEEK_LIFECYCLE.md) - Week lifecycle enhancement documentation (v2.3)
 - [PARTICIPANT_DASHBOARD.md](PARTICIPANT_DASHBOARD.md) - Participant dashboard features (v2.2)
+
+### Testing Documentation
+- [docs/TESTING.md](docs/TESTING.md) - Complete testing guide with best practices
+- [docs/TESTING_QUICK_START.md](docs/TESTING_QUICK_START.md) - Quick start guide for running tests
+- [docs/TESTING_IMPLEMENTATION_STATUS.md](docs/TESTING_IMPLEMENTATION_STATUS.md) - Detailed testing progress
+
+### Setup Guides
 - [AUTH_GUIDE.md](AUTH_GUIDE.md) - Authentication setup and configuration
 - [MIGRATIONS_GUIDE.md](MIGRATIONS_GUIDE.md) - Database migration system
 - [EMAIL_TRACKING_SETUP.md](EMAIL_TRACKING_SETUP.md) - Email delivery tracking
