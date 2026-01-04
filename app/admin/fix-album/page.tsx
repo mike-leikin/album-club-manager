@@ -145,7 +145,7 @@ export default function FixAlbumPage() {
                       <div key={i} className="bg-gray-900 rounded p-3 text-sm">
                         <p><strong>{i + 1}.</strong> {r.name}</p>
                         <p className="text-gray-400">
-                          {r.artist} ({r.year}) - {r.type}
+                          {r.artist} ({r.year})
                         </p>
                       </div>
                     ))}

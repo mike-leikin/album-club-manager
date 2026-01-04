@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = createServerClient();
+    const supabase = createServerClient() as any;
 
     // Search Spotify with specific query using album and artist fields
     const searchQuery = `album:"${album}" artist:"${artist}"`;
@@ -35,13 +35,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find best match - prioritize correct year and album type
+    // Find best match - prioritize correct year
     const bestMatch = results.find(r => {
       const spotifyYear = parseInt(r.release_date.split('-')[0]);
-      const isCorrectYear = spotifyYear === year;
-      const isAlbum = r.album_type === 'album';
-      return isCorrectYear && isAlbum;
-    }) || results.find(r => r.album_type === 'album') || results[0];
+      return spotifyYear === year;
+    }) || results[0];
 
     // Update the database
     const { error: updateError } = await supabase
@@ -71,7 +69,6 @@ export async function POST(request: NextRequest) {
         name: r.name,
         artist: r.artists.map(a => a.name).join(', '),
         year: parseInt(r.release_date.split('-')[0]),
-        type: r.album_type,
         url: r.external_urls.spotify,
       }))
     });
