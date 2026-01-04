@@ -36,8 +36,25 @@ export async function GET(request: NextRequest) {
     const supabase = createServerClient();
     const { searchParams } = new URL(request.url);
     const all = searchParams.get('all') === 'true';
+    const weekNumber = searchParams.get('week_number');
 
-    if (all) {
+    if (weekNumber) {
+      // Return specific week by week_number
+      const { data, error } = await supabase
+        .from("weeks")
+        .select("*")
+        .eq("week_number", parseInt(weekNumber))
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          return NextResponse.json({ data: null });
+        }
+        throw error;
+      }
+
+      return NextResponse.json({ data });
+    } else if (all) {
       // Return all weeks
       const { data, error } = await supabase
         .from("weeks")
@@ -69,6 +86,43 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unable to load weeks";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  // Check auth first
+  const authError = await requireCuratorApi(request);
+  if (authError) return authError;
+
+  try {
+    const supabase = createServerClient();
+    const { searchParams } = new URL(request.url);
+    const weekNumber = searchParams.get('week_number');
+
+    if (!weekNumber) {
+      return NextResponse.json(
+        { error: "week_number parameter is required" },
+        { status: 400 }
+      );
+    }
+
+    const { error } = await supabase
+      .from("weeks")
+      .delete()
+      .eq("week_number", parseInt(weekNumber));
+
+    if (error) {
+      return NextResponse.json(
+        { error: error.message || "Unable to delete week" },
+        { status: 400 }
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Failed to delete week";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

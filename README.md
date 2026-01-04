@@ -51,9 +51,12 @@ Album Club Manager streamlines the process of running a weekly music club where 
   - Delete account with review preservation
 
 ### 📊 Admin Dashboard
+- **Auto-Incrementing Weeks**: Week numbers automatically increment (no manual entry needed)
 - **Week Management**: Create and edit weekly album selections
 - **Copy Previous Week**: Quickly duplicate the previous week's setup
 - **Week History Browser**: View and edit all past weeks with album thumbnails
+- **Delete Weeks**: Remove weeks from history with confirmation dialog (curator-only)
+- **Enhanced Date Picker**: Dark mode calendar with minimum date validation
 - **Email Preview**: See exactly what participants will receive before sending
 - **Email Delivery Tracking**: Complete audit trail with retry capability for failed sends
 - **Data Export**: One-click export of all reviews, participants, and week history

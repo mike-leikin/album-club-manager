@@ -65,6 +65,7 @@ export default function AdminPage() {
   // Week history
   const [weekHistory, setWeekHistory] = useState<any[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [deletingWeekId, setDeletingWeekId] = useState<string | null>(null);
 
   // Contemporary album
   const [contemporary, setContemporary] = useState<Album>({
@@ -318,28 +319,35 @@ export default function AdminPage() {
           throw new Error(result?.error || "Failed to load latest week.");
         }
 
-        if (!result?.data || cancelled) return;
+        if (cancelled) return;
 
-        const latest = result.data;
-        setWeekNumber(
-          latest.week_number ? String(latest.week_number) : "1",
-        );
-        setResponseDeadline(latest.response_deadline ?? "");
-        setContemporary({
-          title: latest.contemporary_title ?? "",
-          artist: latest.contemporary_artist ?? "",
-          year: latest.contemporary_year ?? "",
-          spotifyUrl: latest.contemporary_spotify_url ?? "",
-          albumArtUrl: latest.contemporary_album_art_url ?? "",
-        });
-        setClassic({
-          title: latest.classic_title ?? "",
-          artist: latest.classic_artist ?? "",
-          year: latest.classic_year ?? "",
-          spotifyUrl: latest.classic_spotify_url ?? "",
-          albumArtUrl: latest.classic_album_art_url ?? "",
-          rollingStoneRank: latest.rs_rank ? String(latest.rs_rank) : "",
-        });
+        // If there's a latest week, set up form for the NEXT week
+        if (result?.data) {
+          const latest = result.data;
+          const nextWeekNumber = latest.week_number ? latest.week_number + 1 : 1;
+          setWeekNumber(String(nextWeekNumber));
+
+          // Load the latest week's data as template
+          setResponseDeadline(latest.response_deadline ?? "");
+          setContemporary({
+            title: latest.contemporary_title ?? "",
+            artist: latest.contemporary_artist ?? "",
+            year: latest.contemporary_year ?? "",
+            spotifyUrl: latest.contemporary_spotify_url ?? "",
+            albumArtUrl: latest.contemporary_album_art_url ?? "",
+          });
+          setClassic({
+            title: latest.classic_title ?? "",
+            artist: latest.classic_artist ?? "",
+            year: latest.classic_year ?? "",
+            spotifyUrl: latest.classic_spotify_url ?? "",
+            albumArtUrl: latest.classic_album_art_url ?? "",
+            rollingStoneRank: latest.rs_rank ? String(latest.rs_rank) : "",
+          });
+        } else {
+          // No weeks exist yet, start with week 1
+          setWeekNumber("1");
+        }
       } catch (error) {
         console.error(error);
       }
@@ -504,6 +512,45 @@ export default function AdminPage() {
     setIsSaving(false);
   };
 
+  const handleDeleteWeek = async (weekNumber: number) => {
+    if (!confirm(`Are you sure you want to delete Week ${weekNumber}? This will also delete all associated reviews and cannot be undone.`)) {
+      return;
+    }
+
+    setDeletingWeekId(String(weekNumber));
+
+    try {
+      const response = await fetch(`/api/weeks?week_number=${weekNumber}`, {
+        method: "DELETE",
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result?.error || "Failed to delete week");
+      }
+
+      toast.success(`Week ${weekNumber} deleted successfully`);
+
+      // Refresh the week history
+      const historyResponse = await fetch("/api/weeks/all");
+      const historyResult = await historyResponse.json();
+
+      if (historyResponse.ok && historyResult.data) {
+        const sorted = [...historyResult.data].sort((a, b) => b.week_number - a.week_number);
+        setWeekHistory(sorted);
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to delete week"
+      );
+    } finally {
+      setDeletingWeekId(null);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-black text-gray-50">
       <div className="mx-auto max-w-7xl px-4 py-8">
@@ -629,21 +676,7 @@ export default function AdminPage() {
 
           {/* Week setup */}
           <div className="mb-6 space-y-3">
-            <h2 className="text-lg font-semibold">This Week&apos;s Setup</h2>
-
-            <div>
-              <label className="block text-sm font-medium text-zinc-300">
-                Week Number
-              </label>
-              <input
-                type="number"
-                value={weekNumber}
-                onChange={(e) => setWeekNumber(e.target.value)}
-                className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none"
-                placeholder="1"
-                min={1}
-              />
-            </div>
+            <h2 className="text-lg font-semibold">This Week&apos;s Setup (Week {weekNumber})</h2>
 
             <div>
               <label className="block text-sm font-medium text-zinc-300">
@@ -653,7 +686,8 @@ export default function AdminPage() {
                 type="date"
                 value={responseDeadline}
                 onChange={(e) => setResponseDeadline(e.target.value)}
-                className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none [color-scheme:dark]"
+                min={new Date().toISOString().split("T")[0]}
               />
             </div>
           </div>
@@ -1091,33 +1125,42 @@ export default function AdminPage() {
                           </p>
                         )}
                       </div>
-                      <button
-                        onClick={() => {
-                          // Load this week's data into the form
-                          setWeekNumber(String(week.week_number));
-                          setResponseDeadline(week.response_deadline || "");
-                          setContemporary({
-                            title: week.contemporary_title || "",
-                            artist: week.contemporary_artist || "",
-                            year: week.contemporary_year || "",
-                            spotifyUrl: week.contemporary_spotify_url || "",
-                            albumArtUrl: week.contemporary_album_art_url || "",
-                          });
-                          setClassic({
-                            title: week.classic_title || "",
-                            artist: week.classic_artist || "",
-                            year: week.classic_year || "",
-                            spotifyUrl: week.classic_spotify_url || "",
-                            albumArtUrl: week.classic_album_art_url || "",
-                            rollingStoneRank: week.rs_rank ? String(week.rs_rank) : "",
-                          });
-                          setActiveTab("week");
-                          toast.success(`Loaded Week ${week.week_number} for editing`);
-                        }}
-                        className="rounded-md border border-blue-500 px-3 py-1 text-xs font-medium text-white transition hover:bg-blue-500"
-                      >
-                        Edit
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            // Load this week's data into the form
+                            setWeekNumber(String(week.week_number));
+                            setResponseDeadline(week.response_deadline || "");
+                            setContemporary({
+                              title: week.contemporary_title || "",
+                              artist: week.contemporary_artist || "",
+                              year: week.contemporary_year || "",
+                              spotifyUrl: week.contemporary_spotify_url || "",
+                              albumArtUrl: week.contemporary_album_art_url || "",
+                            });
+                            setClassic({
+                              title: week.classic_title || "",
+                              artist: week.classic_artist || "",
+                              year: week.classic_year || "",
+                              spotifyUrl: week.classic_spotify_url || "",
+                              albumArtUrl: week.classic_album_art_url || "",
+                              rollingStoneRank: week.rs_rank ? String(week.rs_rank) : "",
+                            });
+                            setActiveTab("week");
+                            toast.success(`Loaded Week ${week.week_number} for editing`);
+                          }}
+                          className="rounded-md border border-blue-500 px-3 py-1 text-xs font-medium text-white transition hover:bg-blue-500"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteWeek(week.week_number)}
+                          disabled={deletingWeekId === String(week.week_number)}
+                          className="rounded-md border border-red-500 px-3 py-1 text-xs font-medium text-white transition hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {deletingWeekId === String(week.week_number) ? "Deleting..." : "Delete"}
+                        </button>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

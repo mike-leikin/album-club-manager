@@ -2,6 +2,44 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.10.0] - 2026-01-03
+
+### Curator Dashboard UX Improvements
+
+**Major Features:**
+
+#### Auto-Incrementing Week Numbers
+- **Hidden Week Number Field**: Week number input removed from curator dashboard
+- **Automatic Increment**: Week numbers auto-increment based on latest week
+- **Display Only**: Week number shown in section header as "This Week's Setup (Week X)"
+- **Chronological Order**: Weeks maintained in descending order (most recent first)
+
+#### Week Deletion
+- **Delete Weeks**: Curators can now delete weeks from Week History tab
+- **Confirmation Dialog**: Warning prompt before deletion explaining associated reviews will be deleted
+- **Loading States**: Delete button shows "Deleting..." during operation and is disabled
+- **Auto-Refresh**: Week history automatically refreshes after successful deletion
+- **Protected Endpoint**: DELETE operation requires curator authentication
+
+#### Enhanced Date Picker
+- **Dark Mode Calendar**: Native browser date picker now renders in dark mode
+- **Minimum Date**: Response deadline restricted to today or future dates
+- **Better UX**: Color scheme matches app's dark theme
+
+**Files Changed:**
+- `app/admin/page.tsx` - Removed week number input, added auto-increment logic and delete functionality
+- `app/api/weeks/route.ts` - Added DELETE endpoint, improved GET to support week_number parameter
+- `lib/types/database.ts` - Week number remains in database schema
+
+**Technical Details:**
+- Week number auto-calculated on component mount: `latest.week_number + 1`
+- DELETE endpoint: `/api/weeks?week_number={num}` (curator auth required)
+- Uses native `confirm()` for deletion confirmation
+- Date picker uses `[color-scheme:dark]` Tailwind utility
+- Maintains backward compatibility with existing weeks
+
+---
+
 ## [2.5.0] - 2026-01-01
 
 ### Landing Page UX Enhancement
