@@ -6,6 +6,7 @@ type SignupPayload = {
   name?: string;
   email?: string;
   acceptedTerms?: boolean;
+  invite_token?: string;
 };
 
 function sanitizeName(value: string) {
@@ -35,6 +36,7 @@ export async function POST(request: NextRequest) {
     const name = sanitizeName(rawName);
     const email = rawEmail.trim().toLowerCase();
     const acceptedTerms = body.acceptedTerms === true;
+    const inviteToken = body.invite_token;
 
     if (!name || name.length < 2 || name.length > 100) {
       return NextResponse.json(
@@ -58,6 +60,51 @@ export async function POST(request: NextRequest) {
     }
 
     const adminClient = createServerClient() as any;
+
+    // If invite token provided, verify it
+    let invitation: any = null;
+    if (inviteToken) {
+      const { data: inviteData, error: inviteError } = await adminClient
+        .from("invitations")
+        .select(
+          `
+          id,
+          invitee_email,
+          status,
+          referrer_id,
+          referrer:participants!invitations_referrer_id_fkey(
+            id,
+            name,
+            referral_count
+          )
+        `
+        )
+        .eq("invite_token", inviteToken)
+        .single();
+
+      if (inviteError || !inviteData) {
+        return NextResponse.json(
+          { error: "Invalid or expired invitation link." },
+          { status: 400 }
+        );
+      }
+
+      if (inviteData.status !== "approved") {
+        return NextResponse.json(
+          { error: "This invitation has not been approved yet." },
+          { status: 400 }
+        );
+      }
+
+      if (inviteData.invitee_email.toLowerCase() !== email) {
+        return NextResponse.json(
+          { error: "Email does not match the invitation." },
+          { status: 400 }
+        );
+      }
+
+      invitation = inviteData;
+    }
     const { data: existingParticipants, error: existingError } =
       await adminClient
         .from("participants")
@@ -79,20 +126,60 @@ export async function POST(request: NextRequest) {
     }
 
     if (existingParticipant?.id) {
+      // Update existing participant
+      const updateData: any = {};
       if (shouldUpdateExistingName(existingParticipant.name, email)) {
+        updateData.name = name;
+      }
+      if (invitation) {
+        updateData.referred_by = invitation.referrer_id;
+      }
+
+      if (Object.keys(updateData).length > 0) {
         const { error: updateError } = await adminClient
           .from("participants")
-          .update({ name })
+          .update(updateData)
           .eq("id", existingParticipant.id);
 
         if (updateError) {
           throw updateError;
         }
       }
+
+      // If this was an invited signup for existing participant, update invitation and referrer
+      if (invitation) {
+        // Update invitation to accepted
+        await adminClient
+          .from("invitations")
+          .update({
+            status: "accepted",
+            accepted_at: new Date().toISOString(),
+            invitee_participant_id: existingParticipant.id,
+          })
+          .eq("id", invitation.id);
+
+        // Increment referrer's referral count
+        await adminClient
+          .from("participants")
+          .update({
+            referral_count: invitation.referrer.referral_count + 1,
+          })
+          .eq("id", invitation.referrer_id);
+
+        // TODO: Send success email to referrer
+        // This will be implemented in Phase 5 (Email Templates)
+      }
     } else {
-      const { error: insertError } = await adminClient
+      const { data: newParticipant, error: insertError } = await adminClient
         .from("participants")
-        .insert({ name, email, is_curator: false });
+        .insert({
+          name,
+          email,
+          is_curator: false,
+          referred_by: invitation ? invitation.referrer_id : null,
+        })
+        .select()
+        .single();
 
       if (insertError) {
         if (insertError.code === "23505") {
@@ -102,6 +189,30 @@ export async function POST(request: NextRequest) {
           );
         }
         throw insertError;
+      }
+
+      // If this was an invited signup, update the invitation and referrer
+      if (invitation && newParticipant) {
+        // Update invitation to accepted
+        await adminClient
+          .from("invitations")
+          .update({
+            status: "accepted",
+            accepted_at: new Date().toISOString(),
+            invitee_participant_id: newParticipant.id,
+          })
+          .eq("id", invitation.id);
+
+        // Increment referrer's referral count
+        await adminClient
+          .from("participants")
+          .update({
+            referral_count: invitation.referrer.referral_count + 1,
+          })
+          .eq("id", invitation.referrer_id);
+
+        // TODO: Send success email to referrer
+        // This will be implemented in Phase 5 (Email Templates)
       }
     }
 

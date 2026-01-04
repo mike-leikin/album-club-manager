@@ -78,6 +78,8 @@ export interface Database {
           is_curator: boolean
           email_subscribed: boolean
           unsubscribe_token: string
+          referred_by: string | null
+          referral_count: number
           created_at: string
           updated_at: string
           deleted_at: string | null
@@ -90,6 +92,8 @@ export interface Database {
           is_curator?: boolean
           email_subscribed?: boolean
           unsubscribe_token?: string
+          referred_by?: string | null
+          referral_count?: number
           created_at?: string
           updated_at?: string
           deleted_at?: string | null
@@ -102,6 +106,8 @@ export interface Database {
           is_curator?: boolean
           email_subscribed?: boolean
           unsubscribe_token?: string
+          referred_by?: string | null
+          referral_count?: number
           created_at?: string
           updated_at?: string
           deleted_at?: string | null
@@ -204,6 +210,56 @@ export interface Database {
           updated_at?: string
         }
       }
+      invitations: {
+        Row: {
+          id: string
+          referrer_id: string
+          invitee_email: string
+          invitee_name: string | null
+          invite_token: string
+          status: 'pending' | 'approved' | 'rejected' | 'accepted'
+          reviewed_by: string | null
+          reviewed_at: string | null
+          review_notes: string | null
+          accepted_at: string | null
+          invitee_participant_id: string | null
+          invite_method: 'email' | 'weekly_email_forward'
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          referrer_id: string
+          invitee_email: string
+          invitee_name?: string | null
+          invite_token?: string
+          status?: 'pending' | 'approved' | 'rejected' | 'accepted'
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          review_notes?: string | null
+          accepted_at?: string | null
+          invitee_participant_id?: string | null
+          invite_method: 'email' | 'weekly_email_forward'
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          referrer_id?: string
+          invitee_email?: string
+          invitee_name?: string | null
+          invite_token?: string
+          status?: 'pending' | 'approved' | 'rejected' | 'accepted'
+          reviewed_by?: string | null
+          reviewed_at?: string | null
+          review_notes?: string | null
+          accepted_at?: string | null
+          invitee_participant_id?: string | null
+          invite_method?: 'email' | 'weekly_email_forward'
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
     Views: {
       [_ in never]: never
@@ -234,6 +290,10 @@ export type RS500Album = Database['public']['Tables']['rs_500_albums']['Row']
 export type RS500AlbumInsert = Database['public']['Tables']['rs_500_albums']['Insert']
 export type RS500AlbumUpdate = Database['public']['Tables']['rs_500_albums']['Update']
 
+export type Invitation = Database['public']['Tables']['invitations']['Row']
+export type InvitationInsert = Database['public']['Tables']['invitations']['Insert']
+export type InvitationUpdate = Database['public']['Tables']['invitations']['Update']
+
 // Joined types for common queries
 export type ReviewWithParticipant = Review & {
   participant: Participant
@@ -248,9 +308,19 @@ export type WeekWithReviews = Week & {
   reviews?: ReviewWithParticipant[]
 }
 
+export type InvitationWithReferrer = Invitation & {
+  referrer: Participant
+  reviewer?: Participant | null
+  invitee?: Participant | null
+}
+
 // Moderation types
 export type ModerationAction = 'approve' | 'hide' | 'unhide'
 export type ModerationStatus = 'pending' | 'approved' | 'hidden'
+
+// Invitation types
+export type InvitationStatus = 'pending' | 'approved' | 'rejected' | 'accepted'
+export type InviteMethod = 'email' | 'weekly_email_forward'
 
 // Stats types
 export type AlbumStats = {

@@ -50,6 +50,18 @@ Album Club Manager streamlines the process of running a weekly music club where 
   - Manage email subscription preferences
   - Delete account with review preservation
 
+### 👥 Friend Referral System
+- **User Invitations**: Any member can invite friends via email
+- **Curator Approval**: All invitations require curator review before signup
+- **Dual Invite Methods**:
+  - Direct email invitation (via Settings page)
+  - Weekly email forwarding (referral link in email footer)
+- **Referral Tracking**: Complete tracking of who invited whom
+- **Invitation History**: Users can view status of all sent invitations
+- **Admin Dashboard**: Curators review pending invitations with referrer context
+- **Secure Tokens**: UUID-based invite tokens for signup validation
+- **Status Workflow**: pending → approved → accepted (with rejection path)
+
 ### 📊 Admin Dashboard
 - **Auto-Incrementing Weeks**: Week numbers automatically increment (no manual entry needed)
 - **Week Management**: Create and edit weekly album selections
@@ -117,11 +129,12 @@ Album Club Manager streamlines the process of running a weekly music club where 
 ## Database Schema
 
 ### Tables
-- `participants`: User information (name, email, auth_user_id, is_curator) with soft delete support
+- `participants`: User information (name, email, auth_user_id, is_curator, referred_by, referral_count) with soft delete support
 - `weeks`: Weekly album selections and deadlines
 - `reviews`: Participant ratings and reviews (linked to participants via participant_id)
 - `rs_500_albums`: Complete Rolling Stone 500 list with Spotify metadata
 - `email_logs`: Email delivery tracking and audit trail
+- `invitations`: Friend referral tracking with approval workflow
 - `_migrations`: Database migration tracking with checksums
 - Supabase Auth tables: `auth.users` managed by Supabase
 
@@ -301,12 +314,17 @@ album-club-manager/
 │   ├── admin/              # Admin dashboard (curator-only)
 │   ├── dashboard/          # Participant dashboard (all authenticated users)
 │   ├── api/
+│   │   ├── admin/
+│   │   │   └── invitations/  # Curator invitation approval endpoints
 │   │   ├── email/          # Email sending endpoints
+│   │   ├── invitations/    # User invitation endpoints
 │   │   ├── my-reviews/     # Personal review history endpoint
 │   │   ├── reviews/[id]/   # Review edit/delete endpoints
 │   │   ├── rs500/          # RS 500 album endpoints
 │   │   └── spotify/        # Spotify search endpoints
 │   ├── auth/               # Authentication callback handlers
+│   ├── invite/             # Invitation signup pages
+│   ├── invite-friend/      # Referral landing page
 │   ├── login/              # Login page (Magic Link)
 │   ├── submit/             # Review submission form
 │   ├── unauthorized/       # Access denied page
@@ -398,7 +416,10 @@ See [docs/TESTING.md](docs/TESTING.md) for the complete testing guide.
 
 See [NEXT_STEPS.md](NEXT_STEPS.md) for the complete feature roadmap and future enhancements.
 
-### ✅ Completed Features (v2.6)
+### ✅ Completed Features (v2.11)
+- ✅ **Friend Referral System** (v2.11) - Member invitations with curator approval workflow
+- ✅ **Curator Dashboard UX** (v2.10) - Auto-incrementing weeks, week deletion, enhanced date picker
+- ✅ **Review Moderation** (v2.9) - Manual approval workflow with admin panel
 - ✅ **Testing Infrastructure** (v2.6) - 92 tests, 100% pass rate, CI/CD with GitHub Actions
 - ✅ **User Account Management** (v2.6) - Settings page with profile editing, email preferences, account deletion
 - ✅ **Email Preferences** (v2.6) - Unsubscribe system with resubscribe capability

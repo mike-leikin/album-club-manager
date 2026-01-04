@@ -178,8 +178,9 @@ export async function POST(request: NextRequest) {
 
     // Send individual emails
     const emailPromises = participants.map(async (participant: any) => {
-      const submitUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/submit?email=${encodeURIComponent(participant.email)}`;
-      const unsubscribeUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/unsubscribe?token=${participant.unsubscribe_token}`;
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+      const submitUrl = `${appUrl}/submit?email=${encodeURIComponent(participant.email)}`;
+      const unsubscribeUrl = `${appUrl}/unsubscribe?token=${participant.unsubscribe_token}`;
       const firstName = participant.name.split(' ')[0];
 
       // Build HTML email body
@@ -420,6 +421,14 @@ export async function POST(request: NextRequest) {
             <td style="padding: 24px 32px; border-top: 1px solid #1f1f1f; background-color: #0a0a0a;">
               <p style="margin: 0; color: #737373; font-size: 13px; line-height: 1.5;">- Mike</p>
               <p style="margin: 12px 0 0; color: #525252; font-size: 12px;">Rate each album 1.0–10.0 and share your favorite tracks!</p>
+            </td>
+          </tr>
+
+          <!-- Forward to Friend -->
+          <tr>
+            <td style="padding: 24px 32px; text-align: center; background-color: #0a0a0a; border-top: 1px solid #1f1f1f;">
+              <p style="margin: 0 0 12px; color: #a1a1aa; font-size: 14px;">Love Album Club? Invite a friend!</p>
+              <a href="${appUrl}/invite-friend?ref=${participant.id}" style="display: inline-block; padding: 10px 20px; background: #10b981; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600;">Forward to a Friend</a>
             </td>
           </tr>
 

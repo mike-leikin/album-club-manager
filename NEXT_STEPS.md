@@ -6,7 +6,33 @@
 
 **Potential areas for improvement when needed:**
 
-1. **Deadline Enforcement & Week Lifecycle** ✅ COMPLETE (v2.3)
+1. **Friend Referral System** ✅ COMPLETE (v2.11) - **PRODUCTION READY**
+
+   **What's Built:**
+   - ✅ **Invitation Methods** - Direct email (Settings page) and weekly email forwarding (v2.11)
+   - ✅ **Curator Approval** - All invitations require curator review before signup (v2.11)
+   - ✅ **Referral Tracking** - Complete who-invited-whom tracking with referral counts (v2.11)
+   - ✅ **Invitation History** - Users view status of all sent invitations (v2.11)
+   - ✅ **Admin Dashboard** - Invitations tab with approve/reject workflow (v2.11)
+   - ✅ **Secure Tokens** - UUID-based invite tokens with one-time use (v2.11)
+   - ✅ **Status Workflow** - pending → approved/rejected → accepted states (v2.11)
+   - ✅ **Signup Integration** - Modified signup endpoint accepts invite_token (v2.11)
+   - ✅ **Email Footer Link** - "Forward to a Friend" button in weekly emails (v2.11)
+   - ✅ **Referral Landing Page** - Public page with shareable message or direct signup (v2.11)
+   - ✅ **Database Schema** - invitations table with RLS policies (v2.11)
+   - ✅ **API Endpoints** - 7 new endpoints for user and curator invitation management (v2.11)
+
+   **Future Enhancements:**
+   - Email notifications when invitations approved/rejected
+   - Invitation link expiration (30 days)
+   - Rate limiting (max 5 invites per user per day)
+   - Referral leaderboard and gamification
+   - Referral statistics dashboard
+   - Batch invites (multiple emails at once)
+   - Social sharing buttons for referral links
+   - Referrer rewards/recognition system
+
+2. **Deadline Enforcement & Week Lifecycle** ✅ COMPLETE (v2.3)
    - ✅ Participants can view and review all weeks (current and previous) (v2.3 COMPLETE)
    - ✅ Past deadline warnings (non-blocking, informative) (v2.3 COMPLETE)
    - ✅ Current week clearly distinguished from previous weeks (v2.3 COMPLETE)
@@ -20,7 +46,7 @@
    - Automated email reminders before deadline (24 hours, 1 hour) (future enhancement)
    - Timezone handling for deadlines (future enhancement)
 
-2. **Review Moderation & Editing Tools** ✅ COMPLETE (v2.9) - **PRODUCTION READY**
+3. **Review Moderation & Editing Tools** ✅ COMPLETE (v2.9) - **PRODUCTION READY**
 
    **What's Built (Full Admin Moderation System):**
    - ✅ **Database Schema** - moderation_status (pending/approved/hidden), moderated_at, moderated_by, moderation_notes (v2.9)
@@ -39,6 +65,7 @@
    - ✅ **Personal Statistics** - Participation rate, average ratings in dashboard (v2.2)
 
    **Future Enhancements:**
+   - Curator can send a test email to themselves before sending to the broader list
    - Participant notifications when reviews are approved/rejected (email or in-app)
    - Rejection workflow with feedback (allow participants to revise and resubmit)
    - Review history and audit trail (track who changed what and when)
@@ -51,7 +78,7 @@
 
    **See:** [ADMIN_MODERATION_PLAN.md](ADMIN_MODERATION_PLAN.md) for detailed enhancement options
 
-3. **Testing Infrastructure** ✅ COMPLETE (All API Routes - 100% Pass Rate!)
+4. **Testing Infrastructure** ✅ COMPLETE (All API Routes - 100% Pass Rate!)
    - ✅ Testing framework setup (Vitest + React Testing Library + MSW) (COMPLETE)
    - ✅ Mock infrastructure (Supabase, Resend, factories) (COMPLETE)
    - ✅ Test 1: Review Submission API - 18/18 tests passing, 100% line coverage (COMPLETE)
@@ -71,7 +98,7 @@
    - **See**: [docs/TESTING.md](docs/TESTING.md) for complete testing guide
    - **Quick Start**: [docs/TESTING_QUICK_START.md](docs/TESTING_QUICK_START.md)
 
-4. **User Account Management & Settings** ✅ COMPLETE (v2.6):
+5. **User Account Management & Settings** ✅ COMPLETE (v2.6):
    - ✅ Account settings page at `/settings` (v2.6 COMPLETE)
    - ✅ Edit name and email address (v2.6 COMPLETE)
    - ✅ Email subscription preferences toggle (v2.6 COMPLETE)
@@ -96,12 +123,12 @@
    - Password change option (currently magic link only) (future enhancement)
    - Two-factor authentication (future enhancement)
 
-5. **Music review aggregation tool**:
+6. **Music review aggregation tool**:
    - Scan recent music reviews from trusted sources (Pitchfork, NPR Music, AllMusic, etc.)
    - AI-powered suggestions for contemporary albums
    - Filter by genre, release date, critic ratings
 
-6. **Public landing page improvements** ✅ COMPLETE (v2.5):
+7. **Public landing page improvements** ✅ COMPLETE (v2.5):
    - ✅ Public reviews page at `/reviews` (v2.4 COMPLETE)
    - ✅ Browse all weeks past deadline (v2.4 COMPLETE)
    - ✅ Read-only view of reviews with first names only (v2.4 COMPLETE)
@@ -114,21 +141,21 @@
    - Search functionality (future enhancement)
    - Recent activity feed on landing page (future enhancement)
 
-7. **Enhanced Data Validation**
+8. **Enhanced Data Validation**
    - Duplicate review prevention (race condition handling)
    - XSS sanitization for user input
    - Email deliverability validation (not just format)
    - Week number sequential validation
    - Album recommendation field usage (currently unused in schema)
 
-8. **Participant Engagement Tools**
+9. **Participant Engagement Tools**
    - Analytics dashboard (participation rates over time)
    - Participant profiles (track review history)
    - Weekly leaderboard (most active reviewers)
    - Email engagement tracking (opens, clicks)
    - Automated re-engagement emails for inactive participants
 
-9. **Advanced Features**
+10. **Advanced Features**
    - Album recommendations engine
    - Spotify playlist generation from weekly picks
    - Review sentiment analysis
@@ -137,10 +164,10 @@
 
 ### 🟢 Low Priority (Nice to Have)
 
-10. **Mobile app** (React Native)
-11. **Email templates builder** (visual editor)
-12. **Multi-language support**
-13. **Dark mode**
+11. **Mobile app** (React Native)
+12. **Email templates builder** (visual editor)
+13. **Multi-language support**
+14. **Dark mode**
 
 ### ⏳ Pending Items
 
@@ -159,7 +186,7 @@
 
 **All Core Features Complete!** 🎉
 
-**Version 2.10** - Curator Dashboard UX Improvements (2026-01-03)
+**Version 2.11** - Friend Referral System (2026-01-03)
 
 - ✅ **Spotify Integration**: Fully operational with auto-populate and album art
 - ✅ **RS 500 Integration**: Complete with search, filter, and usage tracking
@@ -182,6 +209,7 @@
 - ✅ **Account Deletion**: Self-service soft delete with review preservation
 - ✅ **Review Moderation**: Manual approval workflow with admin panel (v2.9)
 - ✅ **Curator Role Selector**: Choose between admin panel or personal dashboard (v2.9)
+- ✅ **Friend Referral System**: Member invitations with curator approval workflow (v2.11)
 - ✅ **Auto-Incrementing Weeks**: Week numbers automatically increment (v2.10)
 - ✅ **Week Deletion**: Remove weeks from history with confirmation (v2.10)
 - ✅ **Enhanced Date Picker**: Dark mode calendar with minimum date validation (v2.10)
@@ -189,6 +217,52 @@
 **The app is production-ready and fully operational!**
 
 **Latest Session Accomplishments (2026-01-03)**:
+
+**v2.11 - Friend Referral System:**
+- ✅ **Complete Invitation System**: Users can invite friends via Settings or weekly email forwards
+  - Direct email invitation form in Settings page with email and name inputs
+  - "Forward to a Friend" link in footer of all weekly album emails
+  - Referral landing page at `/invite-friend?ref={participant_id}` with dual modes:
+    - Share mode: Copy invitation message to forward to friend
+    - Signup mode: Friend enters email to request invitation
+  - Invitation history display showing all sent invites with status badges
+
+- ✅ **Curator Approval Workflow**: All invitations reviewed before signup
+  - New "Invitations" tab in admin dashboard (between Participants and Week History)
+  - Pending invitations list with referrer context (name, email, referral history)
+  - Approve/reject buttons with confirmation and optional rejection reason
+  - Status tracking: pending → approved/rejected → accepted
+  - Referrer information visible during review (member since, previous referrals)
+
+- ✅ **Referral Tracking System**: Complete who-invited-whom tracking
+  - Database schema: `invitations` table with full referral workflow
+  - `participants.referred_by` FK to track referrer
+  - `participants.referral_count` auto-increments on successful signup
+  - Invitation methods tracked: 'email' vs 'weekly_email_forward'
+  - Unique partial index prevents duplicate pending invitations
+
+- ✅ **Secure Token-Based Signup**: Invite tokens validate approved invitations
+  - Public signup page at `/invite/[token]` for approved invitations
+  - Token verification endpoint validates token is approved before showing form
+  - Email pre-filled from invitation (read-only)
+  - Referrer name displayed for context ("invited you to join Album Club")
+  - Modified signup API accepts `invite_token` parameter
+  - Automatic referral linking on successful signup
+
+- ✅ **API Endpoints**: 7 new endpoints for invitation management
+  - User APIs: create, generate-link, my-invites, verify
+  - Admin APIs: pending, approve, reject
+  - All admin endpoints protected with `requireCurator()`
+  - Comprehensive validation and error handling
+
+- ✅ **UI Components**: Complete invitation interface
+  - Settings page: invite form with email/name inputs, invitation history section
+  - InvitationsManager component: curator approval interface with filtering
+  - Admin dashboard: new Invitations tab with pending count badge
+  - Invite pages: token-based signup form and referral landing page
+  - Status badges: pending (yellow), approved (blue), accepted (green), rejected (red)
+
+**Previous Session Accomplishments (2026-01-03)**:
 
 **v2.10 - Curator Dashboard UX Improvements:**
 - ✅ **Auto-Incrementing Week Numbers**: Simplified week creation workflow

@@ -7,6 +7,7 @@ import SpotifySearch from "@/components/SpotifySearch";
 import RS500Picker from "@/components/RS500Picker";
 import EmailHistoryTab from "@/components/EmailHistoryTab";
 import AdminReviewsTab from "@/components/AdminReviewsTab";
+import InvitationsManager from "@/components/InvitationsManager";
 
 type Album = {
   title: string;
@@ -17,7 +18,7 @@ type Album = {
   rollingStoneRank?: string;
 };
 
-type Tab = "week" | "participants" | "reviews" | "history" | "email-history" | "export";
+type Tab = "week" | "participants" | "reviews" | "history" | "email-history" | "export" | "invitations";
 
 type ReviewStats = {
   contemporary: {
@@ -619,6 +620,16 @@ export default function AdminPage() {
               Email History
             </button>
             <button
+              onClick={() => setActiveTab("invitations")}
+              className={`px-4 py-2 text-sm font-medium transition ${
+                activeTab === "invitations"
+                  ? "border-b-2 border-emerald-500 text-emerald-400"
+                  : "text-zinc-400 hover:text-zinc-300"
+              }`}
+            >
+              Invitations
+            </button>
+            <button
               onClick={() => setActiveTab("export")}
               className={`px-4 py-2 text-sm font-medium transition ${
                 activeTab === "export"
@@ -1037,6 +1048,8 @@ export default function AdminPage() {
 
         {/* Participants Tab */}
         {activeTab === "participants" && <ParticipantsManager />}
+
+        {activeTab === "invitations" && <InvitationsManager />}
 
         {/* Reviews Tab */}
         {activeTab === "reviews" && <AdminReviewsTab />}

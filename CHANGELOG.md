@@ -2,6 +2,90 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.11.0] - 2026-01-03
+
+### Friend Referral System
+
+**Major Features:**
+
+#### User Invitation System
+- **Any User Can Invite**: Members can invite friends via Settings page or weekly email forwards
+- **Curator Approval Required**: All invitations go through curator review before signup
+- **Referral Tracking**: Complete tracking of who invited whom with referral counts
+- **Invitation History**: Users view status of all sent invitations (pending/approved/accepted/rejected)
+
+#### Two Invitation Methods
+- **Direct Email**: Enter friend's email and name in Settings page
+- **Weekly Email Forward**: Referral link in footer of weekly album emails
+- **Shareable Links**: Forward-to-friend page with copyable invitation message
+- **Unique Tokens**: Secure UUID-based invite tokens for signup validation
+
+#### Admin Moderation
+- **Invitations Tab**: New admin dashboard tab for reviewing pending invitations
+- **Referrer Context**: Shows inviter's name, history, and previous referral count
+- **Approve/Reject**: Curators approve or reject with optional reason notes
+- **Status Tracking**: Complete workflow (pending → approved/rejected → accepted)
+
+#### Signup Integration
+- **Token Verification**: Validates invite tokens are approved before signup
+- **Pre-filled Email**: Email address auto-populated from invitation
+- **Referral Linking**: New participants automatically linked to referrer
+- **Count Updates**: Referrer's referral count increments on successful signup
+
+**Database Schema:**
+- New `invitations` table with full referral tracking
+  - Fields: referrer_id, invitee_email, invite_token, status, reviewed_by, etc.
+  - Invite methods: 'email' and 'weekly_email_forward'
+  - Statuses: pending, approved, rejected, accepted
+- Updated `participants` table with:
+  - `referred_by` (UUID FK to participants)
+  - `referral_count` (integer counter)
+- RLS policies for user and curator access control
+
+**API Endpoints:**
+- POST `/api/invitations/create` - User creates invitation via email
+- POST `/api/invitations/generate-link` - Generate referral link from weekly email
+- GET `/api/invitations/my-invites` - User's invitation history
+- GET `/api/invitations/verify` - Verify invite token (public)
+- GET `/api/admin/invitations/pending` - List pending invitations (curator)
+- POST `/api/admin/invitations/[id]/approve` - Approve invitation (curator)
+- POST `/api/admin/invitations/[id]/reject` - Reject invitation with reason (curator)
+- POST `/api/auth/signup` - Modified to accept invite_token parameter
+
+**UI Components:**
+- `app/settings/page.tsx` - Added invite form and invitation history
+- `components/InvitationsManager.tsx` - Curator approval interface
+- `app/admin/page.tsx` - New "Invitations" tab in admin dashboard
+- `app/invite/[token]/page.tsx` - Public signup page for approved invitations
+- `app/invite-friend/page.tsx` - Referral landing page from weekly emails
+- `app/api/email/send-week/route.ts` - Added "Forward to a Friend" link in email footer
+
+**User Flow:**
+1. User invites friend via Settings → curator reviews → approves → friend receives signup link
+2. User forwards weekly email → friend clicks referral link → enters email → curator approves → friend receives signup link
+3. Friend completes signup with invite token → account created → referrer's count increments
+
+**Technical Details:**
+- UUID tokens with unique constraint for security
+- One-time use tokens (status changes to 'accepted')
+- Referrer information visible during signup for context
+- Status badges in Settings page (pending/approved/accepted/rejected)
+- TODO: Email notifications for approval/rejection (infrastructure ready)
+
+**Files Changed:**
+- Database: `supabase/migrations/010_create_invitations_system.sql`
+- Types: `lib/types/database.ts` (Invitation types)
+- User APIs: `app/api/invitations/` (create, generate-link, my-invites, verify)
+- Admin APIs: `app/api/admin/invitations/` (pending, approve, reject)
+- Signup: `app/api/auth/signup/route.ts` (invite token handling)
+- Settings: `app/settings/page.tsx` (invite form, history)
+- Admin: `app/admin/page.tsx` (Invitations tab)
+- Component: `components/InvitationsManager.tsx`
+- Pages: `app/invite/[token]/page.tsx`, `app/invite-friend/page.tsx`
+- Email: `app/api/email/send-week/route.ts` (referral link in footer)
+
+---
+
 ## [2.10.0] - 2026-01-03
 
 ### Curator Dashboard UX Improvements
@@ -406,4 +490,4 @@ Format: `MAJOR.MINOR.PATCH`
 - **MINOR**: New features, backwards compatible
 - **PATCH**: Bug fixes, minor improvements
 
-**Current Version:** 2.4.0
+**Current Version:** 2.11.0
