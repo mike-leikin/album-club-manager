@@ -418,12 +418,12 @@ See [NEXT_STEPS.md](NEXT_STEPS.md) for the complete feature roadmap and future e
 
 ### High Priorities
 - Hard deadline enforcement (block submissions after deadline)
-- Admin review moderation tools (edit/delete any review)
 - Component tests (ParticipantsManager, SpotifySearch, Dashboard)
 - Integration tests (full user flows)
 - Curator management UI (promote/demote without SQL)
 - Review history audit trail (track changes over time)
 - Automated email reminders before deadlines
+- Participant notifications (approval/rejection emails)
 
 ## Contributing
 
@@ -438,6 +438,7 @@ MIT
 ### Feature Documentation
 - [NEXT_STEPS.md](NEXT_STEPS.md) - Complete feature roadmap and future enhancements
 - [CHANGELOG.md](CHANGELOG.md) - Complete version history
+- [ADMIN_MODERATION_PLAN.md](ADMIN_MODERATION_PLAN.md) - Admin review moderation system and enhancement options (v2.9)
 - [WEEK_LIFECYCLE.md](WEEK_LIFECYCLE.md) - Week lifecycle enhancement documentation (v2.3)
 - [PARTICIPANT_DASHBOARD.md](PARTICIPANT_DASHBOARD.md) - Participant dashboard features (v2.2)
 

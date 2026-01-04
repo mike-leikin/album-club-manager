@@ -20,21 +20,36 @@
    - Automated email reminders before deadline (24 hours, 1 hour) (future enhancement)
    - Timezone handling for deadlines (future enhancement)
 
-2. **Review Moderation & Editing Tools** ✅ COMPLETE (v2.9)
-   - ✅ Admin UI to edit/delete inappropriate reviews (v2.9 COMPLETE)
-   - ✅ Manual approval workflow - all new reviews require curator approval (v2.9 COMPLETE)
-   - ✅ Reviews tab in admin panel with filters and bulk actions (v2.9 COMPLETE)
-   - ✅ Approve, hide/unhide, edit, and delete reviews (v2.9 COMPLETE)
-   - ✅ Moderation notes (internal curator-only comments) (v2.9 COMPLETE)
-   - ✅ Status badges in participant dashboard (Pending/Hidden) (v2.9 COMPLETE)
-   - ✅ Public page and emails only show approved reviews (v2.9 COMPLETE)
-   - ✅ Participant dashboard to view and edit their own reviews (v2.2 COMPLETE)
-   - ✅ Review editing with inline form (rating, favorite track, review text) (v2.2 COMPLETE)
-   - ✅ Review deletion with confirmation dialog (v2.2 COMPLETE)
-   - ✅ Personal statistics (participation rate, average ratings) (v2.2 COMPLETE)
-   - Review history and audit trail (track changes) (future enhancement)
-   - Draft reviews with auto-save (future enhancement)
-   - Preview before submission (future enhancement)
+2. **Review Moderation & Editing Tools** ✅ COMPLETE (v2.9) - **PRODUCTION READY**
+
+   **What's Built (Full Admin Moderation System):**
+   - ✅ **Database Schema** - moderation_status (pending/approved/hidden), moderated_at, moderated_by, moderation_notes (v2.9)
+   - ✅ **Reviews Tab in Admin Panel** - Dedicated moderation interface with summary cards (Total/Pending/Approved/Hidden counts) (v2.9)
+   - ✅ **Filtering & Search** - Filter by week number, status, album type (contemporary/classic) (v2.9)
+   - ✅ **Manual Approval Workflow** - All new reviews default to 'pending' status, require curator approval (v2.9)
+   - ✅ **Individual Actions** - Approve, hide, unhide, edit, delete any review (v2.9)
+   - ✅ **Bulk Actions** - Select multiple reviews for approve/hide/delete operations (v2.9)
+   - ✅ **Edit Modal** - Curators can modify rating, favorite track, review text (v2.9)
+   - ✅ **Moderation Notes** - Internal curator-only comments (not visible to participants) (v2.9)
+   - ✅ **Status Badges** - Participants see ⏳ Pending or 👁️ Hidden badges in dashboard (v2.9)
+   - ✅ **Public Filtering** - /reviews page and emails only show approved reviews (v2.9)
+   - ✅ **API Endpoints** - GET /api/admin/reviews, POST .../moderate, DELETE .../moderate, POST .../bulk (v2.9)
+   - ✅ **Curator Auth** - All admin moderation endpoints protected with requireCurator() (v2.9)
+   - ✅ **Participant Self-Management** - Users can view, edit, delete their own reviews (v2.2)
+   - ✅ **Personal Statistics** - Participation rate, average ratings in dashboard (v2.2)
+
+   **Future Enhancements:**
+   - Participant notifications when reviews are approved/rejected (email or in-app)
+   - Rejection workflow with feedback (allow participants to revise and resubmit)
+   - Review history and audit trail (track who changed what and when)
+   - Automated content filtering (profanity detection, length validation, duplicate detection)
+   - Moderation analytics dashboard (approval rates, time-to-approval, patterns)
+   - Keyboard shortcuts for faster moderation (A=approve, H=hide, E=edit, etc.)
+   - Draft reviews with auto-save (let users save work-in-progress)
+   - Preview before submission (see final review before submitting)
+   - Multi-curator assignment system (divide moderation work)
+
+   **See:** [ADMIN_MODERATION_PLAN.md](ADMIN_MODERATION_PLAN.md) for detailed enhancement options
 
 3. **Testing Infrastructure** ✅ COMPLETE (All API Routes - 100% Pass Rate!)
    - ✅ Testing framework setup (Vitest + React Testing Library + MSW) (COMPLETE)
