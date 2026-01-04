@@ -64,8 +64,17 @@
    - ✅ **Participant Self-Management** - Users can view, edit, delete their own reviews (v2.2)
    - ✅ **Personal Statistics** - Participation rate, average ratings in dashboard (v2.2)
 
+   **What's Built (Test Email Feature - v2.12):**
+   - ✅ **Test Email Endpoint** - `/api/email/send-test` sends preview email to curator only (v2.12)
+   - ✅ **Shared Email Builder** - `lib/email/emailBuilder.ts` utility for consistent email generation (v2.12)
+   - ✅ **Test Mode Indicators** - Orange banner and [TEST] subject prefix for test emails (v2.12)
+   - ✅ **Admin UI Button** - "🧪 Send Test Email" button in curator dashboard (v2.12)
+   - ✅ **Same Stats as Production** - Test emails include previous week review stats (v2.12)
+   - ✅ **Loading State** - Button shows "Sending..." during send operation (v2.12)
+   - ✅ **Toast Notifications** - Success/error feedback using Sonner toasts (v2.12)
+
    **Future Enhancements:**
-   - Curator can send a test email to themselves before sending to the broader list
+   - Email functionality refactor: Update `/app/api/email/send-week/route.ts` to use shared `buildEmailContent()` utility (currently duplicates email building logic)
    - Participant notifications when reviews are approved/rejected (email or in-app)
    - Rejection workflow with feedback (allow participants to revise and resubmit)
    - Review history and audit trail (track who changed what and when)
@@ -186,7 +195,7 @@
 
 **All Core Features Complete!** 🎉
 
-**Version 2.11** - Friend Referral System (2026-01-03)
+**Version 2.12** - Test Email Feature (2026-01-04)
 
 - ✅ **Spotify Integration**: Fully operational with auto-populate and album art
 - ✅ **RS 500 Integration**: Complete with search, filter, and usage tracking
@@ -216,7 +225,31 @@
 
 **The app is production-ready and fully operational!**
 
-**Latest Session Accomplishments (2026-01-03)**:
+**Latest Session Accomplishments (2026-01-04)**:
+
+**v2.12 - Test Email Feature:**
+- ✅ **Test Email Capability**: Curators can send test emails to themselves before sending to all participants
+  - New API endpoint: `/api/email/send-test` (curator-protected)
+  - Sends email only to authenticated curator's email address
+  - Uses same email template and stats as production emails
+  - Test mode visual indicators: orange banner and [TEST] subject prefix
+  - Loading state and toast notifications for user feedback
+
+- ✅ **Shared Email Builder Utility**: Created `lib/email/emailBuilder.ts` to avoid code duplication
+  - Exports `buildEmailContent()` function that generates HTML, text, and subject
+  - Accepts `isTest` parameter to add test mode indicators
+  - Fetches and formats previous week review stats
+  - Handles participant personalization and unsubscribe links
+  - Used by test email endpoint (send-week route not yet refactored)
+
+- ✅ **Admin UI Enhancement**: Added test email button to curator dashboard
+  - "🧪 Send Test Email" button between "Preview Email" and "Send Email"
+  - Validates week is saved before sending test
+  - Shows "Sending..." during operation
+  - Success toast shows curator's email address
+  - Error handling with user-friendly messages
+
+**Previous Session Accomplishments (2026-01-03)**:
 
 **v2.11 - Friend Referral System:**
 - ✅ **Complete Invitation System**: Users can invite friends via Settings or weekly email forwards

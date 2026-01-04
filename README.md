@@ -17,6 +17,7 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Album Artwork**: Beautiful album art displayed throughout the app (admin, submit form, emails)
 
 ### 📧 Automated Email System
+- **Test Email Preview**: Send test email to yourself before sending to all participants (v2.12)
 - **One-Click Email Sending**: Send personalized emails to all participants from the admin dashboard
 - **Professional HTML Templates**: Beautiful, responsive email design with album artwork
 - **Curator Messages**: Add optional personal notes to weekly emails (500 character limit)
@@ -416,7 +417,8 @@ See [docs/TESTING.md](docs/TESTING.md) for the complete testing guide.
 
 See [NEXT_STEPS.md](NEXT_STEPS.md) for the complete feature roadmap and future enhancements.
 
-### ✅ Completed Features (v2.11)
+### ✅ Completed Features (v2.12)
+- ✅ **Test Email Feature** (v2.12) - Send test emails to yourself before sending to all participants
 - ✅ **Friend Referral System** (v2.11) - Member invitations with curator approval workflow
 - ✅ **Curator Dashboard UX** (v2.10) - Auto-incrementing weeks, week deletion, enhanced date picker
 - ✅ **Review Moderation** (v2.9) - Manual approval workflow with admin panel

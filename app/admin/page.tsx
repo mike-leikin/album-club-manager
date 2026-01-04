@@ -58,6 +58,7 @@ export default function AdminPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingPreviousWeek, setIsLoadingPreviousWeek] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [isSendingTestEmail, setIsSendingTestEmail] = useState(false);
   const [showEmailPreview, setShowEmailPreview] = useState(false);
 
   // Review stats for previous week
@@ -412,6 +413,38 @@ export default function AdminPage() {
     }
   };
 
+  const handleSendTestEmail = async () => {
+    const parsedWeekNumber = Number(weekNumber);
+    if (!Number.isFinite(parsedWeekNumber) || parsedWeekNumber <= 0) {
+      toast.error("Please save the week before sending a test email.");
+      return;
+    }
+
+    setIsSendingTestEmail(true);
+
+    try {
+      const response = await fetch("/api/email/send-test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ weekNumber: parsedWeekNumber }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to send test email");
+      }
+
+      toast.success(`Test email sent to ${result.message.split(' ').pop()}!`);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to send test email"
+      );
+    } finally {
+      setIsSendingTestEmail(false);
+    }
+  };
+
   const handleSendEmail = async () => {
     const parsedWeekNumber = Number(weekNumber);
     if (!Number.isFinite(parsedWeekNumber) || parsedWeekNumber <= 0) {
@@ -673,6 +706,15 @@ export default function AdminPage() {
                 className="rounded-md border border-purple-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-purple-500"
               >
                 Preview Email
+              </button>
+              <button
+                type="button"
+                onClick={handleSendTestEmail}
+                disabled={isSendingTestEmail}
+                className="rounded-md border border-amber-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-60"
+                title="Send a test email to yourself to preview the actual HTML email"
+              >
+                {isSendingTestEmail ? "Sending..." : "🧪 Send Test Email"}
               </button>
               <button
                 type="button"
