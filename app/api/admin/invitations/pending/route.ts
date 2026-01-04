@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
   try {
     // Require curator authentication
     await requireCurator();
-    const supabase = createServerClient();
+    const supabase = createServerClient() as any;
 
     // Fetch all pending invitations with referrer details
     const { data: invitations, error } = await supabase

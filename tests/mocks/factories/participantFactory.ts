@@ -14,6 +14,8 @@ export function createMockParticipant(
     is_curator: false,
     email_subscribed: true,
     unsubscribe_token: `token-${participantIdCounter}`,
+    referred_by: null,
+    referral_count: 0,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     deleted_at: null,

@@ -3,7 +3,7 @@ import { createServerClient } from "@/lib/supabaseClient";
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const supabase = createServerClient() as any;
     const { searchParams } = new URL(request.url);
     const token = searchParams.get("token");
 

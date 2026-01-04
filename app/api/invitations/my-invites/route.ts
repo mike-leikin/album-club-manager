@@ -6,7 +6,7 @@ export async function GET(request: NextRequest) {
   try {
     // Require authentication
     const session = await requireAuth();
-    const supabase = createServerClient();
+    const supabase = createServerClient() as any;
 
     // Get current participant
     const { data: participant, error: participantError } = await supabase

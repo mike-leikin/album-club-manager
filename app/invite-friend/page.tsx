@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 
-export default function InviteFriendPage() {
+function InviteFriendContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const referrerId = searchParams.get('ref');
@@ -256,5 +256,17 @@ Hope to see you in the club!
         </div>
       </div>
     </div>
+  );
+}
+
+export default function InviteFriendPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800 flex items-center justify-center">
+        <div className="text-zinc-300">Loading...</div>
+      </div>
+    }>
+      <InviteFriendContent />
+    </Suspense>
   );
 }

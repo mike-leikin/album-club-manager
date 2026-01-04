@@ -12,7 +12,7 @@ function isValidEmail(email: string) {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const supabase = createServerClient() as any;
     const body = (await request.json()) as GenerateLinkPayload;
     const participantId = body.participant_id;
     const inviteeEmail = body.invitee_email?.trim().toLowerCase();

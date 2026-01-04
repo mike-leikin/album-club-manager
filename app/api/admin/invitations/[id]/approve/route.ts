@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabaseClient";
 import { requireCurator } from "@/lib/auth/utils";
-import type { InvitationUpdate } from "@/lib/types/database";
 
 type ApprovePayload = {
   notes?: string;
@@ -27,7 +26,7 @@ export async function POST(
   try {
     // Require curator authentication
     const session = await requireCurator();
-    const supabase = createServerClient();
+    const supabase = createServerClient() as any;
 
     const { id: invitationId } = await params;
     const body = (await request.json()) as ApprovePayload;
@@ -83,16 +82,14 @@ export async function POST(
     }
 
     // Update invitation to approved
-    const updateData: InvitationUpdate = {
-      status: "approved",
-      reviewed_by: curator.id,
-      reviewed_at: new Date().toISOString(),
-      review_notes: notes || null,
-    };
-
     const { error: updateError } = await supabase
       .from("invitations")
-      .update(updateData)
+      .update({
+        status: "approved" as const,
+        reviewed_by: curator.id,
+        reviewed_at: new Date().toISOString(),
+        review_notes: notes || null,
+      })
       .eq("id", invitationId);
 
     if (updateError) {

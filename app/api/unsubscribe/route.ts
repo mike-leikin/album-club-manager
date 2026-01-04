@@ -3,7 +3,7 @@ import { createServerClient } from "@/lib/supabaseClient";
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient();
+    const supabase = createServerClient() as any;
     const body = await request.json();
     const { token, resubscribe = false } = body;
 
