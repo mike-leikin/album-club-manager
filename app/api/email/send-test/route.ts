@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
     if (userError || !user?.email) {
-      logger.error("Failed to get authenticated user", { requestId }, userError);
+      logger.error("Failed to get authenticated user", { requestId }, userError || undefined);
       return NextResponse.json(
         { error: "Failed to get user information" },
         { status: 401 }
