@@ -85,7 +85,7 @@ export async function POST(
     const { error: updateError } = await supabase
       .from("invitations")
       .update({
-        status: "approved",
+        status: "approved" as const,
         reviewed_by: curator.id,
         reviewed_at: new Date().toISOString(),
         review_notes: notes || null,
