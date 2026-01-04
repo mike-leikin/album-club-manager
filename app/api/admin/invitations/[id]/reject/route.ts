@@ -6,6 +6,11 @@ type RejectPayload = {
   reason?: string;
 };
 
+type InvitationStatus = {
+  id: string;
+  status: string;
+};
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -38,7 +43,7 @@ export async function POST(
       .from("invitations")
       .select("id, status")
       .eq("id", invitationId)
-      .single();
+      .single() as { data: InvitationStatus | null; error: any };
 
     if (fetchError || !invitation) {
       return NextResponse.json(
@@ -47,11 +52,10 @@ export async function POST(
       );
     }
 
-    // Type assertion for invitation status
-    const invitationStatus = invitation.status as string;
-    if (invitationStatus !== "pending") {
+    // Check invitation status
+    if (invitation.status !== "pending") {
       return NextResponse.json(
-        { error: `Invitation is ${invitationStatus}, not pending` },
+        { error: `Invitation is ${invitation.status}, not pending` },
         { status: 400 }
       );
     }

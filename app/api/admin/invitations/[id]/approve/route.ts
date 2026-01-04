@@ -6,6 +6,19 @@ type ApprovePayload = {
   notes?: string;
 };
 
+type InvitationWithReferrer = {
+  id: string;
+  invitee_email: string;
+  invitee_name: string | null;
+  invite_token: string;
+  status: string;
+  referrer: {
+    id: string;
+    name: string;
+    email: string;
+  } | null;
+};
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -51,7 +64,7 @@ export async function POST(
       `
       )
       .eq("id", invitationId)
-      .single();
+      .single() as { data: InvitationWithReferrer | null; error: any };
 
     if (fetchError || !invitation) {
       return NextResponse.json(
@@ -60,11 +73,10 @@ export async function POST(
       );
     }
 
-    // Type assertion for invitation status
-    const invitationStatus = invitation.status as string;
-    if (invitationStatus !== "pending") {
+    // Check invitation status
+    if (invitation.status !== "pending") {
       return NextResponse.json(
-        { error: `Invitation is ${invitationStatus}, not pending` },
+        { error: `Invitation is ${invitation.status}, not pending` },
         { status: 400 }
       );
     }
