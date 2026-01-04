@@ -33,11 +33,11 @@ export async function POST(
     const notes = body.notes?.trim();
 
     // Get curator participant ID
-    const { data: curator, error: curatorError } = await supabase
+    const { data: curator, error: curatorError } = (await supabase
       .from("participants")
       .select("id, name")
       .eq("auth_user_id", session.user.id)
-      .single();
+      .single()) as { data: { id: string; name: string } | null; error: any };
 
     if (curatorError || !curator) {
       return NextResponse.json(
