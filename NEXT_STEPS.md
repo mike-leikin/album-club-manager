@@ -144,11 +144,11 @@
 
 **All Core Features Complete!** 🎉
 
-**Version 2.9** - Review Moderation & Curator Role Selection (2026-01-03)
+**Version 2.10** - Curator Dashboard UX Improvements (2026-01-03)
 
 - ✅ **Spotify Integration**: Fully operational with auto-populate and album art
 - ✅ **RS 500 Integration**: Complete with search, filter, and usage tracking
-- ✅ **UX Improvements**: All 5 features implemented (CSV import, copy week, history browser, toasts, polish)
+- ✅ **UX Improvements**: All features implemented (CSV import, copy week, history browser, toasts, polish, auto-incrementing weeks, week deletion)
 - ✅ **Email Automation**: HTML email templates with Resend integration
 - ✅ **Custom Domain**: `albumclub.club` configured and verified
 - ✅ **Email Delivery**: Fully operational and tested
@@ -167,10 +167,43 @@
 - ✅ **Account Deletion**: Self-service soft delete with review preservation
 - ✅ **Review Moderation**: Manual approval workflow with admin panel (v2.9)
 - ✅ **Curator Role Selector**: Choose between admin panel or personal dashboard (v2.9)
+- ✅ **Auto-Incrementing Weeks**: Week numbers automatically increment (v2.10)
+- ✅ **Week Deletion**: Remove weeks from history with confirmation (v2.10)
+- ✅ **Enhanced Date Picker**: Dark mode calendar with minimum date validation (v2.10)
 
 **The app is production-ready and fully operational!**
 
 **Latest Session Accomplishments (2026-01-03)**:
+
+**v2.10 - Curator Dashboard UX Improvements:**
+- ✅ **Auto-Incrementing Week Numbers**: Simplified week creation workflow
+  - Removed manual week number input field from curator dashboard
+  - Week number automatically increments from latest week (e.g., latest is 5 → form shows 6)
+  - Week number displayed in section header: "This Week's Setup (Week X)"
+  - Auto-calculation on component mount using `latest.week_number + 1`
+  - Starts at week 1 if no weeks exist yet
+  - Maintains backward compatibility with existing weeks
+
+- ✅ **Week Deletion**: Curators can remove weeks from history
+  - DELETE button added to each week in Week History tab (red border/hover styling)
+  - Confirmation dialog warns about deleting associated reviews
+  - Loading state during deletion ("Deleting..." button text, disabled state)
+  - Auto-refresh of week history after successful deletion
+  - Protected DELETE endpoint: `/api/weeks?week_number={num}` (curator auth required)
+  - Toast notifications for success/error feedback
+
+- ✅ **Enhanced Date Picker**: Improved response deadline selection
+  - Dark mode calendar using `[color-scheme:dark]` Tailwind utility
+  - Minimum date validation (restricts to today or future dates)
+  - Better UX with native browser date picker matching app theme
+  - Works across all modern browsers (Chrome, Firefox, Safari)
+
+- ✅ **API Enhancements**: Improved weeks endpoint
+  - GET endpoint now supports `week_number` parameter for fetching specific weeks
+  - DELETE endpoint for week deletion (curator-protected)
+  - Maintains backward compatibility with existing GET queries
+
+**Previous Session Accomplishments (2026-01-03)**:
 
 **v2.9 - Review Moderation & Curator Role Selection:**
 - ✅ **Review Moderation System**: Complete manual approval workflow
