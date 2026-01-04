@@ -20,7 +20,8 @@
     "migrate:status": "tsx scripts/migrate.ts status",
     "migrate:rollback": "tsx scripts/migrate.ts rollback",
     "import:rs500": "tsx scripts/import-rs500-simple.ts",
-    "fix:rs500": "tsx scripts/fix-rs500-data.ts"
+    "fix:rs500": "tsx scripts/fix-rs500-data.ts",
+    "refetch:spotify": "tsx scripts/refetch-all-spotify.ts"
   },
   "dependencies": {
     "@sentry/nextjs": "^10.32.1",

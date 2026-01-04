@@ -75,6 +75,7 @@
 
    **Future Enhancements:**
    - Email functionality refactor: Update `/app/api/email/send-week/route.ts` to use shared `buildEmailContent()` utility (currently duplicates email building logic)
+   - Centralize Resend throttling in a shared helper to enforce 2 emails/sec across all email endpoints
    - Participant notifications when reviews are approved/rejected (email or in-app)
    - Rejection workflow with feedback (allow participants to revise and resubmit)
    - Review history and audit trail (track who changed what and when)

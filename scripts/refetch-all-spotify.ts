@@ -1,5 +1,5 @@
-// scripts/import-rs500-simple.ts
-// Simplified RS 500 import that loads env first
+// scripts/refetch-all-spotify.ts
+// Force re-fetch Spotify data for ALL RS 500 albums using improved matching
 
 import * as fs from 'fs';
 import * as path from 'path';
@@ -7,19 +7,16 @@ import * as path from 'path';
 // Load .env.local
 const envPath = path.join(process.cwd(), '.env.local');
 const envContent = fs.readFileSync(envPath, 'utf-8');
-const envVars: Record<string, string> = {};
 
 envContent.split('\n').forEach(line => {
   const match = line.match(/^([^=]+)=(.*)$/);
   if (match) {
     const key = match[1].trim();
     const value = match[2].trim().replace(/^["']|["']$/g, '');
-    envVars[key] = value;
     process.env[key] = value;
   }
 });
 
-// Now import after env is set
 import('@supabase/supabase-js').then(async ({ createClient }) => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -38,39 +35,7 @@ import('@supabase/supabase-js').then(async ({ createClient }) => {
 
   const supabase = createClient(supabaseUrl, supabaseKey);
 
-  console.log('🎸 Rolling Stone 500 Import Tool\n');
-
-  const csvPath = process.argv[2] || '/Users/mikeleikin/Downloads/rolling_stone_list.csv';
-
-  if (!fs.existsSync(csvPath)) {
-    console.error(`❌ CSV file not found: ${csvPath}`);
-    process.exit(1);
-  }
-
-  // Parse CSV
-  const content = fs.readFileSync(csvPath, 'utf-8');
-  const lines = content.split('\n').filter(line => line.trim());
-  const header = lines[0].split(',');
-
-  interface CSVRow {
-    Ranking: string;
-    Artist: string;
-    Album: string;
-    Year: string;
-    Mike?: string;
-  }
-
-  const rows: CSVRow[] = [];
-  for (let i = 1; i < lines.length; i++) {
-    const values = lines[i].split(',');
-    const row: any = {};
-    header.forEach((key, index) => {
-      row[key.trim()] = values[index]?.trim() || '';
-    });
-    rows.push(row);
-  }
-
-  console.log(`✅ Found ${rows.length} albums\n`);
+  console.log('🔄 Re-fetching Spotify data for ALL RS 500 albums\n');
 
   // Spotify token management
   let spotifyToken: string | null = null;
@@ -169,7 +134,7 @@ import('@supabase/supabase-js').then(async ({ createClient }) => {
     results: any[],
     targetArtist: string,
     targetAlbum: string,
-    targetYear: number
+    targetYear: number | null
   ): any | null {
     if (results.length === 0) return null;
 
@@ -183,7 +148,7 @@ import('@supabase/supabase-js').then(async ({ createClient }) => {
 
       const artistScore = stringSimilarity(targetArtist, spotifyArtist);
       const albumScore = stringSimilarity(targetAlbum, spotifyAlbum);
-      const yearMatch = Math.abs(spotifyYear - targetYear) <= 2 ? 1 : 0;
+      const yearMatch = targetYear && Math.abs(spotifyYear - targetYear) <= 2 ? 1 : 0.5;
 
       // Weighted scoring: artist and album name are most important
       const totalScore = (artistScore * 0.4) + (albumScore * 0.4) + (yearMatch * 0.2);
@@ -200,70 +165,70 @@ import('@supabase/supabase-js').then(async ({ createClient }) => {
     return bestMatch;
   }
 
-  let imported = 0;
-  let enriched = 0;
-  let alreadyCovered = 0;
+  // Get all albums from database
+  const { data: albums, error: fetchError } = await supabase
+    .from('rs_500_albums')
+    .select('*')
+    .order('rank');
+
+  if (fetchError) {
+    console.error('Error fetching albums:', fetchError);
+    process.exit(1);
+  }
+
+  if (!albums || albums.length === 0) {
+    console.log('No albums found in database');
+    process.exit(0);
+  }
+
+  console.log(`Found ${albums.length} albums to process\n`);
+
+  let updated = 0;
+  let found = 0;
+  let notFound = 0;
   let errors = 0;
 
-  for (const row of rows) {
-    const rank = parseInt(row.Ranking);
-    const artist = row.Artist;
-    const album = row.Album;
-    const year = parseInt(row.Year);
-    const mikeRating = row.Mike;
-    const wasCovered = mikeRating && mikeRating.trim() !== '';
-
-    console.log(`[${rank}/${rows.length}] ${album} - ${artist} (${year})${wasCovered ? ' [COVERED]' : ''}`);
+  for (const album of albums) {
+    console.log(`[${album.rank}/${albums.length}] ${album.album} - ${album.artist} (${album.year || 'N/A'})`);
 
     try {
-      let spotifyData: any = {};
+      // Force re-search on Spotify with improved query
+      const searchQuery = `artist:"${album.artist}" album:"${album.album}"`;
+      const results = await searchSpotify(searchQuery, 10);
 
-      // Search Spotify with artist and album name
-      try {
-        const searchQuery = `artist:"${artist}" album:"${album}"`;
-        const results = await searchSpotify(searchQuery, 10);
+      if (results.length > 0) {
+        // Use our matching algorithm to find the best match
+        const match = findBestMatch(results, album.artist, album.album, album.year);
 
-        if (results.length > 0) {
-          // Use our matching algorithm to find the best match
-          const match = findBestMatch(results, artist, album, year);
+        if (match) {
+          const spotifyData = {
+            spotify_id: match.id,
+            spotify_url: match.external_urls.spotify,
+            album_art_url: match.images[0]?.url || null,
+          };
 
-          if (match) {
-            spotifyData = {
-              spotify_id: match.id,
-              spotify_url: match.external_urls.spotify,
-              album_art_url: match.images[0]?.url || null,
-            };
+          // Update the database
+          const { error: updateError } = await supabase
+            .from('rs_500_albums')
+            .update(spotifyData)
+            .eq('rank', album.rank);
 
-            enriched++;
-            console.log(`   ✓ Found on Spotify: "${match.name}" by ${match.artists[0]?.name}`);
-          } else {
-            console.log(`   ⚠ No good match found on Spotify`);
-          }
+          if (updateError) throw updateError;
+
+          found++;
+          updated++;
+          console.log(`   ✓ Updated: "${match.name}" by ${match.artists[0]?.name}`);
         } else {
-          console.log(`   ⚠ Not found on Spotify`);
+          notFound++;
+          console.log(`   ⚠ No good match found`);
         }
-
-        await new Promise(resolve => setTimeout(resolve, 100));
-      } catch (spotifyError) {
-        console.log(`   ⚠ Spotify error: ${spotifyError instanceof Error ? spotifyError.message : 'Unknown'}`);
+      } else {
+        notFound++;
+        console.log(`   ⚠ No results from Spotify`);
       }
 
-      // Insert into database
-      const { error } = await supabase
-        .from('rs_500_albums')
-        .upsert({
-          rank,
-          artist,
-          album,
-          year,
-          already_covered: !!wasCovered,
-          ...spotifyData,
-        }, { onConflict: 'rank' });
-
-      if (error) throw error;
-
-      imported++;
-      if (wasCovered) alreadyCovered++;
+      // Rate limit friendly delay
+      await new Promise(resolve => setTimeout(resolve, 150));
     } catch (error) {
       console.error(`   ❌ Error: ${error instanceof Error ? error.message : 'Unknown'}`);
       errors++;
@@ -271,16 +236,18 @@ import('@supabase/supabase-js').then(async ({ createClient }) => {
   }
 
   console.log('\n' + '='.repeat(60));
-  console.log('📊 Import Summary');
+  console.log('📊 Re-fetch Summary');
   console.log('='.repeat(60));
-  console.log(`Total albums:          ${rows.length}`);
-  console.log(`Successfully imported: ${imported}`);
-  console.log(`Enriched with Spotify: ${enriched}`);
-  console.log(`Already covered:       ${alreadyCovered}`);
+  console.log(`Total albums:          ${albums.length}`);
+  console.log(`Successfully updated:  ${updated}`);
+  console.log(`Found on Spotify:      ${found}`);
+  console.log(`Not found:             ${notFound}`);
   console.log(`Errors:                ${errors}`);
   console.log('='.repeat(60));
 
-  if (imported > 0) {
-    console.log('\n✅ Import complete!');
+  if (updated > 0) {
+    console.log('\n✅ Re-fetch complete!');
   }
+
+  process.exit(0);
 });

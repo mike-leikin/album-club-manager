@@ -167,8 +167,10 @@ export async function POST(request: NextRequest) {
       });
     };
 
+    const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
     // Build and send emails (same logic as send-week route)
-    const emailPromises = participants.map(async (participant: any) => {
+    const sendEmail = async (participant: any) => {
       const submitUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/submit?email=${encodeURIComponent(participant.email)}`;
       const firstName = participant.name.split(' ')[0];
 
@@ -219,9 +221,18 @@ export async function POST(request: NextRequest) {
 
         throw error;
       }
-    });
+    };
 
-    const results = await Promise.allSettled(emailPromises);
+    const results: PromiseSettledResult<unknown>[] = [];
+    for (let i = 0; i < participants.length; i += 2) {
+      const batch = participants.slice(i, i + 2).map((participant: any) => sendEmail(participant));
+      const batchResults = await Promise.allSettled(batch);
+      results.push(...batchResults);
+
+      if (i + 2 < participants.length) {
+        await sleep(1000);
+      }
+    }
 
     const successCount = results.filter((r) => r.status === "fulfilled").length;
     const failedCount = results.filter((r) => r.status === "rejected").length;

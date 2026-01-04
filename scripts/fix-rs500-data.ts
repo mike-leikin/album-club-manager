@@ -120,12 +120,12 @@ import('@supabase/supabase-js').then(async ({ createClient }) => {
     return spotifyToken;
   }
 
-  async function searchSpotify(query: string) {
+  async function searchSpotify(query: string, limit: number = 10) {
     const token = await getSpotifyToken();
     const url = new URL('https://api.spotify.com/v1/search');
     url.searchParams.append('q', query);
     url.searchParams.append('type', 'album');
-    url.searchParams.append('limit', '3');
+    url.searchParams.append('limit', limit.toString());
 
     const response = await fetch(url.toString(), {
       headers: { Authorization: `Bearer ${token}` },
@@ -137,6 +137,91 @@ import('@supabase/supabase-js').then(async ({ createClient }) => {
 
     const data = await response.json();
     return data.albums.items;
+  }
+
+  /**
+   * Calculate similarity score between two strings (0-1, higher is better)
+   */
+  function stringSimilarity(str1: string, str2: string): number {
+    const s1 = str1.toLowerCase().trim();
+    const s2 = str2.toLowerCase().trim();
+
+    if (s1 === s2) return 1;
+
+    const longer = s1.length > s2.length ? s1 : s2;
+    const shorter = s1.length > s2.length ? s2 : s1;
+
+    if (longer.length === 0) return 1;
+    if (longer.includes(shorter)) return 0.8;
+
+    const editDistance = levenshteinDistance(s1, s2);
+    return (longer.length - editDistance) / longer.length;
+  }
+
+  function levenshteinDistance(str1: string, str2: string): number {
+    const matrix: number[][] = [];
+
+    for (let i = 0; i <= str2.length; i++) {
+      matrix[i] = [i];
+    }
+
+    for (let j = 0; j <= str1.length; j++) {
+      matrix[0][j] = j;
+    }
+
+    for (let i = 1; i <= str2.length; i++) {
+      for (let j = 1; j <= str1.length; j++) {
+        if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
+          matrix[i][j] = matrix[i - 1][j - 1];
+        } else {
+          matrix[i][j] = Math.min(
+            matrix[i - 1][j - 1] + 1,
+            matrix[i][j - 1] + 1,
+            matrix[i - 1][j] + 1
+          );
+        }
+      }
+    }
+
+    return matrix[str2.length][str1.length];
+  }
+
+  /**
+   * Find the best matching album from Spotify search results
+   */
+  function findBestMatch(
+    results: any[],
+    targetArtist: string,
+    targetAlbum: string,
+    targetYear: number | null
+  ): any | null {
+    if (results.length === 0) return null;
+
+    let bestMatch = null;
+    let bestScore = 0;
+
+    for (const result of results) {
+      const spotifyArtist = result.artists[0]?.name || '';
+      const spotifyAlbum = result.name;
+      const spotifyYear = parseInt(result.release_date.split('-')[0]);
+
+      const artistScore = stringSimilarity(targetArtist, spotifyArtist);
+      const albumScore = stringSimilarity(targetAlbum, spotifyAlbum);
+      const yearMatch = targetYear && Math.abs(spotifyYear - targetYear) <= 2 ? 1 : 0.5;
+
+      // Weighted scoring: artist and album name are most important
+      const totalScore = (artistScore * 0.4) + (albumScore * 0.4) + (yearMatch * 0.2);
+
+      // Require minimum thresholds for both artist and album name
+      const meetsThreshold = artistScore >= 0.6 && albumScore >= 0.6;
+
+      if (meetsThreshold && totalScore > bestScore) {
+        bestScore = totalScore;
+        bestMatch = result;
+      }
+    }
+
+    return bestMatch;
   }
 
   let updated = 0;
@@ -177,25 +262,25 @@ import('@supabase/supabase-js').then(async ({ createClient }) => {
       // Only search Spotify if we don't already have data
       if (!existing?.spotify_id) {
         try {
-          const searchQuery = `${album} ${artist}`;
-          const results = await searchSpotify(searchQuery);
+          const searchQuery = `artist:"${artist}" album:"${album}"`;
+          const results = await searchSpotify(searchQuery, 10);
 
           if (results.length > 0) {
-            const match = year
-              ? results.find((r: any) => {
-                  const spotifyYear = parseInt(r.release_date.split('-')[0]);
-                  return Math.abs(spotifyYear - year) <= 2;
-                }) || results[0]
-              : results[0];
+            // Use our matching algorithm to find the best match
+            const match = findBestMatch(results, artist, album, year);
 
-            spotifyData = {
-              spotify_id: match.id,
-              spotify_url: match.external_urls.spotify,
-              album_art_url: match.images[0]?.url || null,
-            };
+            if (match) {
+              spotifyData = {
+                spotify_id: match.id,
+                spotify_url: match.external_urls.spotify,
+                album_art_url: match.images[0]?.url || null,
+              };
 
-            enriched++;
-            console.log(`   ✓ Found on Spotify`);
+              enriched++;
+              console.log(`   ✓ Found on Spotify: "${match.name}" by ${match.artists[0]?.name}`);
+            } else {
+              console.log(`   ⚠ No good match found on Spotify`);
+            }
           } else {
             console.log(`   ⚠ Not found on Spotify`);
           }
