@@ -8,14 +8,14 @@ type RejectPayload = {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Require curator authentication
     const session = await requireCurator();
     const supabase = createServerClient();
 
-    const invitationId = params.id;
+    const { id: invitationId } = await params;
     const body = (await request.json()) as RejectPayload;
     const reason = body.reason?.trim();
 
