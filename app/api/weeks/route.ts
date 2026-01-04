@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   const authError = await requireCuratorApi(request);
   if (authError) return authError;
   try {
-    const supabase = createServerClient() as any;
+    const supabase = createServerClient();
     const body = await request.json();
 
     const { data, error } = await supabase
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createServerClient() as any;
+    const supabase = createServerClient();
     const { searchParams } = new URL(request.url);
     const all = searchParams.get('all') === 'true';
     const weekNumber = searchParams.get('week_number');
@@ -96,7 +96,7 @@ export async function DELETE(request: NextRequest) {
   if (authError) return authError;
 
   try {
-    const supabase = createServerClient() as any;
+    const supabase = createServerClient();
     const { searchParams } = new URL(request.url);
     const weekNumber = searchParams.get('week_number');
 

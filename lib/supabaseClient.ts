@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from './types/database';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -9,7 +9,7 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 
 // Server-only admin client (service role key, bypasses RLS)
 // Only use this in API routes and server components
-export function createServerClient() {
+export function createServerClient(): SupabaseClient<Database> {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!serviceRoleKey) {

@@ -26,6 +26,7 @@ export async function POST(
   try {
     // Require curator authentication
     const session = await requireCurator();
+    // Note: Using 'as any' due to Supabase TypeScript limitation with invitations table updates
     const supabase = createServerClient() as any;
 
     const { id: invitationId } = await params;
@@ -85,7 +86,7 @@ export async function POST(
     const { error: updateError } = await supabase
       .from("invitations")
       .update({
-        status: "approved" as const,
+        status: "approved",
         reviewed_by: curator.id,
         reviewed_at: new Date().toISOString(),
         review_notes: notes || null,
