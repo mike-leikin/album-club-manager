@@ -60,9 +60,11 @@ export async function POST(
       );
     }
 
-    if (invitation.status !== "pending") {
+    // Type assertion for invitation status
+    const invitationStatus = invitation.status as string;
+    if (invitationStatus !== "pending") {
       return NextResponse.json(
-        { error: `Invitation is ${invitation.status}, not pending` },
+        { error: `Invitation is ${invitationStatus}, not pending` },
         { status: 400 }
       );
     }
