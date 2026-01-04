@@ -20,7 +20,7 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Test Email Preview**: Send test email to yourself before sending to all participants (v2.12)
 - **One-Click Email Sending**: Send personalized emails to all participants from the admin dashboard
 - **Professional HTML Templates**: Beautiful, responsive email design with album artwork
-- **Curator Messages**: Add optional personal notes to weekly emails (500 character limit)
+- **Curator Messages**: Add optional personal notes to weekly emails (3000 character limit)
 - **Personalized Review Links**: Each participant gets a unique link with their email pre-filled
 - **Previous Week Results**: Automatically include ratings and favorite tracks from the previous week
 - **Date-Based Week Labels**: Emails use the send date (e.g., "Jan 4, 2026") instead of Week numbers

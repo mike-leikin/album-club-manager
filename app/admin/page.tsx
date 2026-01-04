@@ -756,10 +756,10 @@ export default function AdminPage() {
               className="w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none resize-y"
               rows={4}
               placeholder="Add a personal note or context for this week's picks..."
-              maxLength={500}
+              maxLength={3000}
             />
             <p className="text-xs text-zinc-500 mt-1">
-              {curatorMessage.length}/500 characters
+              {curatorMessage.length}/3000 characters
             </p>
           </div>
 
