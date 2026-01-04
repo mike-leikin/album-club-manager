@@ -192,7 +192,7 @@ export default function SettingsPage() {
     const badges = {
       pending: { text: 'Pending Approval', className: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' },
       approved: { text: 'Approved', className: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
-      accepted: { text: 'Joined', className: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' },
+      accepted: { text: 'Joined', className: 'bg-blue-600/10 text-emerald-400 border-emerald-500/20' },
       rejected: { text: 'Declined', className: 'bg-red-500/10 text-red-400 border-red-500/20' },
     };
     const badge = badges[status as keyof typeof badges] || badges.pending;
@@ -206,7 +206,7 @@ export default function SettingsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-800 flex items-center justify-center">
-        <div className="text-zinc-300">Loading settings...</div>
+        <div className="text-gray-700">Loading settings...</div>
       </div>
     );
   }
@@ -217,11 +217,11 @@ export default function SettingsPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white">Account Settings</h1>
-          <p className="mt-2 text-zinc-400">Manage your Album Club preferences</p>
+          <p className="mt-2 text-gray-500">Manage your Album Club preferences</p>
         </div>
 
         {/* Account Info */}
-        <div className="mb-6 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6">
+        <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-white">Account Information</h2>
             {!isEditingProfile && (
@@ -237,25 +237,25 @@ export default function SettingsPage() {
             {isEditingProfile ? (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-zinc-400 mb-2">Name</label>
+                  <label className="block text-sm font-medium text-gray-500 mb-2">Name</label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-zinc-100 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-zinc-100 focus:ring-2 focus:ring-emerald-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-zinc-400 mb-2">Email</label>
+                  <label className="block text-sm font-medium text-gray-500 mb-2">Email</label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-zinc-100 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-zinc-100 focus:ring-2 focus:ring-emerald-500 focus:border-blue-500"
                   />
                 </div>
                 {participant?.is_curator && (
-                  <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3">
+                  <div className="rounded-lg bg-blue-600/10 border border-emerald-500/20 p-3">
                     <p className="text-sm font-medium text-emerald-400">✓ Curator Account</p>
                   </div>
                 )}
@@ -263,7 +263,7 @@ export default function SettingsPage() {
                   <button
                     onClick={handleUpdateProfile}
                     disabled={isSaving}
-                    className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition text-sm font-medium"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-sm font-medium"
                   >
                     {isSaving ? 'Saving...' : 'Save Changes'}
                   </button>
@@ -274,7 +274,7 @@ export default function SettingsPage() {
                       setEmail(participant?.email || '');
                     }}
                     disabled={isSaving}
-                    className="px-4 py-2 border border-zinc-700 text-zinc-300 rounded-lg hover:bg-zinc-800 disabled:opacity-50 transition text-sm font-medium"
+                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-zinc-800 disabled:opacity-50 transition text-sm font-medium"
                   >
                     Cancel
                   </button>
@@ -283,15 +283,15 @@ export default function SettingsPage() {
             ) : (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-zinc-400">Name</label>
+                  <label className="block text-sm font-medium text-gray-500">Name</label>
                   <p className="mt-1 text-zinc-100">{participant?.name}</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-zinc-400">Email</label>
+                  <label className="block text-sm font-medium text-gray-500">Email</label>
                   <p className="mt-1 text-zinc-100">{participant?.email}</p>
                 </div>
                 {participant?.is_curator && (
-                  <div className="mt-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-3">
+                  <div className="mt-4 rounded-lg bg-blue-600/10 border border-emerald-500/20 p-3">
                     <p className="text-sm font-medium text-emerald-400">✓ Curator Account</p>
                   </div>
                 )}
@@ -301,7 +301,7 @@ export default function SettingsPage() {
         </div>
 
         {/* Email Preferences */}
-        <div className="mb-6 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6">
+        <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6">
           <h2 className="mb-4 text-xl font-semibold text-white">Email Preferences</h2>
 
           <div className="space-y-4">
@@ -311,13 +311,13 @@ export default function SettingsPage() {
                 id="emailSubscribed"
                 checked={emailSubscribed}
                 onChange={(e) => setEmailSubscribed(e.target.checked)}
-                className="mt-1 h-4 w-4 rounded border-zinc-700 bg-zinc-900 text-emerald-500 focus:ring-emerald-500 focus:ring-offset-zinc-900"
+                className="mt-1 h-4 w-4 rounded border-gray-300 bg-white text-emerald-500 focus:ring-emerald-500 focus:ring-offset-zinc-900"
               />
               <div className="flex-1">
                 <label htmlFor="emailSubscribed" className="block text-sm font-medium text-zinc-100 cursor-pointer">
                   Receive weekly album emails
                 </label>
-                <p className="mt-1 text-sm text-zinc-400">
+                <p className="mt-1 text-sm text-gray-500">
                   Get notified each week when new albums are posted. You can still log in and submit reviews even if unsubscribed.
                 </p>
               </div>
@@ -326,7 +326,7 @@ export default function SettingsPage() {
             <button
               onClick={handleUpdateEmailPreference}
               disabled={isSaving}
-              className="rounded-md bg-emerald-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? 'Saving...' : 'Save Email Preferences'}
             </button>
@@ -334,13 +334,13 @@ export default function SettingsPage() {
         </div>
 
         {/* Friend Invitations */}
-        <div className="mb-6 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6">
+        <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6">
           <h2 className="mb-4 text-xl font-semibold text-white">Invite Friends</h2>
 
           <div className="space-y-4">
             <div>
               <h3 className="text-sm font-semibold text-zinc-100 mb-2">Send Invite via Email</h3>
-              <p className="text-sm text-zinc-400 mb-3">
+              <p className="text-sm text-gray-500 mb-3">
                 Enter a friend's email to send them an invitation to join Album Club.
                 A curator will review before they can sign up.
               </p>
@@ -350,19 +350,19 @@ export default function SettingsPage() {
                   placeholder="friend@example.com"
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
-                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-zinc-100 placeholder-zinc-500 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-zinc-100 placeholder-zinc-500 focus:ring-2 focus:ring-emerald-500 focus:border-blue-500"
                 />
                 <input
                   type="text"
                   placeholder="Friend's Name (optional)"
                   value={inviteName}
                   onChange={(e) => setInviteName(e.target.value)}
-                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-zinc-100 placeholder-zinc-500 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-zinc-100 placeholder-zinc-500 focus:ring-2 focus:ring-emerald-500 focus:border-blue-500"
                 />
                 <button
                   onClick={handleSendInvite}
                   disabled={isSendingInvite || !inviteEmail}
-                  className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition text-sm font-medium"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition text-sm font-medium"
                 >
                   {isSendingInvite ? 'Sending...' : 'Send Invitation'}
                 </button>
@@ -372,9 +372,9 @@ export default function SettingsPage() {
         </div>
 
         {/* Invitation History */}
-        <div className="mb-6 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6">
+        <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6">
           <h2 className="mb-4 text-xl font-semibold text-white">Your Invitations</h2>
-          <p className="text-sm text-zinc-400 mb-4">
+          <p className="text-sm text-gray-500 mb-4">
             Track friends you've invited. You can also forward your weekly album emails -
             they include a referral link in the footer.
           </p>
@@ -388,7 +388,7 @@ export default function SettingsPage() {
               {invitations.map((invite) => (
                 <div
                   key={invite.id}
-                  className="flex items-center justify-between p-4 bg-zinc-900/50 border border-zinc-800 rounded-lg"
+                  className="flex items-center justify-between p-4 bg-white/50 border border-gray-200 rounded-lg"
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
@@ -417,13 +417,13 @@ export default function SettingsPage() {
         </div>
 
         {/* Danger Zone */}
-        <div className="mb-6 rounded-2xl border border-red-500/20 bg-zinc-950/80 p-6">
+        <div className="mb-6 rounded-2xl border border-red-500/20 bg-white p-6">
           <h2 className="mb-4 text-xl font-semibold text-red-400">Danger Zone</h2>
 
           <div className="space-y-4">
             <div>
               <h3 className="text-sm font-medium text-zinc-100 mb-2">Delete Account</h3>
-              <p className="text-sm text-zinc-400 mb-4">
+              <p className="text-sm text-gray-500 mb-4">
                 Permanently delete your account. Your reviews will be preserved but your name will be removed. This action cannot be undone.
               </p>
 
@@ -450,7 +450,7 @@ export default function SettingsPage() {
                     <button
                       onClick={() => setShowDeleteConfirm(false)}
                       disabled={isDeleting}
-                      className="rounded-md border border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:bg-zinc-800 disabled:opacity-50"
+                      className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-zinc-800 disabled:opacity-50"
                     >
                       Cancel
                     </button>
@@ -465,7 +465,7 @@ export default function SettingsPage() {
         <div className="flex gap-3">
           <button
             onClick={() => router.push('/dashboard')}
-            className="rounded-md border border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:bg-zinc-800"
+            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-zinc-800"
           >
             ← Back to Dashboard
           </button>

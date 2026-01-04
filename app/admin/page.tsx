@@ -586,28 +586,28 @@ export default function AdminPage() {
   };
 
   return (
-    <main className="min-h-screen bg-black text-gray-50">
+    <main className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-7xl px-4 py-8">
         {/* Header with tabs */}
         <div className="mb-6">
           <div className="mb-4 flex items-center justify-between">
-            <h1 className="text-3xl font-bold">Curator Dashboard</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Curator Dashboard</h1>
             <a
               href="/dashboard"
-              className="px-4 py-2 text-sm font-medium text-white bg-zinc-800 border border-zinc-700 rounded-lg hover:bg-zinc-700 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
               My Reviews
             </a>
           </div>
 
           {/* Tab Navigation */}
-          <div className="flex gap-2 border-b border-zinc-800">
+          <div className="flex gap-2 border-b border-gray-200">
             <button
               onClick={() => setActiveTab("week")}
               className={`px-4 py-2 text-sm font-medium transition ${
                 activeTab === "week"
-                  ? "border-b-2 border-emerald-500 text-emerald-400"
-                  : "text-zinc-400 hover:text-zinc-300"
+                  ? "border-b-2 border-blue-500 text-blue-600"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
               Week Management
@@ -616,8 +616,8 @@ export default function AdminPage() {
               onClick={() => setActiveTab("participants")}
               className={`px-4 py-2 text-sm font-medium transition ${
                 activeTab === "participants"
-                  ? "border-b-2 border-emerald-500 text-emerald-400"
-                  : "text-zinc-400 hover:text-zinc-300"
+                  ? "border-b-2 border-blue-500 text-blue-600"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
               Participants
@@ -626,8 +626,8 @@ export default function AdminPage() {
               onClick={() => setActiveTab("reviews")}
               className={`px-4 py-2 text-sm font-medium transition ${
                 activeTab === "reviews"
-                  ? "border-b-2 border-emerald-500 text-emerald-400"
-                  : "text-zinc-400 hover:text-zinc-300"
+                  ? "border-b-2 border-blue-500 text-blue-600"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
               Reviews
@@ -636,8 +636,8 @@ export default function AdminPage() {
               onClick={() => setActiveTab("history")}
               className={`px-4 py-2 text-sm font-medium transition ${
                 activeTab === "history"
-                  ? "border-b-2 border-emerald-500 text-emerald-400"
-                  : "text-zinc-400 hover:text-zinc-300"
+                  ? "border-b-2 border-blue-500 text-blue-600"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
               Week History
@@ -646,8 +646,8 @@ export default function AdminPage() {
               onClick={() => setActiveTab("email-history")}
               className={`px-4 py-2 text-sm font-medium transition ${
                 activeTab === "email-history"
-                  ? "border-b-2 border-emerald-500 text-emerald-400"
-                  : "text-zinc-400 hover:text-zinc-300"
+                  ? "border-b-2 border-blue-500 text-blue-600"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
               Email History
@@ -656,8 +656,8 @@ export default function AdminPage() {
               onClick={() => setActiveTab("invitations")}
               className={`px-4 py-2 text-sm font-medium transition ${
                 activeTab === "invitations"
-                  ? "border-b-2 border-emerald-500 text-emerald-400"
-                  : "text-zinc-400 hover:text-zinc-300"
+                  ? "border-b-2 border-blue-500 text-blue-600"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
               Invitations
@@ -666,8 +666,8 @@ export default function AdminPage() {
               onClick={() => setActiveTab("export")}
               className={`px-4 py-2 text-sm font-medium transition ${
                 activeTab === "export"
-                  ? "border-b-2 border-emerald-500 text-emerald-400"
-                  : "text-zinc-400 hover:text-zinc-300"
+                  ? "border-b-2 border-blue-500 text-blue-600"
+                  : "text-gray-600 hover:text-gray-900"
               }`}
             >
               Data Export
@@ -679,7 +679,7 @@ export default function AdminPage() {
         {activeTab === "week" && (
           <div className="flex flex-col gap-6 md:flex-row">
             {/* Left: Curator form */}
-            <section className="w-full rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6 shadow-lg md:w-1/2">
+            <section className="w-full rounded-2xl border border-gray-200 bg-white p-6 shadow-lg md:w-1/2">
               <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="text-xl font-semibold">This Week&apos;s Albums</h2>
             <div className="flex flex-col gap-2 text-sm sm:flex-row sm:items-center">
@@ -696,7 +696,7 @@ export default function AdminPage() {
                 type="button"
                 onClick={handleSave}
                 disabled={isSaving}
-                className="rounded-md border border-emerald-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-md border border-blue-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSaving ? "Saving..." : "Save Week"}
               </button>
@@ -732,14 +732,14 @@ export default function AdminPage() {
             <h2 className="text-lg font-semibold">This Week&apos;s Setup (Week {weekNumber})</h2>
 
             <div>
-              <label className="block text-sm font-medium text-zinc-300">
+              <label className="block text-sm font-medium text-gray-700">
                 Response Deadline
               </label>
               <input
                 type="date"
                 value={responseDeadline}
                 onChange={(e) => setResponseDeadline(e.target.value)}
-                className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none [color-scheme:dark]"
+                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none [color-scheme:dark]"
                 min={new Date().toISOString().split("T")[0]}
               />
             </div>
@@ -747,18 +747,18 @@ export default function AdminPage() {
 
           {/* Curator message */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Custom Message (Optional)
             </label>
             <textarea
               value={curatorMessage}
               onChange={(e) => setCuratorMessage(e.target.value)}
-              className="w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none resize-y"
+              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none resize-y"
               rows={4}
               placeholder="Add a personal note or context for this week's picks..."
               maxLength={3000}
             />
-            <p className="text-xs text-zinc-500 mt-1">
+            <p className="text-xs text-gray-9000 mt-1">
               {curatorMessage.length}/3000 characters
             </p>
           </div>
@@ -791,7 +791,7 @@ export default function AdminPage() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-zinc-300">
+              <label className="block text-sm font-medium text-gray-700">
                 Title
               </label>
               <input
@@ -800,13 +800,13 @@ export default function AdminPage() {
                 onChange={(e) =>
                   setContemporary((prev) => ({ ...prev, title: e.target.value }))
                 }
-                className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
                 placeholder="Album title"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-zinc-300">
+              <label className="block text-sm font-medium text-gray-700">
                 Artist
               </label>
               <input
@@ -815,13 +815,13 @@ export default function AdminPage() {
                 onChange={(e) =>
                   setContemporary((prev) => ({ ...prev, artist: e.target.value }))
                 }
-                className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
                 placeholder="Artist name"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-zinc-300">
+              <label className="block text-sm font-medium text-gray-700">
                 Year (optional)
               </label>
               <input
@@ -830,13 +830,13 @@ export default function AdminPage() {
                 onChange={(e) =>
                   setContemporary((prev) => ({ ...prev, year: e.target.value }))
                 }
-                className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
                 placeholder="2024"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-zinc-300">
+              <label className="block text-sm font-medium text-gray-700">
                 Spotify URL (optional)
               </label>
               <input
@@ -848,7 +848,7 @@ export default function AdminPage() {
                     spotifyUrl: e.target.value,
                   }))
                 }
-                className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
                 placeholder="https://open.spotify.com/album/..."
               />
             </div>
@@ -857,7 +857,7 @@ export default function AdminPage() {
           {/* Classic album */}
           <div className="space-y-3">
             <h2 className="text-lg font-semibold">
-              Classic Album <span className="text-xs text-zinc-400">(RS 500)</span>
+              Classic Album <span className="text-xs text-gray-500">(RS 500)</span>
             </h2>
 
             <RS500Picker
@@ -885,7 +885,7 @@ export default function AdminPage() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-zinc-300">
+              <label className="block text-sm font-medium text-gray-700">
                 Title
               </label>
               <input
@@ -894,13 +894,13 @@ export default function AdminPage() {
                 onChange={(e) =>
                   setClassic((prev) => ({ ...prev, title: e.target.value }))
                 }
-                className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
                 placeholder="Album title"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-zinc-300">
+              <label className="block text-sm font-medium text-gray-700">
                 Artist
               </label>
               <input
@@ -909,13 +909,13 @@ export default function AdminPage() {
                 onChange={(e) =>
                   setClassic((prev) => ({ ...prev, artist: e.target.value }))
                 }
-                className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
                 placeholder="Artist name"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-zinc-300">
+              <label className="block text-sm font-medium text-gray-700">
                 Year (optional)
               </label>
               <input
@@ -924,13 +924,13 @@ export default function AdminPage() {
                 onChange={(e) =>
                   setClassic((prev) => ({ ...prev, year: e.target.value }))
                 }
-                className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
                 placeholder="1971"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-zinc-300">
+              <label className="block text-sm font-medium text-gray-700">
                 Spotify URL (optional)
               </label>
               <input
@@ -942,13 +942,13 @@ export default function AdminPage() {
                     spotifyUrl: e.target.value,
                   }))
                 }
-                className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
                 placeholder="https://open.spotify.com/album/..."
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-zinc-300">
+              <label className="block text-sm font-medium text-gray-700">
                 Rolling Stone Rank (optional)
               </label>
               <input
@@ -962,7 +962,7 @@ export default function AdminPage() {
                     rollingStoneRank: e.target.value,
                   }))
                 }
-                className="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
                 placeholder="63"
               />
             </div>
@@ -1104,7 +1104,7 @@ export default function AdminPage() {
                 <h2 className="text-xl font-semibold">Email Preview</h2>
                 <button
                   onClick={() => setShowEmailPreview(false)}
-                  className="text-zinc-400 hover:text-zinc-200"
+                  className="text-gray-500 hover:text-zinc-200"
                 >
                   ✕
                 </button>
@@ -1112,7 +1112,7 @@ export default function AdminPage() {
 
               <div className="space-y-4">
                 <div>
-                  <div className="text-sm font-medium text-zinc-400">Subject:</div>
+                  <div className="text-sm font-medium text-gray-500">Subject:</div>
                   <div className="text-zinc-100">Album Club – Week {weekNumber}</div>
                 </div>
 
@@ -1123,20 +1123,20 @@ export default function AdminPage() {
                 </div>
 
                 <div>
-                  <div className="text-sm font-medium text-zinc-400 mb-2">Content:</div>
-                  <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 font-mono text-sm text-zinc-300 whitespace-pre-wrap max-h-96 overflow-y-auto">
+                  <div className="text-sm font-medium text-gray-500 mb-2">Content:</div>
+                  <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 font-mono text-sm text-gray-700 whitespace-pre-wrap max-h-96 overflow-y-auto">
                     {`Hi [Participant Name],\n\n${body}`}
                   </div>
                 </div>
 
-                <div className="text-xs text-zinc-500">
+                <div className="text-xs text-gray-9000">
                   Each participant will receive a personalized email with their name and a unique review link.
                 </div>
 
                 <div className="flex justify-end gap-2">
                   <button
                     onClick={() => setShowEmailPreview(false)}
-                    className="rounded-md border border-zinc-700 px-4 py-2 text-sm font-medium text-zinc-300 transition hover:bg-zinc-800"
+                    className="rounded-md border border-zinc-700 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-zinc-800"
                   >
                     Close
                   </button>
@@ -1157,13 +1157,13 @@ export default function AdminPage() {
 
         {/* Week History Tab */}
         {activeTab === "history" && (
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6">
             <h2 className="mb-4 text-xl font-semibold">Week History</h2>
 
             {isLoadingHistory ? (
-              <p className="text-zinc-400">Loading week history...</p>
+              <p className="text-gray-500">Loading week history...</p>
             ) : weekHistory.length === 0 ? (
-              <p className="text-sm text-zinc-400">No weeks saved yet.</p>
+              <p className="text-sm text-gray-500">No weeks saved yet.</p>
             ) : (
               <div className="space-y-4">
                 {weekHistory.map((week) => (
@@ -1175,7 +1175,7 @@ export default function AdminPage() {
                       <div>
                         <h3 className="text-lg font-semibold">Week {week.week_number}</h3>
                         {week.response_deadline && (
-                          <p className="text-xs text-zinc-500">
+                          <p className="text-xs text-gray-9000">
                             Deadline: {new Date(week.response_deadline).toLocaleDateString()}
                           </p>
                         )}
@@ -1239,10 +1239,10 @@ export default function AdminPage() {
                             </div>
                             <div className="text-sm font-medium truncate">{week.contemporary_title}</div>
                             {week.contemporary_artist && (
-                              <div className="text-xs text-zinc-400 truncate">{week.contemporary_artist}</div>
+                              <div className="text-xs text-gray-500 truncate">{week.contemporary_artist}</div>
                             )}
                             {week.contemporary_year && (
-                              <div className="text-xs text-zinc-500">({week.contemporary_year})</div>
+                              <div className="text-xs text-gray-9000">({week.contemporary_year})</div>
                             )}
                           </div>
                         </div>
@@ -1268,9 +1268,9 @@ export default function AdminPage() {
                             </div>
                             <div className="text-sm font-medium truncate">{week.classic_title}</div>
                             {week.classic_artist && (
-                              <div className="text-xs text-zinc-400 truncate">{week.classic_artist}</div>
+                              <div className="text-xs text-gray-500 truncate">{week.classic_artist}</div>
                             )}
-                            <div className="text-xs text-zinc-500">
+                            <div className="text-xs text-gray-9000">
                               {week.classic_year && `(${week.classic_year})`}
                               {week.rs_rank && ` • Rank #${week.rs_rank}`}
                             </div>
@@ -1292,9 +1292,9 @@ export default function AdminPage() {
 
         {/* Data Export Tab */}
         {activeTab === "export" && (
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6">
             <h2 className="mb-4 text-xl font-semibold">Data Export & Backup</h2>
-            <p className="mb-6 text-sm text-zinc-400">
+            <p className="mb-6 text-sm text-gray-500">
               Export your album club data for backup or analysis. All exports include timestamps and can be used to restore data if needed.
             </p>
 
@@ -1305,7 +1305,7 @@ export default function AdminPage() {
                   <span className="text-2xl">💾</span>
                   <h3 className="font-semibold">Complete Backup</h3>
                 </div>
-                <p className="mb-4 text-sm text-zinc-400">
+                <p className="mb-4 text-sm text-gray-500">
                   Export everything: all reviews, participants, weeks, and RS 500 data in a single JSON file.
                 </p>
                 <a
@@ -1323,7 +1323,7 @@ export default function AdminPage() {
                   <span className="text-2xl">📝</span>
                   <h3 className="font-semibold">Reviews</h3>
                 </div>
-                <p className="mb-4 text-sm text-zinc-400">
+                <p className="mb-4 text-sm text-gray-500">
                   Export all participant reviews with ratings, favorite tracks, and comments.
                 </p>
                 <div className="flex gap-2">
@@ -1350,7 +1350,7 @@ export default function AdminPage() {
                   <span className="text-2xl">👥</span>
                   <h3 className="font-semibold">Participants</h3>
                 </div>
-                <p className="mb-4 text-sm text-zinc-400">
+                <p className="mb-4 text-sm text-gray-500">
                   Export participant list with names, emails, and review counts.
                 </p>
                 <div className="flex gap-2">
@@ -1377,7 +1377,7 @@ export default function AdminPage() {
                   <span className="text-2xl">📅</span>
                   <h3 className="font-semibold">Week History</h3>
                 </div>
-                <p className="mb-4 text-sm text-zinc-400">
+                <p className="mb-4 text-sm text-gray-500">
                   Export all weeks with album details, deadlines, and average ratings.
                 </p>
                 <div className="flex gap-2">
@@ -1405,7 +1405,7 @@ export default function AdminPage() {
                 <span className="text-xl">⚠️</span>
                 <h4 className="font-semibold">Backup Recommendations</h4>
               </div>
-              <ul className="space-y-1 text-sm text-zinc-400">
+              <ul className="space-y-1 text-sm text-gray-500">
                 <li>• Download a complete backup regularly (weekly recommended)</li>
                 <li>• Store backups in a safe location (cloud storage, external drive)</li>
                 <li>• Keep multiple backup versions in case you need to restore older data</li>

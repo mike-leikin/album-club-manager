@@ -178,30 +178,30 @@ export default function SubmitPage() {
 
   if (loadingWeek) {
     return (
-      <main className="min-h-screen bg-black text-gray-50 p-8">
+      <main className="min-h-screen bg-gray-50 text-gray-900 p-8">
         <div className="mx-auto max-w-2xl">
-          <p className="text-zinc-400">Loading week data...</p>
+          <p className="text-gray-500">Loading week data...</p>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-black text-gray-50 p-8">
+    <main className="min-h-screen bg-gray-50 text-gray-900 p-8">
       <div className="mx-auto max-w-2xl">
         <h1 className="text-3xl font-bold mb-2">Submit Your Review</h1>
-        <p className="text-zinc-400 mb-8">
+        <p className="text-gray-500 mb-8">
           Share your thoughts on this week&apos;s albums
         </p>
 
         {weekData && (
-          <div className="mb-8 rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6">
+          <div className="mb-8 rounded-2xl border border-gray-200 bg-white p-6">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold">
                 Week {weekData.week_number}
               </h2>
               {weekData.response_deadline && (
-                <p className="text-sm text-zinc-400">
+                <p className="text-sm text-gray-500">
                   Deadline: {new Date(weekData.response_deadline).toLocaleDateString('en-US', {
                     month: 'long',
                     day: 'numeric',
@@ -252,7 +252,7 @@ export default function SubmitPage() {
                       {weekData.contemporary_title}
                     </div>
                     {weekData.contemporary_artist && (
-                      <div className="text-zinc-400 text-sm">
+                      <div className="text-gray-500 text-sm">
                         {weekData.contemporary_artist}
                       </div>
                     )}
@@ -282,7 +282,7 @@ export default function SubmitPage() {
                       {weekData.classic_title}
                     </div>
                     {weekData.classic_artist && (
-                      <div className="text-zinc-400 text-sm">
+                      <div className="text-gray-500 text-sm">
                         {weekData.classic_artist}
                       </div>
                     )}
@@ -295,8 +295,8 @@ export default function SubmitPage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Email */}
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6">
-            <label className="block text-sm font-medium text-zinc-300 mb-2">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Your Email
             </label>
             <div className="relative">
@@ -308,7 +308,7 @@ export default function SubmitPage() {
                   setEmailSource("manual");
                 }}
                 required
-                className="w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none"
+                className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-zinc-50 focus:border-blue-500 focus:outline-none"
                 placeholder="your.email@example.com"
               />
               {emailSource === "url" && email && (
@@ -323,13 +323,13 @@ export default function SubmitPage() {
           </div>
 
           {/* Contemporary Album */}
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6">
             <div className="mb-6 flex gap-4">
               {weekData?.contemporary_album_art_url && (
                 <img
                   src={weekData.contemporary_album_art_url}
                   alt={weekData.contemporary_title}
-                  className="w-24 h-24 rounded-lg border border-zinc-700 flex-shrink-0"
+                  className="w-24 h-24 rounded-lg border border-gray-300 flex-shrink-0"
                 />
               )}
               <div className="flex-1 min-w-0">
@@ -340,7 +340,7 @@ export default function SubmitPage() {
                   {weekData?.contemporary_title || "Contemporary Album"}
                 </h3>
                 {weekData?.contemporary_artist && (
-                  <p className="text-sm text-zinc-400 mt-1">
+                  <p className="text-sm text-gray-500 mt-1">
                     {weekData.contemporary_artist}
                     {weekData.contemporary_year && ` • ${weekData.contemporary_year}`}
                   </p>
@@ -349,7 +349,7 @@ export default function SubmitPage() {
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-zinc-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Rating (0.0 - 10.0)
                 </label>
                 <input
@@ -359,33 +359,33 @@ export default function SubmitPage() {
                   max="10"
                   value={contempRating}
                   onChange={(e) => setContempRating(e.target.value)}
-                  className="w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none"
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-zinc-50 focus:border-blue-500 focus:outline-none"
                   placeholder=""
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-zinc-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Favorite Track (optional)
                 </label>
                 <input
                   type="text"
                   value={contempTrack}
                   onChange={(e) => setContempTrack(e.target.value)}
-                  className="w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none"
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-zinc-50 focus:border-blue-500 focus:outline-none"
                   placeholder="Track name"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-zinc-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Review (optional)
                 </label>
                 <textarea
                   value={contempReview}
                   onChange={(e) => setContempReview(e.target.value)}
                   rows={4}
-                  className="w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none resize-y"
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-zinc-50 focus:border-blue-500 focus:outline-none resize-y"
                   placeholder="Share your thoughts on the album..."
                 />
               </div>
@@ -393,13 +393,13 @@ export default function SubmitPage() {
           </div>
 
           {/* Classic Album */}
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6">
             <div className="mb-6 flex gap-4">
               {weekData?.classic_album_art_url && (
                 <img
                   src={weekData.classic_album_art_url}
                   alt={weekData.classic_title}
-                  className="w-24 h-24 rounded-lg border border-zinc-700 flex-shrink-0"
+                  className="w-24 h-24 rounded-lg border border-gray-300 flex-shrink-0"
                 />
               )}
               <div className="flex-1 min-w-0">
@@ -410,7 +410,7 @@ export default function SubmitPage() {
                   {weekData?.classic_title || "Classic Album"}
                 </h3>
                 {weekData?.classic_artist && (
-                  <p className="text-sm text-zinc-400 mt-1">
+                  <p className="text-sm text-gray-500 mt-1">
                     {weekData.classic_artist}
                     {weekData.classic_year && ` • ${weekData.classic_year}`}
                   </p>
@@ -419,7 +419,7 @@ export default function SubmitPage() {
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-zinc-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Rating (0.0 - 10.0)
                 </label>
                 <input
@@ -429,33 +429,33 @@ export default function SubmitPage() {
                   max="10"
                   value={classicRating}
                   onChange={(e) => setClassicRating(e.target.value)}
-                  className="w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none"
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-zinc-50 focus:border-blue-500 focus:outline-none"
                   placeholder=""
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-zinc-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Favorite Track (optional)
                 </label>
                 <input
                   type="text"
                   value={classicTrack}
                   onChange={(e) => setClassicTrack(e.target.value)}
-                  className="w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none"
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-zinc-50 focus:border-blue-500 focus:outline-none"
                   placeholder="Track name"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-zinc-300 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Review (optional)
                 </label>
                 <textarea
                   value={classicReview}
                   onChange={(e) => setClassicReview(e.target.value)}
                   rows={4}
-                  className="w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 focus:border-emerald-500 focus:outline-none resize-y"
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-zinc-50 focus:border-blue-500 focus:outline-none resize-y"
                   placeholder="Share your thoughts on the album..."
                 />
               </div>
@@ -466,7 +466,7 @@ export default function SubmitPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full rounded-md bg-emerald-500 px-6 py-3 font-medium text-white transition hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full rounded-md bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? "Submitting..." : "Submit Reviews"}
           </button>

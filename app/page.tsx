@@ -44,24 +44,24 @@ export default function HomePage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-black text-gray-50">
+    <main className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-xl text-center space-y-6 p-8">
-        <h1 className="text-4xl font-bold">Album Club</h1>
-        <p className="text-lg text-zinc-400">
+        <h1 className="text-4xl font-bold text-gray-900">Album Club</h1>
+        <p className="text-lg text-gray-600">
           Discover new music, share your thoughts, and explore albums together.
         </p>
         <div className="flex flex-col gap-3 mt-8">
           <button
             onClick={handleGetStarted}
             disabled={isLoading}
-            className="rounded-lg bg-emerald-500 px-6 py-3 font-medium text-white transition hover:bg-emerald-600 disabled:opacity-50"
+            className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700 disabled:opacity-50"
           >
             {isLoading ? 'Loading...' : isAuthenticated ? 'Go to Dashboard' : 'Sign In'}
           </button>
           {!isAuthenticated && (
             <a
               href="/signup"
-              className="rounded-lg border border-zinc-700 px-6 py-3 font-medium text-zinc-200 transition hover:border-zinc-500 text-center"
+              className="rounded-lg border border-gray-300 px-6 py-3 font-medium text-gray-700 transition hover:border-gray-400 hover:bg-gray-50 text-center"
             >
               Create an account
             </a>
@@ -69,14 +69,14 @@ export default function HomePage() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <a
               href="/reviews"
-              className="text-sm text-zinc-400 hover:text-zinc-300 underline"
+              className="text-sm text-blue-600 hover:text-blue-700 underline"
             >
               Browse reviews
             </a>
-            <span className="hidden sm:inline text-zinc-600">•</span>
+            <span className="hidden sm:inline text-gray-400">•</span>
             <a
               href="/submit"
-              className="text-sm text-zinc-400 hover:text-zinc-300 underline"
+              className="text-sm text-blue-600 hover:text-blue-700 underline"
             >
               Submit a review
             </a>
