@@ -61,14 +61,21 @@ export async function POST(
     }
 
     // Update invitation to rejected
+    const updateData: {
+      status: 'rejected';
+      reviewed_by: string;
+      reviewed_at: string;
+      review_notes: string | null;
+    } = {
+      status: "rejected",
+      reviewed_by: curator.id,
+      reviewed_at: new Date().toISOString(),
+      review_notes: reason || null,
+    };
+
     const { error: updateError } = await supabase
       .from("invitations")
-      .update({
-        status: "rejected" as const,
-        reviewed_by: curator.id,
-        reviewed_at: new Date().toISOString(),
-        review_notes: reason || null,
-      })
+      .update(updateData)
       .eq("id", invitationId);
 
     if (updateError) {
