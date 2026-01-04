@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabaseClient";
 import { requireCurator } from "@/lib/auth/utils";
+import type { InvitationUpdate } from "@/lib/types/database";
 
 type RejectPayload = {
   reason?: string;
@@ -61,12 +62,7 @@ export async function POST(
     }
 
     // Update invitation to rejected
-    const updateData: {
-      status: 'rejected';
-      reviewed_by: string;
-      reviewed_at: string;
-      review_notes: string | null;
-    } = {
+    const updateData: InvitationUpdate = {
       status: "rejected",
       reviewed_by: curator.id,
       reviewed_at: new Date().toISOString(),
