@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
-import { createServerClient } from "@/lib/supabaseClient";
+import { createServerClient as createAdminClient } from "@/lib/supabaseClient";
 import { createApiLogger } from "@/lib/logger";
 import { requireCuratorApi } from "@/lib/auth/apiAuth";
 import { buildEmailContent, ReviewStats } from "@/lib/email/emailBuilder";
 import * as Sentry from "@sentry/nextjs";
+import { createServerClient } from '@supabase/ssr'
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -30,10 +31,26 @@ export async function POST(request: NextRequest) {
 
     logger.info("Sending test email for week", { weekNumber, requestId });
 
-    const supabase = createServerClient() as any;
+    // Create Supabase client with session context from cookies
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return request.cookies.get(name)?.value
+          },
+          set() {},
+          remove() {},
+        },
+      }
+    );
+
+    // Use admin client for database queries
+    const adminClient = createAdminClient() as any;
 
     // Fetch week data
-    const { data: week, error: weekError } = await supabase
+    const { data: week, error: weekError } = await adminClient
       .from("weeks")
       .select("*")
       .eq("week_number", weekNumber)
@@ -47,7 +64,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get the authenticated curator's email
+    // Get the authenticated user from session
     const { data: { user }, error: userError } = await supabase.auth.getUser();
 
     if (userError || !user?.email) {
@@ -58,8 +75,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get curator's participant record
-    const { data: curator, error: curatorError } = await supabase
+    // Get curator's participant record using admin client
+    const { data: curator, error: curatorError } = await adminClient
       .from("participants")
       .select("*")
       .eq("email", user.email)
@@ -96,7 +113,7 @@ export async function POST(request: NextRequest) {
     let reviewStats: ReviewStats | null = null;
     const prevWeek = weekNumber - 1;
     if (prevWeek > 0) {
-      const { data: stats } = await supabase
+      const { data: stats } = await adminClient
         .from("reviews")
         .select(`
           *,
@@ -107,7 +124,7 @@ export async function POST(request: NextRequest) {
 
       if (stats && stats.length > 0) {
         let prevWeekLabel = `Week ${prevWeek}`;
-        const { data: prevWeekData, error: prevWeekError } = await supabase
+        const { data: prevWeekData, error: prevWeekError } = await adminClient
           .from("weeks")
           .select("created_at")
           .eq("week_number", prevWeek)
