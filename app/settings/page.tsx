@@ -223,7 +223,7 @@ export default function SettingsPage() {
         {/* Account Info */}
         <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-white">Account Information</h2>
+          <h2 className="text-xl font-semibold text-gray-900">Account Information</h2>
             {!isEditingProfile && (
               <button
                 onClick={() => setIsEditingProfile(true)}
@@ -242,7 +242,7 @@ export default function SettingsPage() {
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-zinc-100 focus:ring-2 focus:ring-emerald-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-emerald-500 focus:border-blue-500"
                   />
                 </div>
                 <div>
@@ -251,7 +251,7 @@ export default function SettingsPage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-zinc-100 focus:ring-2 focus:ring-emerald-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-emerald-500 focus:border-blue-500"
                   />
                 </div>
                 {participant?.is_curator && (
@@ -284,11 +284,11 @@ export default function SettingsPage() {
               <>
                 <div>
                   <label className="block text-sm font-medium text-gray-500">Name</label>
-                  <p className="mt-1 text-zinc-100">{participant?.name}</p>
+                  <p className="mt-1 text-gray-900">{participant?.name}</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-500">Email</label>
-                  <p className="mt-1 text-zinc-100">{participant?.email}</p>
+                  <p className="mt-1 text-gray-900">{participant?.email}</p>
                 </div>
                 {participant?.is_curator && (
                   <div className="mt-4 rounded-lg bg-blue-600/10 border border-emerald-500/20 p-3">
@@ -302,7 +302,7 @@ export default function SettingsPage() {
 
         {/* Email Preferences */}
         <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6">
-          <h2 className="mb-4 text-xl font-semibold text-white">Email Preferences</h2>
+          <h2 className="mb-4 text-xl font-semibold text-gray-900">Email Preferences</h2>
 
           <div className="space-y-4">
             <div className="flex items-start gap-3">
@@ -314,7 +314,7 @@ export default function SettingsPage() {
                 className="mt-1 h-4 w-4 rounded border-gray-300 bg-white text-emerald-500 focus:ring-emerald-500 focus:ring-offset-zinc-900"
               />
               <div className="flex-1">
-                <label htmlFor="emailSubscribed" className="block text-sm font-medium text-zinc-100 cursor-pointer">
+                <label htmlFor="emailSubscribed" className="block text-sm font-medium text-gray-900 cursor-pointer">
                   Receive weekly album emails
                 </label>
                 <p className="mt-1 text-sm text-gray-500">
@@ -335,11 +335,11 @@ export default function SettingsPage() {
 
         {/* Friend Invitations */}
         <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6">
-          <h2 className="mb-4 text-xl font-semibold text-white">Invite Friends</h2>
+          <h2 className="mb-4 text-xl font-semibold text-gray-900">Invite Friends</h2>
 
           <div className="space-y-4">
             <div>
-              <h3 className="text-sm font-semibold text-zinc-100 mb-2">Send Invite via Email</h3>
+              <h3 className="text-sm font-semibold text-gray-900 mb-2">Send Invite via Email</h3>
               <p className="text-sm text-gray-500 mb-3">
                 Enter a friend's email to send them an invitation to join Album Club.
                 A curator will review before they can sign up.
@@ -350,14 +350,14 @@ export default function SettingsPage() {
                   placeholder="friend@example.com"
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-zinc-100 placeholder-zinc-500 focus:ring-2 focus:ring-emerald-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-zinc-500 focus:ring-2 focus:ring-emerald-500 focus:border-blue-500"
                 />
                 <input
                   type="text"
                   placeholder="Friend's Name (optional)"
                   value={inviteName}
                   onChange={(e) => setInviteName(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-zinc-100 placeholder-zinc-500 focus:ring-2 focus:ring-emerald-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-zinc-500 focus:ring-2 focus:ring-emerald-500 focus:border-blue-500"
                 />
                 <button
                   onClick={handleSendInvite}
@@ -373,7 +373,7 @@ export default function SettingsPage() {
 
         {/* Invitation History */}
         <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6">
-          <h2 className="mb-4 text-xl font-semibold text-white">Your Invitations</h2>
+          <h2 className="mb-4 text-xl font-semibold text-gray-900">Your Invitations</h2>
           <p className="text-sm text-gray-500 mb-4">
             Track friends you've invited. You can also forward your weekly album emails -
             they include a referral link in the footer.
@@ -392,7 +392,7 @@ export default function SettingsPage() {
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <p className="text-sm font-medium text-zinc-100">
+                      <p className="text-sm font-medium text-gray-900">
                         {invite.invitee_name || invite.invitee_email}
                       </p>
                       {getStatusBadge(invite.status)}
@@ -422,7 +422,7 @@ export default function SettingsPage() {
 
           <div className="space-y-4">
             <div>
-              <h3 className="text-sm font-medium text-zinc-100 mb-2">Delete Account</h3>
+              <h3 className="text-sm font-medium text-gray-900 mb-2">Delete Account</h3>
               <p className="text-sm text-gray-500 mb-4">
                 Permanently delete your account. Your reviews will be preserved but your name will be removed. This action cannot be undone.
               </p>

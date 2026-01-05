@@ -248,7 +248,7 @@ export default function SubmitPage() {
                     <div className="text-emerald-400 text-xs uppercase tracking-wide font-medium mb-1">
                       Contemporary
                     </div>
-                    <div className="text-zinc-100 font-medium">
+                    <div className="text-gray-900 font-medium">
                       {weekData.contemporary_title}
                     </div>
                     {weekData.contemporary_artist && (
@@ -278,7 +278,7 @@ export default function SubmitPage() {
                     <div className="text-purple-400 text-xs uppercase tracking-wide font-medium mb-1">
                       Classic (RS 500)
                     </div>
-                    <div className="text-zinc-100 font-medium">
+                    <div className="text-gray-900 font-medium">
                       {weekData.classic_title}
                     </div>
                     {weekData.classic_artist && (
@@ -308,7 +308,7 @@ export default function SubmitPage() {
                   setEmailSource("manual");
                 }}
                 required
-                className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-zinc-50 focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
                 placeholder="your.email@example.com"
               />
               {emailSource === "url" && email && (
@@ -336,7 +336,7 @@ export default function SubmitPage() {
                 <p className="text-xs font-semibold uppercase tracking-wider text-emerald-500 mb-1">
                   🔊 Contemporary
                 </p>
-                <h3 className="text-lg font-bold text-white">
+                <h3 className="text-lg font-bold text-gray-900">
                   {weekData?.contemporary_title || "Contemporary Album"}
                 </h3>
                 {weekData?.contemporary_artist && (
@@ -359,7 +359,7 @@ export default function SubmitPage() {
                   max="10"
                   value={contempRating}
                   onChange={(e) => setContempRating(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-zinc-50 focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
                   placeholder=""
                 />
               </div>
@@ -372,7 +372,7 @@ export default function SubmitPage() {
                   type="text"
                   value={contempTrack}
                   onChange={(e) => setContempTrack(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-zinc-50 focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
                   placeholder="Track name"
                 />
               </div>
@@ -385,7 +385,7 @@ export default function SubmitPage() {
                   value={contempReview}
                   onChange={(e) => setContempReview(e.target.value)}
                   rows={4}
-                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-zinc-50 focus:border-blue-500 focus:outline-none resize-y"
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none resize-y"
                   placeholder="Share your thoughts on the album..."
                 />
               </div>
@@ -406,7 +406,7 @@ export default function SubmitPage() {
                 <p className="text-xs font-semibold uppercase tracking-wider text-amber-500 mb-1">
                   💿 Classic (RS 500)
                 </p>
-                <h3 className="text-lg font-bold text-white">
+                <h3 className="text-lg font-bold text-gray-900">
                   {weekData?.classic_title || "Classic Album"}
                 </h3>
                 {weekData?.classic_artist && (
@@ -429,7 +429,7 @@ export default function SubmitPage() {
                   max="10"
                   value={classicRating}
                   onChange={(e) => setClassicRating(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-zinc-50 focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
                   placeholder=""
                 />
               </div>
@@ -442,7 +442,7 @@ export default function SubmitPage() {
                   type="text"
                   value={classicTrack}
                   onChange={(e) => setClassicTrack(e.target.value)}
-                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-zinc-50 focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
                   placeholder="Track name"
                 />
               </div>
@@ -455,7 +455,7 @@ export default function SubmitPage() {
                   value={classicReview}
                   onChange={(e) => setClassicReview(e.target.value)}
                   rows={4}
-                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-zinc-50 focus:border-blue-500 focus:outline-none resize-y"
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none resize-y"
                   placeholder="Share your thoughts on the album..."
                 />
               </div>

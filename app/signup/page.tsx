@@ -175,7 +175,7 @@ export default function SignUpPage() {
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 placeholder="Jamie Rivera"
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm text-zinc-50 placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
                 required
               />
             </div>
@@ -190,7 +190,7 @@ export default function SignUpPage() {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="you@example.com"
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm text-zinc-50 placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
                 required
               />
             </div>

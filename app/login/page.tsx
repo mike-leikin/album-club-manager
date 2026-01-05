@@ -158,7 +158,7 @@ function LoginContent() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="your.email@example.com"
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm text-zinc-50 placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 placeholder-zinc-500 focus:border-blue-500 focus:outline-none"
                 required
               />
             </div>
