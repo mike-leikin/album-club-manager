@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabaseClient";
 import { requireCurator } from "@/lib/auth/utils";
+import type { Database } from "@/lib/types/database";
 
 type RejectPayload = {
   reason?: string;
@@ -18,19 +19,18 @@ export async function POST(
   try {
     // Require curator authentication
     const session = await requireCurator();
-    // Note: Using 'as any' due to Supabase TypeScript limitation with invitations table updates
-    const supabase = createServerClient() as any;
+    const supabase = createServerClient();
 
     const { id: invitationId } = await params;
     const body = (await request.json()) as RejectPayload;
     const reason = body.reason?.trim();
 
     // Get curator participant ID
-    const { data: curator, error: curatorError } = (await supabase
+    const { data: curator, error: curatorError } = await supabase
       .from("participants")
       .select("id")
       .eq("auth_user_id", session.user.id)
-      .single()) as { data: { id: string } | null; error: any };
+      .single<{ id: string }>();
 
     if (curatorError || !curator) {
       return NextResponse.json(
@@ -44,7 +44,7 @@ export async function POST(
       .from("invitations")
       .select("id, status")
       .eq("id", invitationId)
-      .single() as { data: InvitationStatus | null; error: any };
+      .single<InvitationStatus>();
 
     if (fetchError || !invitation) {
       return NextResponse.json(
@@ -62,14 +62,15 @@ export async function POST(
     }
 
     // Update invitation to rejected
-    const { error: updateError } = await supabase
-      .from("invitations")
-      .update({
-        status: "rejected",
-        reviewed_by: curator.id,
-        reviewed_at: new Date().toISOString(),
-        review_notes: reason || null,
-      })
+    const updateData: Database['public']['Tables']['invitations']['Update'] = {
+      status: "rejected",
+      reviewed_by: curator.id,
+      reviewed_at: new Date().toISOString(),
+      review_notes: reason || null,
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error: updateError } = await (supabase.from("invitations").update as any)(updateData)
       .eq("id", invitationId);
 
     if (updateError) {

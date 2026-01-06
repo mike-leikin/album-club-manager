@@ -2,13 +2,28 @@
 
 import { useState } from "react";
 
+type SpotifyAlbumResult = {
+  name: string;
+  artist: string;
+  year: number;
+  url: string;
+  imageUrl?: string;
+};
+
+type FixAlbumResult = {
+  success: boolean;
+  message: string;
+  spotifyData: SpotifyAlbumResult;
+  allResults: SpotifyAlbumResult[];
+};
+
 export default function FixAlbumPage() {
   const [rank, setRank] = useState("104");
   const [artist, setArtist] = useState("Ray Charles");
   const [album, setAlbum] = useState("Modern Sounds in Country and Western Music");
   const [year, setYear] = useState("1962");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<FixAlbumResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleFix = async () => {
@@ -141,7 +156,7 @@ export default function FixAlbumPage() {
                 <div>
                   <h3 className="font-semibold mb-2">All Spotify Results Found:</h3>
                   <div className="space-y-2">
-                    {result.allResults.map((r: any, i: number) => (
+                    {result.allResults.map((r, i) => (
                       <div key={i} className="bg-gray-900 rounded p-3 text-sm">
                         <p><strong>{i + 1}.</strong> {r.name}</p>
                         <p className="text-gray-400">

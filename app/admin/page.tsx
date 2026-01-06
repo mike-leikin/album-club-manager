@@ -8,6 +8,7 @@ import RS500Picker from "@/components/RS500Picker";
 import EmailHistoryTab from "@/components/EmailHistoryTab";
 import AdminReviewsTab from "@/components/AdminReviewsTab";
 import InvitationsManager from "@/components/InvitationsManager";
+import type { Database } from "@/lib/types/database";
 
 type Album = {
   title: string;
@@ -65,7 +66,7 @@ export default function AdminPage() {
   const [reviewStats, setReviewStats] = useState<ReviewStats | null>(null);
 
   // Week history
-  const [weekHistory, setWeekHistory] = useState<any[]>([]);
+  const [weekHistory, setWeekHistory] = useState<Database['public']['Tables']['weeks']['Row'][]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [deletingWeekId, setDeletingWeekId] = useState<string | null>(null);
 

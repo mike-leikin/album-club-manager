@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabaseClient";
 import { requireCuratorApi } from "@/lib/auth/apiAuth";
 import { spotifyClient } from "@/lib/spotifyClient";
+import type { Database } from "@/lib/types/database";
 
 export async function POST(request: NextRequest) {
   // Check auth first
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = createServerClient() as any;
+    const supabase = createServerClient();
 
     // Search Spotify with specific query using album and artist fields
     const searchQuery = `album:"${album}" artist:"${artist}"`;
@@ -42,13 +43,14 @@ export async function POST(request: NextRequest) {
     }) || results[0];
 
     // Update the database
-    const { error: updateError } = await supabase
-      .from('rs_500_albums')
-      .update({
-        spotify_id: bestMatch.id,
-        spotify_url: bestMatch.external_urls.spotify,
-        album_art_url: bestMatch.images[0]?.url || null,
-      })
+    const updateData: Database['public']['Tables']['rs_500_albums']['Update'] = {
+      spotify_id: bestMatch.id,
+      spotify_url: bestMatch.external_urls.spotify,
+      album_art_url: bestMatch.images[0]?.url || null,
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error: updateError } = await (supabase.from('rs_500_albums').update as any)(updateData)
       .eq('rank', rank);
 
     if (updateError) {

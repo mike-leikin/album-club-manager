@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabaseClient";
+import type { Database } from "@/lib/types/database";
 
 export async function POST(_request: NextRequest) {
   try {
@@ -20,7 +21,7 @@ export async function POST(_request: NextRequest) {
       .from("participants")
       .select("*")
       .eq("auth_user_id", session.user.id)
-      .single();
+      .single<Database['public']['Tables']['participants']['Row']>();
 
     if (fetchError || !participant) {
       return NextResponse.json(
@@ -30,12 +31,13 @@ export async function POST(_request: NextRequest) {
     }
 
     // Soft delete the participant (set deleted_at timestamp)
-    const { error: updateError } = await (supabase
-      .from("participants") as any)
-      .update({
-        deleted_at: new Date().toISOString()
-      })
-      .eq("id", (participant as any).id);
+    const updateData: Database['public']['Tables']['participants']['Update'] = {
+      deleted_at: new Date().toISOString()
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error: updateError } = await (supabase.from("participants").update as any)(updateData)
+      .eq("id", participant.id);
 
     if (updateError) {
       return NextResponse.json(
