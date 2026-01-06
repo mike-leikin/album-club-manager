@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabaseClient";
 import { requireCurator } from "@/lib/auth/utils";
+import type { Database } from "@/lib/types/database";
 
 type BulkModerationPayload = {
   reviewIds: string[];
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No reviews selected" }, { status: 400 });
     }
 
-    const supabase = createServerClient() as any;
+    const supabase = createServerClient();
 
     // Get curator's participant ID
     const { data: curator } = await supabase
@@ -49,20 +50,16 @@ export async function POST(request: NextRequest) {
       // Approve or hide
       const status = body.action === 'approve' ? 'approved' : 'hidden';
 
-      const updateData: any = {
+      const updateData: Database['public']['Tables']['reviews']['Update'] = {
         moderation_status: status,
         moderated_at: new Date().toISOString(),
         moderated_by: curator.id,
         updated_at: new Date().toISOString(),
+        ...(body.notes && { moderation_notes: body.notes }),
       };
 
-      if (body.notes) {
-        updateData.moderation_notes = body.notes;
-      }
-
-      const { error } = await supabase
-        .from("reviews")
-        .update(updateData)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { error } = await (supabase.from("reviews").update as any)(updateData)
         .in("id", body.reviewIds);
 
       if (error) throw error;

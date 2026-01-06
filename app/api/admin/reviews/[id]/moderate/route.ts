@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabaseClient";
 import { requireCurator } from "@/lib/auth/utils";
+import type { Database } from "@/lib/types/database";
 
 type ModerationPayload = {
   action: 'approve' | 'hide' | 'unhide';
@@ -21,7 +22,7 @@ export async function POST(
     const session = await requireCurator();
     const body: ModerationPayload = await request.json();
 
-    const supabase = createServerClient() as any;
+    const supabase = createServerClient();
 
     // Get curator's participant ID
     const { data: curator } = await supabase
@@ -35,38 +36,21 @@ export async function POST(
     }
 
     // Build update object
-    const updateData: any = {
+    const moderationStatus = body.action === 'hide' ? 'hidden' : 'approved';
+
+    const updateData: Database['public']['Tables']['reviews']['Update'] = {
       moderated_at: new Date().toISOString(),
       moderated_by: curator.id,
       updated_at: new Date().toISOString(),
+      moderation_status: moderationStatus,
+      ...(body.notes !== undefined && { moderation_notes: body.notes }),
+      ...(body.rating !== undefined && { rating: body.rating }),
+      ...(body.favorite_track !== undefined && { favorite_track: body.favorite_track }),
+      ...(body.review_text !== undefined && { review_text: body.review_text }),
     };
 
-    // Set status based on action
-    switch (body.action) {
-      case 'approve':
-        updateData.moderation_status = 'approved';
-        break;
-      case 'hide':
-        updateData.moderation_status = 'hidden';
-        break;
-      case 'unhide':
-        updateData.moderation_status = 'approved';
-        break;
-    }
-
-    // Optional: Update notes if provided
-    if (body.notes !== undefined) {
-      updateData.moderation_notes = body.notes;
-    }
-
-    // Optional: Allow curator to edit review content
-    if (body.rating !== undefined) updateData.rating = body.rating;
-    if (body.favorite_track !== undefined) updateData.favorite_track = body.favorite_track;
-    if (body.review_text !== undefined) updateData.review_text = body.review_text;
-
-    const { data: review, error } = await supabase
-      .from("reviews")
-      .update(updateData)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: review, error } = await (supabase.from("reviews").update as any)(updateData)
       .eq("id", id)
       .select(`
         *,
@@ -99,7 +83,7 @@ export async function DELETE(
     const { id } = await params;
     await requireCurator();
 
-    const supabase = createServerClient() as any;
+    const supabase = createServerClient();
 
     const { error } = await supabase
       .from("reviews")

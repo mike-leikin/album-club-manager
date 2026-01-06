@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabaseClient";
 import { requireCurator } from "@/lib/auth/utils";
+import type { Database } from "@/lib/types/database";
 
 // GET /api/admin/reviews - Fetch all reviews with filters for admin panel
 export async function GET(request: NextRequest) {
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest) {
     const participantId = searchParams.get("participant_id");
     const albumType = searchParams.get("album_type"); // contemporary, classic
 
-    const supabase = createServerClient() as any;
+    const supabase = createServerClient();
 
     let query = supabase
       .from("reviews")
@@ -36,11 +37,12 @@ export async function GET(request: NextRequest) {
     if (error) throw error;
 
     // Calculate summary statistics
+    type Review = Database['public']['Tables']['reviews']['Row'];
     const stats = {
       total: reviews.length,
-      pending: reviews.filter((r: any) => r.moderation_status === 'pending').length,
-      approved: reviews.filter((r: any) => r.moderation_status === 'approved').length,
-      hidden: reviews.filter((r: any) => r.moderation_status === 'hidden').length,
+      pending: reviews.filter((r: Review) => r.moderation_status === 'pending').length,
+      approved: reviews.filter((r: Review) => r.moderation_status === 'approved').length,
+      hidden: reviews.filter((r: Review) => r.moderation_status === 'hidden').length,
     };
 
     return NextResponse.json({ data: { reviews, stats } });
