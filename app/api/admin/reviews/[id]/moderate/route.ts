@@ -29,7 +29,7 @@ export async function POST(
       .from("participants")
       .select("id")
       .eq("auth_user_id", session.user.id)
-      .single();
+      .single<{ id: string }>();
 
     if (!curator) {
       return NextResponse.json({ error: "Curator not found" }, { status: 404 });
