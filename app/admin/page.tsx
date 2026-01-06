@@ -687,7 +687,7 @@ export default function AdminPage() {
                 type="button"
                 onClick={handleCopyFromPreviousWeek}
                 disabled={isLoadingPreviousWeek || Number(weekNumber) <= 1}
-                className="rounded-md border border-blue-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-md border border-blue-500 bg-blue-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
                 title={Number(weekNumber) <= 1 ? "No previous week available" : "Copy album data from previous week"}
               >
                 {isLoadingPreviousWeek ? "Copying..." : "Copy from Previous Week"}
@@ -696,14 +696,14 @@ export default function AdminPage() {
                 type="button"
                 onClick={handleSave}
                 disabled={isSaving}
-                className="rounded-md border border-blue-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-md border border-blue-500 bg-blue-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSaving ? "Saving..." : "Save Week"}
               </button>
               <button
                 type="button"
                 onClick={() => setShowEmailPreview(true)}
-                className="rounded-md border border-purple-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-purple-500"
+                className="rounded-md border border-purple-500 bg-purple-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-purple-600"
               >
                 Preview Email
               </button>
@@ -711,7 +711,7 @@ export default function AdminPage() {
                 type="button"
                 onClick={handleSendTestEmail}
                 disabled={isSendingTestEmail}
-                className="rounded-md border border-amber-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-md border border-amber-500 bg-amber-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-60"
                 title="Send a test email to yourself to preview the actual HTML email"
               >
                 {isSendingTestEmail ? "Sending..." : "🧪 Send Test Email"}
@@ -758,7 +758,7 @@ export default function AdminPage() {
               placeholder="Add a personal note or context for this week's picks..."
               maxLength={3000}
             />
-            <p className="text-xs text-gray-9000 mt-1">
+            <p className="text-xs text-gray-600 mt-1">
               {curatorMessage.length}/3000 characters
             </p>
           </div>
@@ -1098,13 +1098,13 @@ export default function AdminPage() {
 
         {/* Email Preview Modal */}
         {showEmailPreview && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-            <div className="w-full max-w-2xl rounded-2xl border border-zinc-800 bg-zinc-950 p-6 shadow-2xl">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-6 shadow-2xl">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xl font-semibold">Email Preview</h2>
+                <h2 className="text-xl font-semibold text-gray-900">Email Preview</h2>
                 <button
                   onClick={() => setShowEmailPreview(false)}
-                  className="text-gray-500 hover:text-zinc-200"
+                  className="text-gray-500 hover:text-gray-700"
                 >
                   ✕
                 </button>
@@ -1112,31 +1112,31 @@ export default function AdminPage() {
 
               <div className="space-y-4">
                 <div>
-                  <div className="text-sm font-medium text-gray-500">Subject:</div>
-                  <div className="text-zinc-100">Album Club – Week {weekNumber}</div>
+                  <div className="text-sm font-medium text-gray-700">Subject:</div>
+                  <div className="text-gray-900">Album Club – Week {weekNumber}</div>
                 </div>
 
-                <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/10 p-4 mb-4">
-                  <p className="text-sm text-yellow-200">
+                <div className="rounded-lg border border-yellow-300 bg-yellow-50 p-4 mb-4">
+                  <p className="text-sm text-yellow-900">
                     ℹ️ <strong>Preview Note:</strong> This shows the plain text content. Actual emails will be sent with beautiful HTML formatting including album artwork, Spotify links, and previous week results.
                   </p>
                 </div>
 
                 <div>
-                  <div className="text-sm font-medium text-gray-500 mb-2">Content:</div>
-                  <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 font-mono text-sm text-gray-700 whitespace-pre-wrap max-h-96 overflow-y-auto">
+                  <div className="text-sm font-medium text-gray-700 mb-2">Content:</div>
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 font-mono text-sm text-gray-900 whitespace-pre-wrap max-h-96 overflow-y-auto">
                     {`Hi [Participant Name],\n\n${body}`}
                   </div>
                 </div>
 
-                <div className="text-xs text-gray-9000">
+                <div className="text-xs text-gray-600">
                   Each participant will receive a personalized email with their name and a unique review link.
                 </div>
 
                 <div className="flex justify-end gap-2">
                   <button
                     onClick={() => setShowEmailPreview(false)}
-                    className="rounded-md border border-zinc-700 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-zinc-800"
+                    className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
                   >
                     Close
                   </button>
@@ -1169,13 +1169,13 @@ export default function AdminPage() {
                 {weekHistory.map((week) => (
                   <div
                     key={week.id}
-                    className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 hover:border-zinc-700 transition"
+                    className="rounded-lg border border-gray-200 bg-gray-50 p-4 hover:border-gray-300 transition"
                   >
                     <div className="mb-3 flex items-start justify-between">
                       <div>
-                        <h3 className="text-lg font-semibold">Week {week.week_number}</h3>
+                        <h3 className="text-lg font-semibold text-gray-900">Week {week.week_number}</h3>
                         {week.response_deadline && (
-                          <p className="text-xs text-gray-9000">
+                          <p className="text-xs text-gray-600">
                             Deadline: {new Date(week.response_deadline).toLocaleDateString()}
                           </p>
                         )}
@@ -1204,14 +1204,14 @@ export default function AdminPage() {
                             setActiveTab("week");
                             toast.success(`Loaded Week ${week.week_number} for editing`);
                           }}
-                          className="rounded-md border border-blue-500 px-3 py-1 text-xs font-medium text-white transition hover:bg-blue-500"
+                          className="rounded-md border border-blue-500 bg-blue-500 px-3 py-1 text-xs font-medium text-white transition hover:bg-blue-600"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => handleDeleteWeek(week.week_number)}
                           disabled={deletingWeekId === String(week.week_number)}
-                          className="rounded-md border border-red-500 px-3 py-1 text-xs font-medium text-white transition hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="rounded-md border border-red-500 bg-red-500 px-3 py-1 text-xs font-medium text-white transition hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {deletingWeekId === String(week.week_number) ? "Deleting..." : "Delete"}
                         </button>
@@ -1229,20 +1229,20 @@ export default function AdminPage() {
                               className="w-16 h-16 rounded object-cover flex-shrink-0"
                             />
                           ) : (
-                            <div className="w-16 h-16 rounded bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                            <div className="w-16 h-16 rounded bg-gray-200 flex items-center justify-center flex-shrink-0">
                               <span className="text-xl">🔊</span>
                             </div>
                           )}
                           <div className="min-w-0">
-                            <div className="text-emerald-400 text-xs uppercase tracking-wide font-medium">
+                            <div className="text-emerald-600 text-xs uppercase tracking-wide font-medium">
                               Contemporary
                             </div>
-                            <div className="text-sm font-medium truncate">{week.contemporary_title}</div>
+                            <div className="text-sm font-medium text-gray-900 truncate">{week.contemporary_title}</div>
                             {week.contemporary_artist && (
-                              <div className="text-xs text-gray-500 truncate">{week.contemporary_artist}</div>
+                              <div className="text-xs text-gray-600 truncate">{week.contemporary_artist}</div>
                             )}
                             {week.contemporary_year && (
-                              <div className="text-xs text-gray-9000">({week.contemporary_year})</div>
+                              <div className="text-xs text-gray-600">({week.contemporary_year})</div>
                             )}
                           </div>
                         </div>
@@ -1258,19 +1258,19 @@ export default function AdminPage() {
                               className="w-16 h-16 rounded object-cover flex-shrink-0"
                             />
                           ) : (
-                            <div className="w-16 h-16 rounded bg-zinc-800 flex items-center justify-center flex-shrink-0">
+                            <div className="w-16 h-16 rounded bg-gray-200 flex items-center justify-center flex-shrink-0">
                               <span className="text-xl">💿</span>
                             </div>
                           )}
                           <div className="min-w-0">
-                            <div className="text-purple-400 text-xs uppercase tracking-wide font-medium">
+                            <div className="text-purple-600 text-xs uppercase tracking-wide font-medium">
                               Classic (RS 500)
                             </div>
-                            <div className="text-sm font-medium truncate">{week.classic_title}</div>
+                            <div className="text-sm font-medium text-gray-900 truncate">{week.classic_title}</div>
                             {week.classic_artist && (
-                              <div className="text-xs text-gray-500 truncate">{week.classic_artist}</div>
+                              <div className="text-xs text-gray-600 truncate">{week.classic_artist}</div>
                             )}
-                            <div className="text-xs text-gray-9000">
+                            <div className="text-xs text-gray-600">
                               {week.classic_year && `(${week.classic_year})`}
                               {week.rs_rank && ` • Rank #${week.rs_rank}`}
                             </div>
@@ -1300,12 +1300,12 @@ export default function AdminPage() {
 
             <div className="grid gap-4 md:grid-cols-2">
               {/* Full Backup */}
-              <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5">
+              <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
                 <div className="mb-3 flex items-center gap-2">
                   <span className="text-2xl">💾</span>
-                  <h3 className="font-semibold">Complete Backup</h3>
+                  <h3 className="font-semibold text-gray-900">Complete Backup</h3>
                 </div>
-                <p className="mb-4 text-sm text-gray-500">
+                <p className="mb-4 text-sm text-gray-600">
                   Export everything: all reviews, participants, weeks, and RS 500 data in a single JSON file.
                 </p>
                 <a
@@ -1318,26 +1318,26 @@ export default function AdminPage() {
               </div>
 
               {/* Reviews Export */}
-              <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5">
+              <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
                 <div className="mb-3 flex items-center gap-2">
                   <span className="text-2xl">📝</span>
-                  <h3 className="font-semibold">Reviews</h3>
+                  <h3 className="font-semibold text-gray-900">Reviews</h3>
                 </div>
-                <p className="mb-4 text-sm text-gray-500">
+                <p className="mb-4 text-sm text-gray-600">
                   Export all participant reviews with ratings, favorite tracks, and comments.
                 </p>
                 <div className="flex gap-2">
                   <a
                     href="/api/export/reviews?format=csv"
                     download
-                    className="flex-1 rounded-md border border-zinc-700 px-4 py-2 text-center text-sm font-medium transition hover:bg-zinc-800"
+                    className="flex-1 rounded-md border border-gray-300 px-4 py-2 text-center text-sm font-medium text-gray-700 transition hover:bg-gray-100"
                   >
                     CSV
                   </a>
                   <a
                     href="/api/export/reviews?format=json"
                     download
-                    className="flex-1 rounded-md border border-zinc-700 px-4 py-2 text-center text-sm font-medium transition hover:bg-zinc-800"
+                    className="flex-1 rounded-md border border-gray-300 px-4 py-2 text-center text-sm font-medium text-gray-700 transition hover:bg-gray-100"
                   >
                     JSON
                   </a>
@@ -1345,26 +1345,26 @@ export default function AdminPage() {
               </div>
 
               {/* Participants Export */}
-              <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5">
+              <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
                 <div className="mb-3 flex items-center gap-2">
                   <span className="text-2xl">👥</span>
-                  <h3 className="font-semibold">Participants</h3>
+                  <h3 className="font-semibold text-gray-900">Participants</h3>
                 </div>
-                <p className="mb-4 text-sm text-gray-500">
+                <p className="mb-4 text-sm text-gray-600">
                   Export participant list with names, emails, and review counts.
                 </p>
                 <div className="flex gap-2">
                   <a
                     href="/api/export/participants?format=csv"
                     download
-                    className="flex-1 rounded-md border border-zinc-700 px-4 py-2 text-center text-sm font-medium transition hover:bg-zinc-800"
+                    className="flex-1 rounded-md border border-gray-300 px-4 py-2 text-center text-sm font-medium text-gray-700 transition hover:bg-gray-100"
                   >
                     CSV
                   </a>
                   <a
                     href="/api/export/participants?format=json"
                     download
-                    className="flex-1 rounded-md border border-zinc-700 px-4 py-2 text-center text-sm font-medium transition hover:bg-zinc-800"
+                    className="flex-1 rounded-md border border-gray-300 px-4 py-2 text-center text-sm font-medium text-gray-700 transition hover:bg-gray-100"
                   >
                     JSON
                   </a>
@@ -1372,26 +1372,26 @@ export default function AdminPage() {
               </div>
 
               {/* Weeks Export */}
-              <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5">
+              <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
                 <div className="mb-3 flex items-center gap-2">
                   <span className="text-2xl">📅</span>
-                  <h3 className="font-semibold">Week History</h3>
+                  <h3 className="font-semibold text-gray-900">Week History</h3>
                 </div>
-                <p className="mb-4 text-sm text-gray-500">
+                <p className="mb-4 text-sm text-gray-600">
                   Export all weeks with album details, deadlines, and average ratings.
                 </p>
                 <div className="flex gap-2">
                   <a
                     href="/api/export/weeks?format=csv"
                     download
-                    className="flex-1 rounded-md border border-zinc-700 px-4 py-2 text-center text-sm font-medium transition hover:bg-zinc-800"
+                    className="flex-1 rounded-md border border-gray-300 px-4 py-2 text-center text-sm font-medium text-gray-700 transition hover:bg-gray-100"
                   >
                     CSV
                   </a>
                   <a
                     href="/api/export/weeks?format=json"
                     download
-                    className="flex-1 rounded-md border border-zinc-700 px-4 py-2 text-center text-sm font-medium transition hover:bg-zinc-800"
+                    className="flex-1 rounded-md border border-gray-300 px-4 py-2 text-center text-sm font-medium text-gray-700 transition hover:bg-gray-100"
                   >
                     JSON
                   </a>
@@ -1400,12 +1400,12 @@ export default function AdminPage() {
             </div>
 
             {/* Backup Recommendations */}
-            <div className="mt-6 rounded-xl border border-yellow-900/50 bg-yellow-950/20 p-4">
-              <div className="mb-2 flex items-center gap-2 text-yellow-500">
+            <div className="mt-6 rounded-xl border border-yellow-300 bg-yellow-50 p-4">
+              <div className="mb-2 flex items-center gap-2 text-yellow-800">
                 <span className="text-xl">⚠️</span>
                 <h4 className="font-semibold">Backup Recommendations</h4>
               </div>
-              <ul className="space-y-1 text-sm text-gray-500">
+              <ul className="space-y-1 text-sm text-gray-700">
                 <li>• Download a complete backup regularly (weekly recommended)</li>
                 <li>• Store backups in a safe location (cloud storage, external drive)</li>
                 <li>• Keep multiple backup versions in case you need to restore older data</li>

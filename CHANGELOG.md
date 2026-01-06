@@ -2,6 +2,47 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.12.0] - 2026-01-05
+
+### Light Theme Fixes for Curator Dashboard
+
+**Bug Fixes:**
+
+#### Week Management Tab
+- **Button Visibility**: Fixed all action buttons (Copy from Previous Week, Save Week, Preview Email, Send Test Email, Send Email) by adding proper background colors - buttons now have colored backgrounds instead of transparent with colored borders
+- **Invalid Color Classes**: Replaced all instances of non-existent `text-gray-9000` with proper Tailwind gray values (`text-gray-600`)
+- **Character Counter**: Fixed custom message character counter text color for better visibility
+
+#### Email Preview Modal
+- **Theme Conversion**: Converted modal from dark theme to light theme
+- **Background**: Changed from `bg-zinc-950` to `bg-white`
+- **Borders**: Updated from `border-zinc-800` to `border-gray-200`
+- **Text Colors**: Updated all text to proper light theme colors (`text-gray-900`, `text-gray-700`, etc.)
+- **Warning Banner**: Changed from yellow dark theme to yellow light theme (`bg-yellow-50`, `text-yellow-900`)
+
+#### Week History Tab
+- **Card Backgrounds**: Converted from dark (`bg-zinc-900/50`) to light (`bg-gray-50`)
+- **Text Contrast**: Added proper text colors for all headings and labels
+- **Album Placeholders**: Changed from `bg-zinc-800` to `bg-gray-200`
+- **Category Labels**: Updated Contemporary and Classic labels from dark purple/emerald to light versions
+- **Button Backgrounds**: Added solid backgrounds to Edit and Delete buttons
+
+#### Data Export Tab
+- **Export Cards**: Converted all four export cards from dark to light theme
+- **Button Styling**: Updated CSV/JSON download buttons with proper light theme colors
+- **Backup Warning**: Changed warning banner from yellow dark theme to light theme
+
+**Files Changed:**
+- `app/admin/page.tsx` - Fixed all light theme contrast issues across Week Management, Email Preview Modal, Week History, and Data Export tabs
+
+**Technical Details:**
+- Button fix: Added `bg-blue-500`, `bg-purple-500`, `bg-amber-500`, `bg-red-500` backgrounds
+- Color corrections: `text-gray-9000` → `text-gray-600`
+- Systematic theme conversion: zinc/dark colors → gray/light colors throughout
+- All changes maintain existing functionality and user experience
+
+---
+
 ## [2.11.0] - 2026-01-03
 
 ### Friend Referral System
