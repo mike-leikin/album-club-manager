@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = createServerClient() as any;
 
     // Fetch week data

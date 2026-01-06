@@ -14,6 +14,7 @@ export async function PATCH(_request: Request, { params }: Params) {
       return NextResponse.json({ error: "Invalid rank" }, { status: 400 });
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = createServerClient() as any;
 
     // Get current week number from latest week

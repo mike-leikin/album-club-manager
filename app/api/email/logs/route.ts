@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
     const participantId = searchParams.get('participant_id');
     const status = searchParams.get('status');
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = createServerClient() as any;
 
     let query = supabase

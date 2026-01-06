@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
 
     logger.info("Sending emails for week", { weekNumber, requestId });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = createServerClient() as any;
 
     // Fetch week data

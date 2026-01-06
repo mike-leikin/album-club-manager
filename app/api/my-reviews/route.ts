@@ -51,6 +51,7 @@ function determineCurrentWeek(allWeeks: Week[]): number | null {
 // GET /api/my-reviews - Get all reviews for the authenticated user
 export async function GET(request: Request) {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = createServerClient() as any;
 
     // Development mode: Allow email parameter for testing

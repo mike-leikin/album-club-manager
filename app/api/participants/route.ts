@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
   const authError = await requireCuratorApi(request);
   if (authError) return authError;
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = createServerClient() as any;
     const { searchParams } = new URL(request.url);
     const includeDeleted = searchParams.get('includeDeleted') === 'true';
@@ -43,6 +44,7 @@ export async function POST(request: NextRequest) {
   const authError = await requireCuratorApi(request);
   if (authError) return authError;
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = createServerClient() as any;
     const body = (await request.json()) as ParticipantInsert;
 

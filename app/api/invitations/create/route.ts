@@ -15,6 +15,7 @@ export async function POST(request: NextRequest) {
   try {
     // Require authentication
     const session = await requireAuth();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = createServerClient() as any;
 
     // Get current participant

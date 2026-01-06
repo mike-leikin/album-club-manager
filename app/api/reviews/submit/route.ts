@@ -19,6 +19,7 @@ type ReviewSubmission = {
 // POST /api/reviews/submit - Submit reviews for a week
 export async function POST(request: Request) {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = createServerClient() as any;
     const body = (await request.json()) as ReviewSubmission;
 

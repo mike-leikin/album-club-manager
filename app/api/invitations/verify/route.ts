@@ -3,6 +3,7 @@ import { createServerClient } from "@/lib/supabaseClient";
 
 export async function GET(request: NextRequest) {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = createServerClient() as any;
     const { searchParams } = new URL(request.url);
     const token = searchParams.get("token");

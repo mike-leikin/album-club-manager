@@ -21,6 +21,7 @@ export async function PATCH(
       );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = createServerClient() as any;
 
     // Get participant ID from auth user ID
@@ -92,6 +93,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     const session = await requireAuth();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = createServerClient() as any;
 
     // Get participant ID from auth user ID

@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
   const authError = await requireCuratorApi(request);
   if (authError) return authError;
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = createServerClient() as any;
 
     // Fetch all data

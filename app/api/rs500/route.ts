@@ -6,7 +6,8 @@ export async function GET(request: NextRequest) {
   const search = searchParams.get("search") || "";
   const showOnlyUncovered = searchParams.get("onlyUncovered") === "true";
 
-  const supabase = createServerClient() as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const supabase = createServerClient() as any;
 
   let query = supabase
     .from("rs_500_albums")

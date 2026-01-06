@@ -34,6 +34,7 @@ export async function GET(request: Request) {
       );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = createServerClient() as any;
 
     // Fetch reviews with participant info (only approved reviews for public)

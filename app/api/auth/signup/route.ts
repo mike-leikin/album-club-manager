@@ -59,9 +59,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const adminClient = createServerClient() as any;
 
     // If invite token provided, verify it
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let invitation: any = null;
     if (inviteToken) {
       const { data: inviteData, error: inviteError } = await adminClient
@@ -127,6 +129,7 @@ export async function POST(request: NextRequest) {
 
     if (existingParticipant?.id) {
       // Update existing participant
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const updateData: any = {};
       if (shouldUpdateExistingName(existingParticipant.name, email)) {
         updateData.name = name;

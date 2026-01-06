@@ -6,6 +6,7 @@ export async function GET(request: NextRequest) {
   try {
     // Require curator authentication
     await requireCurator();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = createServerClient() as any;
 
     // Fetch all pending invitations with referrer details

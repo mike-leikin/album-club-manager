@@ -13,6 +13,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
   if (authError) return authError;
   try {
     const { id } = await context.params;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = createServerClient() as any;
 
     // Restore by setting deleted_at to null

@@ -12,6 +12,7 @@ function isValidEmail(email: string) {
 
 export async function POST(request: NextRequest) {
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = createServerClient() as any;
     const body = (await request.json()) as GenerateLinkPayload;
     const participantId = body.participant_id;

@@ -18,6 +18,7 @@ export async function PUT(request: NextRequest, context: RouteContext) {
   if (authError) return authError;
   try {
     const { id } = await context.params;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = createServerClient() as any;
     const body = (await request.json()) as UpdatePayload;
 
@@ -88,6 +89,7 @@ export async function DELETE(request: NextRequest, context: RouteContext) {
   if (authError) return authError;
   try {
     const { id } = await context.params;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = createServerClient() as any;
 
     // Get review count before deletion
