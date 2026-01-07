@@ -18,6 +18,7 @@ Album Club Manager streamlines the process of running a weekly music club where 
 
 ### 📧 Automated Email System
 - **Test Email Preview**: Send test email to yourself before sending to all participants (v2.12)
+- **Email History & Resends**: Preview prior sends and resend to selected participants (v2.13)
 - **One-Click Email Sending**: Send personalized emails to all participants from the admin dashboard
 - **Professional HTML Templates**: Beautiful, responsive email design with album artwork
 - **Curator Messages**: Add optional personal notes to weekly emails (3000 character limit)
@@ -71,6 +72,7 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Delete Weeks**: Remove weeks from history with confirmation dialog (curator-only)
 - **Enhanced Date Picker**: Dark mode calendar with minimum date validation
 - **Email Preview**: See exactly what participants will receive before sending
+- **Email History Tab**: Send-instance view with previews and manual resends
 - **Email Delivery Tracking**: Complete audit trail with retry capability for failed sends
 - **Data Export**: One-click export of all reviews, participants, and week history
 - **Toast Notifications**: Clean, non-intrusive feedback for all actions
@@ -134,7 +136,9 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - `weeks`: Weekly album selections and deadlines
 - `reviews`: Participant ratings and reviews (linked to participants via participant_id)
 - `rs_500_albums`: Complete Rolling Stone 500 list with Spotify metadata
-- `email_logs`: Email delivery tracking and audit trail
+- `email_sends`: Email send instances with content snapshots
+- `email_send_recipients`: Per-recipient delivery status for send instances
+- `email_logs`: Legacy email delivery tracking and audit trail
 - `invitations`: Friend referral tracking with approval workflow
 - `_migrations`: Database migration tracking with checksums
 - Supabase Auth tables: `auth.users` managed by Supabase

@@ -352,6 +352,8 @@ describe('POST /api/email/send-week', () => {
 
       // Verify email logs were inserted
       expect(mockSupabase.from).toHaveBeenCalledWith('email_logs')
+      expect(mockSupabase.from).toHaveBeenCalledWith('email_sends')
+      expect(mockSupabase.from).toHaveBeenCalledWith('email_send_recipients')
       expect(mockSupabase.insert).toHaveBeenCalled()
     })
 

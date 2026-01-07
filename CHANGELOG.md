@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.13.0] - 2026-01-06
+
+### Email History & Manual Resends
+
+**Major Features:**
+- **Email History Tab**: Send-instance table grouped by week with content preview and recipient status
+- **Manual Resends**: Select any participants (including missed recipients) and resend historical emails
+- **Send Snapshot Storage**: New `email_sends` + `email_send_recipients` tables with RLS policies
+- **Backfill Tooling**: Script to rebuild send history from legacy `email_logs`
+- **Template Rendering**: Shared weekly email template placeholders for consistent resends
+
+**API Endpoints:**
+- GET `/api/email/send-history` - List send instances with recipient counts
+- GET `/api/email/send-history/[id]` - Fetch send content, recipients, preview
+- POST `/api/email/send-history/[id]/resend` - Resend to selected participants
+
+**Files Changed:**
+- Database: `supabase/migrations/011_create_email_sends.sql`
+- Email Builder: `lib/email/emailBuilder.ts`
+- Weekly Send: `app/api/email/send-week/route.ts`
+- Send History APIs: `app/api/email/send-history/route.ts`, `app/api/email/send-history/[id]/route.ts`, `app/api/email/send-history/[id]/resend/route.ts`
+- Admin UI: `components/EmailHistoryTab.tsx`
+- Backfill Script: `scripts/backfill-email-sends.ts`
+
+---
+
 ## [2.12.0] - 2026-01-05
 
 ### Light Theme Fixes for Curator Dashboard

@@ -11,6 +11,10 @@ DELETE FROM public.reviews;
 -- Delete all weeks
 DELETE FROM public.weeks;
 
+-- Delete all email send history
+DELETE FROM public.email_send_recipients;
+DELETE FROM public.email_sends;
+
 -- Delete all email logs (optional - clears email history too)
 DELETE FROM public.email_logs;
 
@@ -18,6 +22,10 @@ DELETE FROM public.email_logs;
 SELECT 'Reviews remaining:' as info, COUNT(*) as count FROM public.reviews
 UNION ALL
 SELECT 'Weeks remaining:' as info, COUNT(*) as count FROM public.weeks
+UNION ALL
+SELECT 'Email sends remaining:' as info, COUNT(*) as count FROM public.email_sends
+UNION ALL
+SELECT 'Email send recipients remaining:' as info, COUNT(*) as count FROM public.email_send_recipients
 UNION ALL
 SELECT 'Email logs remaining:' as info, COUNT(*) as count FROM public.email_logs
 UNION ALL

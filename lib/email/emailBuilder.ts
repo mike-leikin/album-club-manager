@@ -44,6 +44,20 @@ export interface Participant {
   unsubscribe_token: string;
 }
 
+type EmailPersonalization = {
+  firstName: string;
+  submitUrl: string;
+  unsubscribeUrl: string;
+  inviteUrl: string;
+};
+
+const EMAIL_TEMPLATE_PLACEHOLDERS: EmailPersonalization = {
+  firstName: "{{first_name}}",
+  submitUrl: "{{submit_url}}",
+  unsubscribeUrl: "{{unsubscribe_url}}",
+  inviteUrl: "{{invite_url}}",
+};
+
 const formatWeekLabel = (
   dateStr: string | null | undefined,
   fallbackWeekNumber?: number
@@ -71,16 +85,13 @@ const formatDeadline = (dateStr: string) => {
   });
 };
 
-export function buildEmailContent(
+const buildEmailContentFromParams = (
   week: WeekData,
-  participant: Participant,
+  personalization: EmailPersonalization,
   reviewStats: ReviewStats | null,
   isTest: boolean = false
-): EmailContent {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-  const submitUrl = `${appUrl}/submit?email=${encodeURIComponent(participant.email)}`;
-  const unsubscribeUrl = `${appUrl}/unsubscribe?token=${participant.unsubscribe_token}`;
-  const firstName = participant.name.split(' ')[0];
+): EmailContent => {
+  const { firstName, submitUrl, unsubscribeUrl, inviteUrl } = personalization;
   const weekLabel = formatWeekLabel(week.created_at, week.week_number);
 
   // Build HTML email body
@@ -335,7 +346,7 @@ ${isTest ? `
           <tr>
             <td style="padding: 24px 32px; text-align: center; background-color: #0a0a0a; border-top: 1px solid #1f1f1f;">
               <p style="margin: 0 0 12px; color: #a1a1aa; font-size: 14px;">Love Album Club? Invite a friend!</p>
-              <a href="${appUrl}/invite-friend?ref=${participant.id}" style="display: inline-block; padding: 10px 20px; background: #10b981; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600;">Forward to a Friend</a>
+              <a href="${inviteUrl}" style="display: inline-block; padding: 10px 20px; background: #10b981; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600;">Forward to a Friend</a>
             </td>
           </tr>
 
@@ -438,5 +449,67 @@ ${isTest ? `
     htmlBody,
     textBody,
     subject,
+  };
+}
+
+export function buildEmailContent(
+  week: WeekData,
+  participant: Participant,
+  reviewStats: ReviewStats | null,
+  isTest: boolean = false
+): EmailContent {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  return buildEmailContentFromParams(
+    week,
+    {
+      firstName: participant.name.split(' ')[0],
+      submitUrl: `${appUrl}/submit?email=${encodeURIComponent(participant.email)}`,
+      unsubscribeUrl: `${appUrl}/unsubscribe?token=${participant.unsubscribe_token}`,
+      inviteUrl: `${appUrl}/invite-friend?ref=${participant.id}`,
+    },
+    reviewStats,
+    isTest
+  );
+}
+
+export function buildWeeklyEmailTemplate(
+  week: WeekData,
+  reviewStats: ReviewStats | null
+): EmailContent {
+  return buildEmailContentFromParams(
+    week,
+    EMAIL_TEMPLATE_PLACEHOLDERS,
+    reviewStats,
+    false
+  );
+}
+
+const applyReplacements = (
+  input: string,
+  replacements: Record<string, string>
+) => {
+  let output = input;
+  Object.entries(replacements).forEach(([token, value]) => {
+    output = output.replaceAll(token, value);
+  });
+  return output;
+};
+
+export function renderEmailTemplate(
+  template: EmailContent,
+  participant: Participant
+): EmailContent {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const replacements = {
+    [EMAIL_TEMPLATE_PLACEHOLDERS.firstName]: participant.name.split(' ')[0],
+    [EMAIL_TEMPLATE_PLACEHOLDERS.submitUrl]: `${appUrl}/submit?email=${encodeURIComponent(participant.email)}`,
+    [EMAIL_TEMPLATE_PLACEHOLDERS.unsubscribeUrl]: `${appUrl}/unsubscribe?token=${participant.unsubscribe_token}`,
+    [EMAIL_TEMPLATE_PLACEHOLDERS.inviteUrl]: `${appUrl}/invite-friend?ref=${participant.id}`,
+  };
+
+  return {
+    subject: template.subject,
+    htmlBody: applyReplacements(template.htmlBody, replacements),
+    textBody: applyReplacements(template.textBody, replacements),
   };
 }

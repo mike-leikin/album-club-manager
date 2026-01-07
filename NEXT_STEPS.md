@@ -32,7 +32,21 @@
    - Social sharing buttons for referral links
    - Referrer rewards/recognition system
 
-2. **Deadline Enforcement & Week Lifecycle** ✅ COMPLETE (v2.3)
+2. **Email History & Manual Resends** ✅ COMPLETE (v2.13)
+
+   **What's Built:**
+   - ✅ **Email History Tab** - Send-instance table grouped by week with preview (v2.13)
+   - ✅ **Recipient Detail View** - Per-recipient status and original recipients list (v2.13)
+   - ✅ **Manual Resends** - Send to selected participants, including missed recipients (v2.13)
+   - ✅ **Send Snapshot Storage** - `email_sends` + `email_send_recipients` tables (v2.13)
+   - ✅ **Backfill Script** - Rebuild send history from `email_logs` (v2.13)
+
+   **Future Enhancements:**
+   - Optional custom preface text block for resends
+   - Filter history by participant
+   - Add send-history support for reminders/results/onboarding/admin messages
+
+3. **Deadline Enforcement & Week Lifecycle** ✅ COMPLETE (v2.3)
    - ✅ Participants can view and review all weeks (current and previous) (v2.3 COMPLETE)
    - ✅ Past deadline warnings (non-blocking, informative) (v2.3 COMPLETE)
    - ✅ Current week clearly distinguished from previous weeks (v2.3 COMPLETE)
@@ -46,7 +60,7 @@
    - Automated email reminders before deadline (24 hours, 1 hour) (future enhancement)
    - Timezone handling for deadlines (future enhancement)
 
-3. **Review Moderation & Editing Tools** ✅ COMPLETE (v2.9) - **PRODUCTION READY**
+4. **Review Moderation & Editing Tools** ✅ COMPLETE (v2.9) - **PRODUCTION READY**
 
    **What's Built (Full Admin Moderation System):**
    - ✅ **Database Schema** - moderation_status (pending/approved/hidden), moderated_at, moderated_by, moderation_notes (v2.9)
@@ -74,7 +88,7 @@
    - ✅ **Toast Notifications** - Success/error feedback using Sonner toasts (v2.12)
 
    **Future Enhancements:**
-   - Email functionality refactor: Update `/app/api/email/send-week/route.ts` to use shared `buildEmailContent()` utility (currently duplicates email building logic)
+   - Expand shared email template usage to reminders, results, onboarding, and admin message sends
    - Centralize Resend throttling in a shared helper to enforce 2 emails/sec across all email endpoints
    - Participant notifications when reviews are approved/rejected (email or in-app)
    - Rejection workflow with feedback (allow participants to revise and resubmit)
@@ -88,7 +102,7 @@
 
    **See:** [ADMIN_MODERATION_PLAN.md](ADMIN_MODERATION_PLAN.md) for detailed enhancement options
 
-4. **Testing Infrastructure** ✅ COMPLETE (All API Routes - 100% Pass Rate!)
+5. **Testing Infrastructure** ✅ COMPLETE (All API Routes - 100% Pass Rate!)
    - ✅ Testing framework setup (Vitest + React Testing Library + MSW) (COMPLETE)
    - ✅ Mock infrastructure (Supabase, Resend, factories) (COMPLETE)
    - ✅ Test 1: Review Submission API - 18/18 tests passing, 100% line coverage (COMPLETE)
@@ -108,7 +122,7 @@
    - **See**: [docs/TESTING.md](docs/TESTING.md) for complete testing guide
    - **Quick Start**: [docs/TESTING_QUICK_START.md](docs/TESTING_QUICK_START.md)
 
-5. **User Account Management & Settings** ✅ COMPLETE (v2.6):
+6. **User Account Management & Settings** ✅ COMPLETE (v2.6):
    - ✅ Account settings page at `/settings` (v2.6 COMPLETE)
    - ✅ Edit name and email address (v2.6 COMPLETE)
    - ✅ Email subscription preferences toggle (v2.6 COMPLETE)
@@ -133,12 +147,12 @@
    - Password change option (currently magic link only) (future enhancement)
    - Two-factor authentication (future enhancement)
 
-6. **Music review aggregation tool**:
+7. **Music review aggregation tool**:
    - Scan recent music reviews from trusted sources (Pitchfork, NPR Music, AllMusic, etc.)
    - AI-powered suggestions for contemporary albums
    - Filter by genre, release date, critic ratings
 
-7. **Public landing page improvements** ✅ COMPLETE (v2.5):
+8. **Public landing page improvements** ✅ COMPLETE (v2.5):
    - ✅ Public reviews page at `/reviews` (v2.4 COMPLETE)
    - ✅ Browse all weeks past deadline (v2.4 COMPLETE)
    - ✅ Read-only view of reviews with first names only (v2.4 COMPLETE)
@@ -151,21 +165,21 @@
    - Search functionality (future enhancement)
    - Recent activity feed on landing page (future enhancement)
 
-8. **Enhanced Data Validation**
+9. **Enhanced Data Validation**
    - Duplicate review prevention (race condition handling)
    - XSS sanitization for user input
    - Email deliverability validation (not just format)
    - Week number sequential validation
    - Album recommendation field usage (currently unused in schema)
 
-9. **Participant Engagement Tools**
+10. **Participant Engagement Tools**
    - Analytics dashboard (participation rates over time)
    - Participant profiles (track review history)
    - Weekly leaderboard (most active reviewers)
    - Email engagement tracking (opens, clicks)
    - Automated re-engagement emails for inactive participants
 
-10. **Advanced Features**
+11. **Advanced Features**
    - Album recommendations engine
    - Spotify playlist generation from weekly picks
    - Review sentiment analysis
@@ -174,10 +188,10 @@
 
 ### 🟢 Low Priority (Nice to Have)
 
-11. **Mobile app** (React Native)
-12. **Email templates builder** (visual editor)
-13. **Multi-language support**
-14. **Dark mode**
+12. **Mobile app** (React Native)
+13. **Email templates builder** (visual editor)
+14. **Multi-language support**
+15. **Dark mode**
 
 ### ⏳ Pending Items
 
@@ -196,7 +210,7 @@
 
 **All Core Features Complete!** 🎉
 
-**Version 2.12** - Test Email Feature (2026-01-04)
+**Version 2.13** - Email History & Manual Resends (2026-01-06)
 
 - ✅ **Spotify Integration**: Fully operational with auto-populate and album art
 - ✅ **RS 500 Integration**: Complete with search, filter, and usage tracking
@@ -226,7 +240,14 @@
 
 **The app is production-ready and fully operational!**
 
-**Latest Session Accomplishments (2026-01-04)**:
+**Latest Session Accomplishments (2026-01-06)**:
+
+**v2.13 - Email History & Manual Resends:**
+- ✅ **Email History Tab**: Send-instance table grouped by week with content preview and recipient statuses
+- ✅ **Manual Resends**: Multi-select recipients (including missed recipients) and resend historical emails
+- ✅ **Send Snapshot Storage**: New `email_sends` + `email_send_recipients` tables with RLS
+- ✅ **Send History APIs**: New endpoints for list, detail, and resend actions
+- ✅ **Backfill Script**: Reconstruct historical sends from `email_logs`
 
 **v2.12 - Test Email Feature:**
 - ✅ **Test Email Capability**: Curators can send test emails to themselves before sending to all participants
@@ -241,7 +262,7 @@
   - Accepts `isTest` parameter to add test mode indicators
   - Fetches and formats previous week review stats
   - Handles participant personalization and unsubscribe links
-  - Used by test email endpoint (send-week route not yet refactored)
+  - Used by test email endpoint and weekly send/resend flows
 
 - ✅ **Admin UI Enhancement**: Added test email button to curator dashboard
   - "🧪 Send Test Email" button between "Preview Email" and "Send Email"
