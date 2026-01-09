@@ -2,6 +2,13 @@
 
 ## 💡 Next Steps & Future Enhancements
 
+### 🔴 High Priority (Reliability & Debugging)
+
+1. **Review Submission Logging & Audit Trail**
+   - Add structured logging + request IDs for `/api/reviews/submit`
+   - Persist failed submissions in `review_submission_logs` for support/debugging
+   - See: `docs/review-submission-logging-requirements.md`
+
 ### 🟡 Medium Priority (UX & Feature Enhancements)
 
 **Potential areas for improvement when needed:**
