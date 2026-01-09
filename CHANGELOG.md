@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.13.2] - 2026-01-06
+
+### Curator Dashboard UI
+
+**Bug Fixes:**
+- Unified top action buttons with consistent height, color, and wrapping behavior
+- Improved form label, placeholder, and helper text contrast on the week setup form
+- Updated Spotify search input/results to a light theme with dark text
+
+---
+
 ## [2.13.1] - 2026-01-06
 
 ### Dashboard Review Form
@@ -566,4 +577,4 @@ Format: `MAJOR.MINOR.PATCH`
 - **MINOR**: New features, backwards compatible
 - **PATCH**: Bug fixes, minor improvements
 
-**Current Version:** 2.13.1
+**Current Version:** 2.13.2

@@ -67,7 +67,7 @@ export default function DashboardPage() {
   const [participantEmail, setParticipantEmail] = useState<string>("");
 
   // Editing/adding form state
-  const [formRating, setFormRating] = useState(0);
+  const [formRating, setFormRating] = useState("");
   const [formFavoriteTrack, setFormFavoriteTrack] = useState("");
   const [formReviewText, setFormReviewText] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -117,14 +117,14 @@ export default function DashboardPage() {
 
   function startEditing(review: Review) {
     setEditingReviewId(review.id);
-    setFormRating(review.rating);
+    setFormRating(String(review.rating));
     setFormFavoriteTrack(review.favorite_track || "");
     setFormReviewText(review.review_text || "");
   }
 
   function startAdding(weekNumber: number, albumType: 'contemporary' | 'classic') {
     setAddingReview({ weekNumber, albumType });
-    setFormRating(0);
+    setFormRating("");
     setFormFavoriteTrack("");
     setFormReviewText("");
   }
@@ -132,19 +132,25 @@ export default function DashboardPage() {
   function cancelForm() {
     setEditingReviewId(null);
     setAddingReview(null);
-    setFormRating(0);
+    setFormRating("");
     setFormFavoriteTrack("");
     setFormReviewText("");
   }
 
   async function saveEdit(reviewId: string) {
+    const ratingValue = Number.parseFloat(formRating);
+    if (!Number.isFinite(ratingValue) || ratingValue < 0 || ratingValue > 10) {
+      toast.error("Rating must be between 0 and 10");
+      return;
+    }
+
     setIsSaving(true);
     try {
       const response = await fetch(`/api/reviews/${reviewId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          rating: formRating,
+          rating: ratingValue,
           favorite_track: formFavoriteTrack || null,
           review_text: formReviewText || null,
         }),
@@ -171,7 +177,8 @@ export default function DashboardPage() {
       return;
     }
 
-    if (formRating < 0 || formRating > 10) {
+    const ratingValue = Number.parseFloat(formRating);
+    if (!Number.isFinite(ratingValue) || ratingValue < 0 || ratingValue > 10) {
       toast.error("Rating must be between 0 and 10");
       return;
     }
@@ -179,7 +186,7 @@ export default function DashboardPage() {
     setIsSaving(true);
     try {
       const reviewData = {
-        rating: formRating,
+        rating: ratingValue,
         favorite_track: formFavoriteTrack || null,
         review_text: formReviewText || null,
       };
@@ -441,7 +448,7 @@ type WeekCardProps = {
   week: WeekWithReviewStatus;
   editingReviewId: string | null;
   addingReview: { weekNumber: number; albumType: 'contemporary' | 'classic' } | null;
-  formRating: number;
+  formRating: string;
   formFavoriteTrack: string;
   formReviewText: string;
   isSaving: boolean;
@@ -451,7 +458,7 @@ type WeekCardProps = {
   onSaveEdit: (reviewId: string) => void;
   onSaveNew: (weekNumber: number, albumType: 'contemporary' | 'classic') => void;
   onDeleteReview: (reviewId: string) => void;
-  onRatingChange: (value: number) => void;
+  onRatingChange: (value: string) => void;
   onFavoriteTrackChange: (value: string) => void;
   onReviewTextChange: (value: string) => void;
   isCurrentWeek: boolean;
@@ -570,7 +577,7 @@ type AlbumSlotProps = {
   review: Review | null;
   isEditing: boolean;
   isAdding: boolean;
-  formRating: number;
+  formRating: string;
   formFavoriteTrack: string;
   formReviewText: string;
   isSaving: boolean;
@@ -581,7 +588,7 @@ type AlbumSlotProps = {
   onSaveEdit: (reviewId: string) => void;
   onSaveNew: () => void;
   onDeleteReview: (reviewId: string) => void;
-  onRatingChange: (value: number) => void;
+  onRatingChange: (value: string) => void;
   onFavoriteTrackChange: (value: string) => void;
   onReviewTextChange: (value: string) => void;
 };
@@ -674,7 +681,7 @@ function AlbumSlot({
                 max="10"
                 step="0.1"
                 value={formRating}
-                onChange={(e) => onRatingChange(parseFloat(e.target.value) || 0)}
+                onChange={(e) => onRatingChange(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>

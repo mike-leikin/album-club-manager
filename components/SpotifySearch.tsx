@@ -91,7 +91,7 @@ export default function SpotifySearch({
             }
           }}
           placeholder={placeholder}
-          className="flex-1 rounded-md border border-emerald-600 bg-zinc-900 px-3 py-2 text-sm text-zinc-50 placeholder-zinc-500 focus:border-emerald-500 focus:outline-none"
+          className="flex-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none"
         />
         <button
           type="button"
@@ -104,19 +104,19 @@ export default function SpotifySearch({
       </div>
 
       {error && (
-        <div className="mt-2 rounded-md bg-red-900/20 border border-red-800 px-3 py-2 text-sm text-red-400">
+        <div className="mt-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
           {error}
         </div>
       )}
 
       {showResults && results.length > 0 && (
-        <div className="absolute z-10 mt-2 w-full rounded-md border border-zinc-700 bg-zinc-900 shadow-lg max-h-96 overflow-y-auto">
+        <div className="absolute z-10 mt-2 w-full rounded-md border border-gray-200 bg-white shadow-lg max-h-96 overflow-y-auto">
           {results.map((album) => (
             <button
               key={album.id}
               type="button"
               onClick={() => handleSelectAlbum(album)}
-              className="flex w-full items-center gap-3 border-b border-zinc-800 p-3 text-left transition hover:bg-zinc-800 last:border-b-0"
+              className="flex w-full items-center gap-3 border-b border-gray-100 p-3 text-left transition hover:bg-gray-50 last:border-b-0"
             >
               {album.images[2]?.url || album.images[album.images.length - 1]?.url ? (
                 <img
@@ -128,10 +128,10 @@ export default function SpotifySearch({
                 <div className="h-12 w-12 rounded bg-zinc-800 flex-shrink-0" />
               )}
               <div className="flex-1 min-w-0">
-                <div className="font-medium text-zinc-50 truncate">
+                <div className="font-medium text-gray-900 truncate">
                   {album.name}
                 </div>
-                <div className="text-sm text-zinc-400 truncate">
+                <div className="text-sm text-gray-600 truncate">
                   {album.artists.map((a) => a.name).join(", ")} •{" "}
                   {album.release_date.split("-")[0]}
                 </div>
@@ -142,7 +142,7 @@ export default function SpotifySearch({
       )}
 
       {showResults && results.length === 0 && !isSearching && (
-        <div className="mt-2 rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-400">
+        <div className="mt-2 rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600">
           No results found. Try a different search.
         </div>
       )}

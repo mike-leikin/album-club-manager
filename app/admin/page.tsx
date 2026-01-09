@@ -586,6 +586,9 @@ export default function AdminPage() {
     }
   };
 
+  const actionButtonClass =
+    "inline-flex h-11 items-center justify-center whitespace-nowrap rounded-md border border-blue-600 bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60";
+
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-7xl px-4 py-8">
@@ -683,12 +686,12 @@ export default function AdminPage() {
             <section className="w-full rounded-2xl border border-gray-200 bg-white p-6 shadow-lg md:w-1/2">
               <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="text-xl font-semibold">This Week&apos;s Albums</h2>
-            <div className="flex flex-col gap-2 text-sm sm:flex-row sm:items-center">
+            <div className="flex flex-col gap-2 text-sm sm:flex-row sm:flex-wrap sm:items-center">
               <button
                 type="button"
                 onClick={handleCopyFromPreviousWeek}
                 disabled={isLoadingPreviousWeek || Number(weekNumber) <= 1}
-                className="rounded-md border border-blue-500 bg-blue-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
+                className={actionButtonClass}
                 title={Number(weekNumber) <= 1 ? "No previous week available" : "Copy album data from previous week"}
               >
                 {isLoadingPreviousWeek ? "Copying..." : "Copy from Previous Week"}
@@ -697,14 +700,14 @@ export default function AdminPage() {
                 type="button"
                 onClick={handleSave}
                 disabled={isSaving}
-                className="rounded-md border border-blue-500 bg-blue-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-600 disabled:cursor-not-allowed disabled:opacity-60"
+                className={actionButtonClass}
               >
                 {isSaving ? "Saving..." : "Save Week"}
               </button>
               <button
                 type="button"
                 onClick={() => setShowEmailPreview(true)}
-                className="rounded-md border border-purple-500 bg-purple-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-purple-600"
+                className={actionButtonClass}
               >
                 Preview Email
               </button>
@@ -712,7 +715,7 @@ export default function AdminPage() {
                 type="button"
                 onClick={handleSendTestEmail}
                 disabled={isSendingTestEmail}
-                className="rounded-md border border-amber-500 bg-amber-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-amber-600 disabled:cursor-not-allowed disabled:opacity-60"
+                className={actionButtonClass}
                 title="Send a test email to yourself to preview the actual HTML email"
               >
                 {isSendingTestEmail ? "Sending..." : "🧪 Send Test Email"}
@@ -721,7 +724,7 @@ export default function AdminPage() {
                 type="button"
                 onClick={handleSendEmail}
                 disabled={isSendingEmail}
-                className="rounded-md bg-purple-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-purple-600 disabled:cursor-not-allowed disabled:opacity-60"
+                className={actionButtonClass}
               >
                 {isSendingEmail ? "Sending..." : "📧 Send Email"}
               </button>
@@ -733,7 +736,7 @@ export default function AdminPage() {
             <h2 className="text-lg font-semibold">This Week&apos;s Setup (Week {weekNumber})</h2>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-900">
                 Response Deadline
               </label>
               <input
@@ -748,18 +751,18 @@ export default function AdminPage() {
 
           {/* Curator message */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-900 mb-2">
               Custom Message (Optional)
             </label>
             <textarea
               value={curatorMessage}
               onChange={(e) => setCuratorMessage(e.target.value)}
-              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none resize-y"
+              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none resize-y"
               rows={4}
               placeholder="Add a personal note or context for this week's picks..."
               maxLength={3000}
             />
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="text-xs text-gray-700 mt-1">
               {curatorMessage.length}/3000 characters
             </p>
           </div>
@@ -792,7 +795,7 @@ export default function AdminPage() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-900">
                 Title
               </label>
               <input
@@ -801,13 +804,13 @@ export default function AdminPage() {
                 onChange={(e) =>
                   setContemporary((prev) => ({ ...prev, title: e.target.value }))
                 }
-                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none"
                 placeholder="Album title"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-900">
                 Artist
               </label>
               <input
@@ -816,13 +819,13 @@ export default function AdminPage() {
                 onChange={(e) =>
                   setContemporary((prev) => ({ ...prev, artist: e.target.value }))
                 }
-                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none"
                 placeholder="Artist name"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-900">
                 Year (optional)
               </label>
               <input
@@ -831,13 +834,13 @@ export default function AdminPage() {
                 onChange={(e) =>
                   setContemporary((prev) => ({ ...prev, year: e.target.value }))
                 }
-                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none"
                 placeholder="2024"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-900">
                 Spotify URL (optional)
               </label>
               <input
@@ -849,7 +852,7 @@ export default function AdminPage() {
                     spotifyUrl: e.target.value,
                   }))
                 }
-                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none"
                 placeholder="https://open.spotify.com/album/..."
               />
             </div>
@@ -886,7 +889,7 @@ export default function AdminPage() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-900">
                 Title
               </label>
               <input
@@ -895,13 +898,13 @@ export default function AdminPage() {
                 onChange={(e) =>
                   setClassic((prev) => ({ ...prev, title: e.target.value }))
                 }
-                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none"
                 placeholder="Album title"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-900">
                 Artist
               </label>
               <input
@@ -910,13 +913,13 @@ export default function AdminPage() {
                 onChange={(e) =>
                   setClassic((prev) => ({ ...prev, artist: e.target.value }))
                 }
-                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none"
                 placeholder="Artist name"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-900">
                 Year (optional)
               </label>
               <input
@@ -925,13 +928,13 @@ export default function AdminPage() {
                 onChange={(e) =>
                   setClassic((prev) => ({ ...prev, year: e.target.value }))
                 }
-                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none"
                 placeholder="1971"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-900">
                 Spotify URL (optional)
               </label>
               <input
@@ -943,13 +946,13 @@ export default function AdminPage() {
                     spotifyUrl: e.target.value,
                   }))
                 }
-                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none"
                 placeholder="https://open.spotify.com/album/..."
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">
+              <label className="block text-sm font-medium text-gray-900">
                 Rolling Stone Rank (optional)
               </label>
               <input
@@ -963,7 +966,7 @@ export default function AdminPage() {
                     rollingStoneRank: e.target.value,
                   }))
                 }
-                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
+                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none"
                 placeholder="63"
               />
             </div>
