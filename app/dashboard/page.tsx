@@ -675,7 +675,7 @@ function AlbumSlot({
                 step="0.1"
                 value={formRating}
                 onChange={(e) => onRatingChange(parseFloat(e.target.value) || 0)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
@@ -687,7 +687,7 @@ function AlbumSlot({
                 type="text"
                 value={formFavoriteTrack}
                 onChange={(e) => onFavoriteTrackChange(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Optional"
               />
             </div>
@@ -700,7 +700,7 @@ function AlbumSlot({
                 value={formReviewText}
                 onChange={(e) => onReviewTextChange(e.target.value)}
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y"
                 placeholder="Optional"
               />
             </div>

@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.13.1] - 2026-01-06
+
+### Dashboard Review Form
+
+**Bug Fixes:**
+- Darkened input text and placeholder contrast for rating, favorite track, and review fields
+
+---
+
 ## [2.13.0] - 2026-01-06
 
 ### Email History & Manual Resends
@@ -557,4 +566,4 @@ Format: `MAJOR.MINOR.PATCH`
 - **MINOR**: New features, backwards compatible
 - **PATCH**: Bug fixes, minor improvements
 
-**Current Version:** 2.11.0
+**Current Version:** 2.13.1
