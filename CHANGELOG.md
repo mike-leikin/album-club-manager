@@ -13,6 +13,15 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [2.13.3] - 2026-01-07
+
+### Documentation
+
+- Clarified Sentry DSN setup and consistency checks across client/server/edge configs
+- Added Sentry DSN consistency item to Next Steps
+
+---
+
 ## [2.13.1] - 2026-01-06
 
 ### Dashboard Review Form

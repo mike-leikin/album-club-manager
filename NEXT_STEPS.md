@@ -9,6 +9,10 @@
    - Persist failed submissions in `review_submission_logs` for support/debugging
    - See: `docs/review-submission-logging-requirements.md`
 
+2. **Sentry DSN Consistency**
+   - Use a single DSN source of truth across client/server/edge configs
+   - Ensure production env has `NEXT_PUBLIC_SENTRY_DSN` set and matches the Sentry project
+
 ### 🟡 Medium Priority (UX & Feature Enhancements)
 
 **Potential areas for improvement when needed:**

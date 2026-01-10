@@ -85,6 +85,15 @@ NEXT_PUBLIC_SENTRY_DSN=https://your-dsn-here@sentry.io/your-project-id
 
 **Note:** Sentry is optional. The app works without it (logs to console only).
 
+### Step 2b: Keep DSN Consistent Across Configs
+
+This repo initializes Sentry in multiple places (client, server, edge, instrumentation). Make sure all of them point to the same project:
+
+- `sentry.client.config.ts` uses `NEXT_PUBLIC_SENTRY_DSN`
+- `sentry.server.config.ts`, `sentry.edge.config.ts`, and `instrumentation-client.ts` currently hardcode a DSN
+
+If you switch projects, update the hardcoded DSNs or (recommended) change them to use `process.env.NEXT_PUBLIC_SENTRY_DSN` so there is a single source of truth.
+
 ### Step 3: Verify Installation
 
 ```bash
@@ -381,6 +390,12 @@ curl -X POST http://localhost:3000/api/email/send-week \
    debug: true
    ```
 3. Check Sentry project settings → Data Filters (ensure errors aren't filtered)
+
+### Issue: Client errors show up but server/edge errors do not (or vice versa)
+
+**Solution:**
+1. Confirm DSN matches across `sentry.client.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`, and `instrumentation-client.ts`
+2. If you use env vars, ensure `NEXT_PUBLIC_SENTRY_DSN` is set in local and production environments
 
 ### Issue: Too many events (quota exceeded)
 
