@@ -72,7 +72,7 @@ A complete error monitoring and structured logging system that provides real-tim
 3. Create a new project:
    - Platform: **Next.js**
    - Name: **album-club-manager** (or your choice)
-4. Copy your **DSN** (looks like: `https://abc123@o123.ingest.sentry.io/456`)
+4. Copy your **DSN** (looks like: `https://d739f7998d5dd521b5a9115b62779664@o4510683760623616.ingest.us.sentry.io/4510683762589696`)
 
 ### Step 2: Configure Environment Variables
 
@@ -80,19 +80,10 @@ Add to your `.env.local`:
 
 ```bash
 # Error Monitoring (Sentry) - Optional
-NEXT_PUBLIC_SENTRY_DSN=https://your-dsn-here@sentry.io/your-project-id
+NEXT_PUBLIC_SENTRY_DSN=https://d739f7998d5dd521b5a9115b62779664@o4510683760623616.ingest.us.sentry.io/4510683762589696
 ```
 
 **Note:** Sentry is optional. The app works without it (logs to console only).
-
-### Step 2b: Keep DSN Consistent Across Configs
-
-This repo initializes Sentry in multiple places (client, server, edge, instrumentation). Make sure all of them point to the same project:
-
-- `sentry.client.config.ts` uses `NEXT_PUBLIC_SENTRY_DSN`
-- `sentry.server.config.ts`, `sentry.edge.config.ts`, and `instrumentation-client.ts` currently hardcode a DSN
-
-If you switch projects, update the hardcoded DSNs or (recommended) change them to use `process.env.NEXT_PUBLIC_SENTRY_DSN` so there is a single source of truth.
 
 ### Step 3: Verify Installation
 
@@ -390,12 +381,6 @@ curl -X POST http://localhost:3000/api/email/send-week \
    debug: true
    ```
 3. Check Sentry project settings → Data Filters (ensure errors aren't filtered)
-
-### Issue: Client errors show up but server/edge errors do not (or vice versa)
-
-**Solution:**
-1. Confirm DSN matches across `sentry.client.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`, and `instrumentation-client.ts`
-2. If you use env vars, ensure `NEXT_PUBLIC_SENTRY_DSN` is set in local and production environments
 
 ### Issue: Too many events (quota exceeded)
 

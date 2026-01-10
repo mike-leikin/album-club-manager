@@ -57,7 +57,13 @@
    - Filter history by participant
    - Add send-history support for reminders/results/onboarding/admin messages
 
-3. **Deadline Enforcement & Week Lifecycle** ✅ COMPLETE (v2.3)
+3. **Review Reminder Emails** (manual send, current week only)
+   - Admin-only send for current week to participants with zero reviews
+   - Respects `email_subscribed` and reminder opt-out; includes `/settings` link + one-click unsubscribe
+   - Rate-limited sends with audit trail (`email_sends`, `email_send_recipients`, `email_logs`)
+   - **See:** `docs/review-reminder-email-requirements.md`
+
+4. **Deadline Enforcement & Week Lifecycle** ✅ COMPLETE (v2.3)
    - ✅ Participants can view and review all weeks (current and previous) (v2.3 COMPLETE)
    - ✅ Past deadline warnings (non-blocking, informative) (v2.3 COMPLETE)
    - ✅ Current week clearly distinguished from previous weeks (v2.3 COMPLETE)
@@ -71,7 +77,7 @@
    - Automated email reminders before deadline (24 hours, 1 hour) (future enhancement)
    - Timezone handling for deadlines (future enhancement)
 
-4. **Review Moderation & Editing Tools** ✅ COMPLETE (v2.9) - **PRODUCTION READY**
+5. **Review Moderation & Editing Tools** ✅ COMPLETE (v2.9) - **PRODUCTION READY**
 
    **What's Built (Full Admin Moderation System):**
    - ✅ **Database Schema** - moderation_status (pending/approved/hidden), moderated_at, moderated_by, moderation_notes (v2.9)
@@ -113,7 +119,7 @@
 
    **See:** [ADMIN_MODERATION_PLAN.md](ADMIN_MODERATION_PLAN.md) for detailed enhancement options
 
-5. **Testing Infrastructure** ✅ COMPLETE (All API Routes - 100% Pass Rate!)
+6. **Testing Infrastructure** ✅ COMPLETE (All API Routes - 100% Pass Rate!)
    - ✅ Testing framework setup (Vitest + React Testing Library + MSW) (COMPLETE)
    - ✅ Mock infrastructure (Supabase, Resend, factories) (COMPLETE)
    - ✅ Test 1: Review Submission API - 18/18 tests passing, 100% line coverage (COMPLETE)
@@ -133,7 +139,7 @@
    - **See**: [docs/TESTING.md](docs/TESTING.md) for complete testing guide
    - **Quick Start**: [docs/TESTING_QUICK_START.md](docs/TESTING_QUICK_START.md)
 
-6. **User Account Management & Settings** ✅ COMPLETE (v2.6):
+7. **User Account Management & Settings** ✅ COMPLETE (v2.6):
    - ✅ Account settings page at `/settings` (v2.6 COMPLETE)
    - ✅ Edit name and email address (v2.6 COMPLETE)
    - ✅ Email subscription preferences toggle (v2.6 COMPLETE)
@@ -158,12 +164,12 @@
    - Password change option (currently magic link only) (future enhancement)
    - Two-factor authentication (future enhancement)
 
-7. **Music review aggregation tool**:
+8. **Music review aggregation tool**:
    - Scan recent music reviews from trusted sources (Pitchfork, NPR Music, AllMusic, etc.)
    - AI-powered suggestions for contemporary albums
    - Filter by genre, release date, critic ratings
 
-8. **Public landing page improvements** ✅ COMPLETE (v2.5):
+9. **Public landing page improvements** ✅ COMPLETE (v2.5):
    - ✅ Public reviews page at `/reviews` (v2.4 COMPLETE)
    - ✅ Browse all weeks past deadline (v2.4 COMPLETE)
    - ✅ Read-only view of reviews with first names only (v2.4 COMPLETE)
@@ -176,21 +182,21 @@
    - Search functionality (future enhancement)
    - Recent activity feed on landing page (future enhancement)
 
-9. **Enhanced Data Validation**
+10. **Enhanced Data Validation**
    - Duplicate review prevention (race condition handling)
    - XSS sanitization for user input
    - Email deliverability validation (not just format)
    - Week number sequential validation
    - Album recommendation field usage (currently unused in schema)
 
-10. **Participant Engagement Tools**
+11. **Participant Engagement Tools**
    - Analytics dashboard (participation rates over time)
    - Participant profiles (track review history)
    - Weekly leaderboard (most active reviewers)
    - Email engagement tracking (opens, clicks)
    - Automated re-engagement emails for inactive participants
 
-11. **Advanced Features**
+12. **Advanced Features**
    - Album recommendations engine
    - Spotify playlist generation from weekly picks
    - Review sentiment analysis
@@ -199,10 +205,10 @@
 
 ### 🟢 Low Priority (Nice to Have)
 
-12. **Mobile app** (React Native)
-13. **Email templates builder** (visual editor)
-14. **Multi-language support**
-15. **Dark mode**
+13. **Mobile app** (React Native)
+14. **Email templates builder** (visual editor)
+15. **Multi-language support**
+16. **Dark mode**
 
 ### ⏳ Pending Items
 
