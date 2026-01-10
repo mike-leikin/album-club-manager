@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.13.6] - 2026-01-07
+
+### Review Submissions
+
+- Fix participant auto-create flow to use the resolved participant ID during cleanup deletes
+
+---
+
 ## [2.13.5] - 2026-01-07
 
 ### Review Submissions

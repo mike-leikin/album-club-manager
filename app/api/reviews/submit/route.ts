@@ -111,7 +111,7 @@ export async function POST(request: Request) {
         .from("reviews")
         .delete()
         .eq("week_number", body.week_number)
-        .eq("participant_id", participant.id)
+        .eq("participant_id", participantId)
         .eq("album_type", "contemporary");
 
       reviewsToInsert.push({
@@ -139,7 +139,7 @@ export async function POST(request: Request) {
         .from("reviews")
         .delete()
         .eq("week_number", body.week_number)
-        .eq("participant_id", participant.id)
+        .eq("participant_id", participantId)
         .eq("album_type", "classic");
 
       reviewsToInsert.push({
