@@ -474,6 +474,34 @@ describe('POST /api/reviews/submit', () => {
       expect(response.status).toBe(400)
       expect(data.error).toBe('Classic rating must be between 0 and 10')
     })
+
+    it('returns 400 when review text exceeds the limit', async () => {
+      // Mock participant lookup
+      mockSupabase.single.mockResolvedValueOnce({
+        data: { id: mockParticipant.id },
+        error: null,
+      })
+
+      const request = new Request('http://localhost/api/reviews/submit', {
+        method: 'POST',
+        body: JSON.stringify({
+          week_number: 1,
+          participant_email: 'test@example.com',
+          contemporary: {
+            rating: 8.0,
+            review_text: 'a'.repeat(2001),
+          },
+        }),
+      })
+
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(400)
+      expect(data.error).toBe(
+        'Contemporary review text must be 2000 characters or fewer'
+      )
+    })
   })
 
   describe('Error handling', () => {

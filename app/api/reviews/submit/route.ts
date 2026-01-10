@@ -16,6 +16,8 @@ type ReviewSubmission = {
   };
 };
 
+const MAX_REVIEW_TEXT_LENGTH = 2000;
+
 function deriveParticipantName(email: string): string {
   const localPart = email.split("@")[0] || "";
   const cleaned = localPart.replace(/[._-]+/g, " ").replace(/\s+/g, " ").trim();
@@ -106,6 +108,19 @@ export async function POST(request: Request) {
         );
       }
 
+      const contemporaryReviewText = body.contemporary.review_text?.trim();
+      if (
+        contemporaryReviewText &&
+        contemporaryReviewText.length > MAX_REVIEW_TEXT_LENGTH
+      ) {
+        return NextResponse.json(
+          {
+            error: `Contemporary review text must be ${MAX_REVIEW_TEXT_LENGTH} characters or fewer`,
+          },
+          { status: 400 }
+        );
+      }
+
       // Delete existing contemporary review for this week/participant
       await supabase
         .from("reviews")
@@ -120,7 +135,7 @@ export async function POST(request: Request) {
         album_type: "contemporary",
         rating: body.contemporary.rating,
         favorite_track: body.contemporary.favorite_track?.trim() || null,
-        review_text: body.contemporary.review_text?.trim() || null,
+        review_text: contemporaryReviewText || null,
         moderation_status: 'pending',
       });
     }
@@ -130,6 +145,16 @@ export async function POST(request: Request) {
       if (body.classic.rating < 0 || body.classic.rating > 10) {
         return NextResponse.json(
           { error: "Classic rating must be between 0 and 10" },
+          { status: 400 }
+        );
+      }
+
+      const classicReviewText = body.classic.review_text?.trim();
+      if (classicReviewText && classicReviewText.length > MAX_REVIEW_TEXT_LENGTH) {
+        return NextResponse.json(
+          {
+            error: `Classic review text must be ${MAX_REVIEW_TEXT_LENGTH} characters or fewer`,
+          },
           { status: 400 }
         );
       }
@@ -148,7 +173,7 @@ export async function POST(request: Request) {
         album_type: "classic",
         rating: body.classic.rating,
         favorite_track: body.classic.favorite_track?.trim() || null,
-        review_text: body.classic.review_text?.trim() || null,
+        review_text: classicReviewText || null,
         moderation_status: 'pending',
       });
     }

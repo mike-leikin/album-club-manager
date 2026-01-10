@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.13.7] - 2026-01-07
+
+### Review Submissions
+
+- Increased review text limit to 2000 characters
+- Added validation error messaging when review text exceeds the limit
+
+---
+
 ## [2.13.6] - 2026-01-07
 
 ### Review Submissions
