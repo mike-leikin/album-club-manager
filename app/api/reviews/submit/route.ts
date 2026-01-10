@@ -16,6 +16,18 @@ type ReviewSubmission = {
   };
 };
 
+function deriveParticipantName(email: string): string {
+  const localPart = email.split("@")[0] || "";
+  const cleaned = localPart.replace(/[._-]+/g, " ").replace(/\s+/g, " ").trim();
+  if (!cleaned) {
+    return "Guest Reviewer";
+  }
+  return cleaned
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
 // POST /api/reviews/submit - Submit reviews for a week
 export async function POST(request: Request) {
   try {
@@ -45,18 +57,42 @@ export async function POST(request: Request) {
       );
     }
 
-    // Find participant by email
+    const normalizedEmail = body.participant_email.trim().toLowerCase();
+
+    // Find or create participant by email
     const { data: participant, error: participantError } = await supabase
       .from("participants")
       .select("id")
-      .eq("email", body.participant_email.trim().toLowerCase())
+      .eq("email", normalizedEmail)
       .single();
 
-    if (participantError || !participant) {
-      return NextResponse.json(
-        { error: "Participant not found. Please check your email address." },
-        { status: 404 }
-      );
+    let participantId = participant?.id;
+
+    if (!participantId) {
+      const { data: createdParticipant, error: createError } = await supabase
+        .from("participants")
+        .insert({
+          email: normalizedEmail,
+          name: deriveParticipantName(normalizedEmail),
+        })
+        .select("id")
+        .single();
+
+      if (createError || !createdParticipant) {
+        const { data: existingParticipant } = await supabase
+          .from("participants")
+          .select("id")
+          .eq("email", normalizedEmail)
+          .single();
+
+        if (!existingParticipant?.id) {
+          throw createError || participantError;
+        }
+
+        participantId = existingParticipant.id;
+      } else {
+        participantId = createdParticipant.id;
+      }
     }
 
     const reviewsToInsert = [];
@@ -80,7 +116,7 @@ export async function POST(request: Request) {
 
       reviewsToInsert.push({
         week_number: body.week_number,
-        participant_id: participant.id,
+        participant_id: participantId,
         album_type: "contemporary",
         rating: body.contemporary.rating,
         favorite_track: body.contemporary.favorite_track?.trim() || null,
@@ -108,7 +144,7 @@ export async function POST(request: Request) {
 
       reviewsToInsert.push({
         week_number: body.week_number,
-        participant_id: participant.id,
+        participant_id: participantId,
         album_type: "classic",
         rating: body.classic.rating,
         favorite_track: body.classic.favorite_track?.trim() || null,

@@ -477,12 +477,34 @@ describe('POST /api/reviews/submit', () => {
   })
 
   describe('Error handling', () => {
-    it('returns 404 when participant not found', async () => {
+    it('creates a participant when email is not registered', async () => {
       // Mock participant lookup with no results
       mockSupabase.single.mockResolvedValueOnce({
         data: null,
         error: { message: 'Not found' },
       })
+
+      // Mock participant creation
+      mockSupabase.single.mockResolvedValueOnce({
+        data: { id: 'new-participant-id' },
+        error: null,
+      })
+
+      const mockReview = createMockReview({
+        id: 'new-review-6',
+        week_number: 1,
+        participant_id: 'new-participant-id',
+        album_type: 'contemporary',
+        rating: 8.0,
+      })
+
+      mockSupabase.select
+        .mockReturnValueOnce(mockSupabase)
+        .mockReturnValueOnce(mockSupabase)
+        .mockResolvedValueOnce({
+          data: [mockReview],
+          error: null,
+        })
 
       const request = new Request('http://localhost/api/reviews/submit', {
         method: 'POST',
@@ -498,9 +520,14 @@ describe('POST /api/reviews/submit', () => {
       const response = await POST(request)
       const data = await response.json()
 
-      expect(response.status).toBe(404)
-      expect(data.error).toBe(
-        'Participant not found. Please check your email address.'
+      expect(response.status).toBe(200)
+      expect(data.success).toBe(true)
+      expect(mockSupabase.from).toHaveBeenCalledWith('participants')
+      expect(mockSupabase.insert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: 'nonexistent@example.com',
+          name: expect.any(String),
+        })
       )
     })
 

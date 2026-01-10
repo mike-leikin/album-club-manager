@@ -81,6 +81,7 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Simple Form**: Participants rate albums (1.0-10.0) and share favorite tracks
 - **No Default Ratings**: Empty fields prevent rating bias
 - **Email Pre-population**: Review links auto-fill participant email addresses
+- **Auto-Create Participants**: New emails are added as participants on first submission
 - **Unlimited Text**: No character limits on review comments
 - **Mobile Responsive**: Works seamlessly on all devices
 - **Participant Dashboard**: View all submitted reviews with statistics

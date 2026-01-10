@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.13.5] - 2026-01-07
+
+### Review Submissions
+
+- Allow review submissions from unregistered emails by auto-creating participants
+- Updated review submission tests to cover the new participant creation flow
+
+---
+
 ## [2.13.4] - 2026-01-07
 
 ### Monitoring
