@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.13.4] - 2026-01-07
+
+### Monitoring
+
+- Added Sentry instrumentation for client/server/edge runtimes
+- Added global error boundary capture
+- Added Sentry example page and API route for connectivity testing
+
+---
+
 ## [2.13.2] - 2026-01-06
 
 ### Curator Dashboard UI
