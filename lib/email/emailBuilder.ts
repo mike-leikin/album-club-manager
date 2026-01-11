@@ -372,14 +372,6 @@ ${buildReviewListHtml(reviewStats.classic.reviews)}
 
   htmlBody += `
 
-          <!-- Footer -->
-          <tr>
-            <td style="padding: 24px 32px; border-top: 1px solid #1f1f1f; background-color: #0a0a0a;">
-              <p style="margin: 0; color: #737373; font-size: 13px; line-height: 1.5;">- Mike</p>
-              <p style="margin: 12px 0 0; color: #525252; font-size: 12px;">Rate each album 1.0–10.0 and share your favorite tracks!</p>
-            </td>
-          </tr>
-
           <!-- Forward to Friend -->
           <tr>
             <td style="padding: 24px 32px; text-align: center; background-color: #0a0a0a; border-top: 1px solid #1f1f1f;">
@@ -477,7 +469,6 @@ ${buildReviewListHtml(reviewStats.classic.reviews)}
     textBody += `See past reviews: ${dashboardUrl}\n\n`;
   }
 
-  textBody += `- Mike\n\n`;
   textBody += `---\n`;
   textBody += `Unsubscribe: ${unsubscribeUrl}`;
 
