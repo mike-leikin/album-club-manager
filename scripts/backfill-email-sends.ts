@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import { buildWeeklyEmailTemplate } from '../lib/email/emailBuilder';
 import type { ReviewStats } from '../lib/email/emailBuilder';
+import { getFirstName } from '../lib/utils/names';
 
 dotenv.config({ path: '.env.local' });
 
@@ -99,7 +100,7 @@ const buildReviewStats = async (
   let prevWeekLabel = `Week ${prevWeek}`;
   const { data: prevWeekData } = await supabase
     .from('weeks')
-    .select('created_at')
+    .select('created_at, contemporary_title, contemporary_artist, classic_title, classic_artist')
     .eq('week_number', prevWeek)
     .single();
 
@@ -107,45 +108,82 @@ const buildReviewStats = async (
     prevWeekLabel = formatWeekLabel(prevWeekData.created_at, prevWeek);
   }
 
-  const contempReviews = stats.filter((review: any) => review.contemporary_rating !== null);
-  const classicReviews = stats.filter((review: any) => review.classic_rating !== null);
+  const contempRatings: number[] = [];
+  const classicRatings: number[] = [];
+  const contempReviews: Array<{ name: string; reviewText: string }> = [];
+  const classicReviews: Array<{ name: string; reviewText: string }> = [];
+
+  const addRating = (target: number[], value: any) => {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) {
+      target.push(parsed);
+    }
+  };
+
+  const addReviewText = (
+    target: Array<{ name: string; reviewText: string }>,
+    text: any,
+    name: string | null | undefined
+  ) => {
+    if (typeof text !== 'string') return;
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    target.push({ reviewText: trimmed, name: getFirstName(name) });
+  };
+
+  stats.forEach((review: any) => {
+    const participantName = review.participant?.name ?? 'Unknown';
+    if (review.album_type === 'contemporary') {
+      addRating(contempRatings, review.rating);
+      addReviewText(contempReviews, review.review_text, participantName);
+      return;
+    }
+    if (review.album_type === 'classic') {
+      addRating(classicRatings, review.rating);
+      addReviewText(classicReviews, review.review_text, participantName);
+      return;
+    }
+
+    if (review.contemporary_rating !== null && review.contemporary_rating !== undefined) {
+      addRating(contempRatings, review.contemporary_rating);
+      addReviewText(contempReviews, review.contemporary_comments ?? review.review_text, participantName);
+    }
+    if (review.classic_rating !== null && review.classic_rating !== undefined) {
+      addRating(classicRatings, review.classic_rating);
+      addReviewText(classicReviews, review.classic_comments ?? review.review_text, participantName);
+    }
+  });
+
+  const buildAlbumLabel = (artist?: string | null, title?: string | null) => {
+    const safeArtist = artist?.trim();
+    const safeTitle = title?.trim();
+    if (safeArtist && safeTitle) return `${safeArtist} - ${safeTitle}`;
+    return safeArtist || safeTitle || 'Album';
+  };
 
   return {
     prevWeek,
     prevWeekLabel,
     contemporary: {
       avgRating:
-        contempReviews.length > 0
-          ? (
-              contempReviews.reduce((sum: number, review: any) => sum + review.contemporary_rating, 0) /
-              contempReviews.length
-            ).toFixed(1)
+        contempRatings.length > 0
+          ? (contempRatings.reduce((sum, rating) => sum + rating, 0) / contempRatings.length).toFixed(1)
           : null,
-      count: contempReviews.length,
-      favoriteTracks: contempReviews
-        .filter((review: any) => review.contemporary_favorite_track)
-        .map((review: any) => ({
-          track: review.contemporary_favorite_track,
-          name: review.participant.name,
-        }))
-        .slice(0, 3),
+      count: contempRatings.length,
+      albumLabel: buildAlbumLabel(
+        prevWeekData?.contemporary_artist,
+        prevWeekData?.contemporary_title
+      ),
+      reviews: contempReviews,
     },
     classic: {
       avgRating:
-        classicReviews.length > 0
-          ? (
-              classicReviews.reduce((sum: number, review: any) => sum + review.classic_rating, 0) /
-              classicReviews.length
-            ).toFixed(1)
+        classicRatings.length > 0
+          ? (classicRatings.reduce((sum, rating) => sum + rating, 0) / classicRatings.length).toFixed(1)
           : null,
-      count: classicReviews.length,
-      favoriteTracks: classicReviews
-        .filter((review: any) => review.classic_favorite_track)
-        .map((review: any) => ({
-          track: review.classic_favorite_track,
-          name: review.participant.name,
-        }))
-        .slice(0, 3),
+      count: classicRatings.length,
+      albumLabel: buildAlbumLabel(prevWeekData?.classic_artist, prevWeekData?.classic_title),
+      reviews: classicReviews,
     },
   };
 };

@@ -277,6 +277,13 @@ describe('POST /api/email/send-week', () => {
         },
       ]
       const prevWeekCreatedAt = '2026-01-04T00:00:00.000Z'
+      const prevWeekData = {
+        created_at: prevWeekCreatedAt,
+        contemporary_title: 'Prev Album',
+        contemporary_artist: 'Prev Artist',
+        classic_title: 'Prev Classic',
+        classic_artist: 'Prev Classic Artist',
+      }
 
       // Mock week lookup - .eq().single()
       mockSupabase.eq.mockReturnValueOnce(mockSupabase)
@@ -304,7 +311,7 @@ describe('POST /api/email/send-week', () => {
         error: null,
       })
       mockSupabase.single.mockResolvedValueOnce({
-        data: { created_at: prevWeekCreatedAt },
+        data: prevWeekData,
         error: null,
       })
 
@@ -326,13 +333,9 @@ describe('POST /api/email/send-week', () => {
       expect(data.success).toBe(true)
 
       // Verify email content includes stats
-      const prevWeekLabel = new Date(prevWeekCreatedAt).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      })
       const emailCall = mockEmailContainer.send.mock.calls[0][0]
-      expect(emailCall.html).toContain(`${prevWeekLabel} Results`)
+      expect(emailCall.html).toContain("Last week's albums")
+      expect(emailCall.html).toContain('Prev Artist - Prev Album')
       expect(emailCall.html).toContain('8.5/10')
     })
 

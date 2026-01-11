@@ -13,6 +13,17 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [2.13.11] - 2026-01-11
+
+### Weekly Emails
+
+- Moved last week's recap below current picks with a "Last week's albums" header
+- Replaced classic/contemporary labels with artist + album formatting
+- Included written review excerpts with reviewer first names
+- Added dashboard link for browsing past reviews and removed favorite track list
+
+---
+
 ## [2.13.9] - 2026-01-07
 
 ### Review Submissions

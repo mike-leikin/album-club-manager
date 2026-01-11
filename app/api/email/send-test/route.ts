@@ -6,6 +6,7 @@ import { requireCuratorApi } from "@/lib/auth/apiAuth";
 import { buildEmailContent, ReviewStats } from "@/lib/email/emailBuilder";
 import * as Sentry from "@sentry/nextjs";
 import { createServerClient } from '@supabase/ssr'
+import { getFirstName } from "@/lib/utils/names";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -134,7 +135,9 @@ export async function POST(request: NextRequest) {
         let prevWeekLabel = `Week ${prevWeek}`;
         const { data: prevWeekData, error: prevWeekError } = await adminClient
           .from("weeks")
-          .select("created_at")
+          .select(
+            "created_at, contemporary_title, contemporary_artist, classic_title, classic_artist"
+          )
           .eq("week_number", prevWeek)
           .single();
         if (!prevWeekError && prevWeekData?.created_at) {
@@ -144,8 +147,8 @@ export async function POST(request: NextRequest) {
         // Calculate stats (supports current and legacy review schemas)
         const contempRatings: number[] = [];
         const classicRatings: number[] = [];
-        const contempFavorites: Array<{ track: string; name: string }> = [];
-        const classicFavorites: Array<{ track: string; name: string }> = [];
+        const contempReviews: Array<{ name: string; reviewText: string }> = [];
+        const classicReviews: Array<{ name: string; reviewText: string }> = [];
 
         const addRating = (target: number[], value: any) => {
           const parsed = Number(value);
@@ -154,48 +157,55 @@ export async function POST(request: NextRequest) {
           }
         };
 
-        const addFavorite = (
-          target: Array<{ track: string; name: string }>,
-          track: any,
+        const addReviewText = (
+          target: Array<{ name: string; reviewText: string }>,
+          text: any,
           name: string | null | undefined
         ) => {
-          if (typeof track !== "string") return;
-          const trimmed = track.trim();
+          if (typeof text !== "string") return;
+          const trimmed = text.trim();
           if (!trimmed) return;
-          target.push({ track: trimmed, name: name?.trim() || "Unknown" });
+          target.push({ reviewText: trimmed, name: getFirstName(name) });
         };
 
         stats.forEach((review: any) => {
           const participantName = review.participant?.name ?? "Unknown";
           if (review.album_type === "contemporary") {
             addRating(contempRatings, review.rating);
-            addFavorite(contempFavorites, review.favorite_track, participantName);
+            addReviewText(contempReviews, review.review_text, participantName);
             return;
           }
           if (review.album_type === "classic") {
             addRating(classicRatings, review.rating);
-            addFavorite(classicFavorites, review.favorite_track, participantName);
+            addReviewText(classicReviews, review.review_text, participantName);
             return;
           }
 
           // Legacy combined review rows (pre album_type)
           if (review.contemporary_rating !== null && review.contemporary_rating !== undefined) {
             addRating(contempRatings, review.contemporary_rating);
-            addFavorite(
-              contempFavorites,
-              review.contemporary_favorite_track,
+            addReviewText(
+              contempReviews,
+              review.contemporary_comments ?? review.review_text,
               participantName
             );
           }
           if (review.classic_rating !== null && review.classic_rating !== undefined) {
             addRating(classicRatings, review.classic_rating);
-            addFavorite(
-              classicFavorites,
-              review.classic_favorite_track,
+            addReviewText(
+              classicReviews,
+              review.classic_comments ?? review.review_text,
               participantName
             );
           }
         });
+
+        const buildAlbumLabel = (artist?: string | null, title?: string | null) => {
+          const safeArtist = artist?.trim();
+          const safeTitle = title?.trim();
+          if (safeArtist && safeTitle) return `${safeArtist} - ${safeTitle}`;
+          return safeArtist || safeTitle || "Album";
+        };
 
         reviewStats = {
           prevWeek,
@@ -205,14 +215,22 @@ export async function POST(request: NextRequest) {
               ? (contempRatings.reduce((sum, rating) => sum + rating, 0) / contempRatings.length).toFixed(1)
               : null,
             count: contempRatings.length,
-            favoriteTracks: contempFavorites.slice(0, 3),
+            albumLabel: buildAlbumLabel(
+              prevWeekData?.contemporary_artist,
+              prevWeekData?.contemporary_title
+            ),
+            reviews: contempReviews,
           },
           classic: {
             avgRating: classicRatings.length > 0
               ? (classicRatings.reduce((sum, rating) => sum + rating, 0) / classicRatings.length).toFixed(1)
               : null,
             count: classicRatings.length,
-            favoriteTracks: classicFavorites.slice(0, 3),
+            albumLabel: buildAlbumLabel(
+              prevWeekData?.classic_artist,
+              prevWeekData?.classic_title
+            ),
+            reviews: classicReviews,
           },
         };
       }

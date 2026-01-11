@@ -28,12 +28,14 @@ export interface ReviewStats {
   contemporary: {
     avgRating: string | null;
     count: number;
-    favoriteTracks: Array<{ track: string; name: string }>;
+    albumLabel: string;
+    reviews: Array<{ name: string; reviewText: string }>;
   };
   classic: {
     avgRating: string | null;
     count: number;
-    favoriteTracks: Array<{ track: string; name: string }>;
+    albumLabel: string;
+    reviews: Array<{ name: string; reviewText: string }>;
   };
 }
 
@@ -60,6 +62,7 @@ export interface ReviewConfirmationReview {
 type EmailPersonalization = {
   firstName: string;
   submitUrl: string;
+  dashboardUrl: string;
   unsubscribeUrl: string;
   inviteUrl: string;
 };
@@ -67,6 +70,7 @@ type EmailPersonalization = {
 const EMAIL_TEMPLATE_PLACEHOLDERS: EmailPersonalization = {
   firstName: "{{first_name}}",
   submitUrl: "{{submit_url}}",
+  dashboardUrl: "{{dashboard_url}}",
   unsubscribeUrl: "{{unsubscribe_url}}",
   inviteUrl: "{{invite_url}}",
 };
@@ -112,8 +116,34 @@ const buildEmailContentFromParams = (
   reviewStats: ReviewStats | null,
   isTest: boolean = false
 ): EmailContent => {
-  const { firstName, submitUrl, unsubscribeUrl, inviteUrl } = personalization;
+  const { firstName, submitUrl, dashboardUrl, unsubscribeUrl, inviteUrl } = personalization;
   const weekLabel = formatWeekLabel(week.created_at, week.week_number);
+
+  const buildReviewListHtml = (
+    reviews: Array<{ name: string; reviewText: string }>
+  ) => {
+    if (reviews.length === 0) {
+      return `
+                <p style="margin: 8px 0 0; color: #737373; font-size: 13px;">No written reviews yet.</p>
+`;
+    }
+
+    return reviews
+      .map((review) => {
+        const safeText = escapeHtml(review.reviewText);
+        const safeName = escapeHtml(review.name);
+        return `
+                <div style="margin-top: 12px; padding-left: 12px; border-left: 2px solid #1f1f1f;">
+                  <p style="margin: 0; color: #e5e5e5; font-size: 14px; line-height: 1.5; white-space: pre-wrap;">${safeText}</p>
+                  <p style="margin: 6px 0 0; color: #737373; font-size: 12px;">– ${safeName}</p>
+                </div>
+`;
+      })
+      .join("");
+  };
+
+  const buildAlbumLabel = (label: string) =>
+    escapeHtml(label || "Album");
 
   // Build HTML email body
   let htmlBody = `
@@ -168,65 +198,6 @@ ${isTest ? `
             <td style="padding: 0 32px 20px;">
               <div style="background: #1e293b; border-left: 3px solid #22c55e; padding: 15px; border-radius: 4px;">
                 <p style="color: #e2e8f0; margin: 0; white-space: pre-wrap; font-size: 15px; line-height: 1.6;">${escapedMessage}</p>
-              </div>
-            </td>
-          </tr>
-`;
-  }
-
-  // Add previous week results if available
-  if (reviewStats) {
-    htmlBody += `
-          <!-- Previous Week Results -->
-          <tr>
-            <td style="padding: 0 32px 24px;">
-              <div style="background-color: #111111; border: 1px solid #1f1f1f; border-radius: 12px; padding: 20px;">
-                <h2 style="margin: 0 0 16px; color: #10b981; font-size: 18px; font-weight: 600;">📊 ${reviewStats.prevWeekLabel} Results</h2>
-`;
-
-    if (reviewStats.contemporary.count > 0) {
-      htmlBody += `
-                <div style="margin-bottom: 16px;">
-                  <p style="margin: 0 0 8px; color: #ffffff; font-size: 15px; font-weight: 600;">🔊 Contemporary</p>
-                  <p style="margin: 0 0 4px; color: #a1a1a1; font-size: 14px;">Average: <span style="color: #10b981; font-weight: 600;">${reviewStats.contemporary.avgRating}/10</span> (${reviewStats.contemporary.count} ${reviewStats.contemporary.count === 1 ? 'review' : 'reviews'})</p>
-`;
-      if (reviewStats.contemporary.favoriteTracks.length > 0) {
-        htmlBody += `
-                  <p style="margin: 8px 0 4px; color: #d4d4d4; font-size: 13px; font-weight: 500;">Favorite tracks:</p>
-`;
-        reviewStats.contemporary.favoriteTracks.forEach((ft: any) => {
-          htmlBody += `
-                  <p style="margin: 2px 0; color: #a1a1a1; font-size: 13px; padding-left: 12px;">• ${ft.track} <span style="color: #737373;">– ${ft.name}</span></p>
-`;
-        });
-      }
-      htmlBody += `
-                </div>
-`;
-    }
-
-    if (reviewStats.classic.count > 0) {
-      htmlBody += `
-                <div>
-                  <p style="margin: 0 0 8px; color: #ffffff; font-size: 15px; font-weight: 600;">💿 Classic (RS 500)</p>
-                  <p style="margin: 0 0 4px; color: #a1a1a1; font-size: 14px;">Average: <span style="color: #10b981; font-weight: 600;">${reviewStats.classic.avgRating}/10</span> (${reviewStats.classic.count} ${reviewStats.classic.count === 1 ? 'review' : 'reviews'})</p>
-`;
-      if (reviewStats.classic.favoriteTracks.length > 0) {
-        htmlBody += `
-                  <p style="margin: 8px 0 4px; color: #d4d4d4; font-size: 13px; font-weight: 500;">Favorite tracks:</p>
-`;
-        reviewStats.classic.favoriteTracks.forEach((ft: any) => {
-          htmlBody += `
-                  <p style="margin: 2px 0; color: #a1a1a1; font-size: 13px; padding-left: 12px;">• ${ft.track} <span style="color: #737373;">– ${ft.name}</span></p>
-`;
-        });
-      }
-      htmlBody += `
-                </div>
-`;
-    }
-
-    htmlBody += `
               </div>
             </td>
           </tr>
@@ -355,6 +326,52 @@ ${isTest ? `
             </td>
           </tr>
 
+`;
+
+  // Add previous week results if available
+  if (reviewStats) {
+    htmlBody += `
+          <!-- Last Week's Albums -->
+          <tr>
+            <td style="padding: 0 32px 32px;">
+              <div style="background-color: #111111; border: 1px solid #1f1f1f; border-radius: 12px; padding: 20px;">
+                <h2 style="margin: 0 0 16px; color: #10b981; font-size: 18px; font-weight: 600;">Last week's albums</h2>
+`;
+
+    if (reviewStats.contemporary.count > 0) {
+      htmlBody += `
+                <div style="margin-bottom: 16px;">
+                  <p style="margin: 0 0 8px; color: #ffffff; font-size: 15px; font-weight: 600;">${buildAlbumLabel(reviewStats.contemporary.albumLabel)}</p>
+                  <p style="margin: 0 0 4px; color: #a1a1a1; font-size: 14px;">Average: <span style="color: #10b981; font-weight: 600;">${reviewStats.contemporary.avgRating || "N/A"}/10</span> (${reviewStats.contemporary.count} ${reviewStats.contemporary.count === 1 ? "review" : "reviews"})</p>
+                  <p style="margin: 8px 0 0; color: #d4d4d4; font-size: 13px; font-weight: 500;">Reviews:</p>
+${buildReviewListHtml(reviewStats.contemporary.reviews)}
+                </div>
+`;
+    }
+
+    if (reviewStats.classic.count > 0) {
+      htmlBody += `
+                <div>
+                  <p style="margin: 0 0 8px; color: #ffffff; font-size: 15px; font-weight: 600;">${buildAlbumLabel(reviewStats.classic.albumLabel)}</p>
+                  <p style="margin: 0 0 4px; color: #a1a1a1; font-size: 14px;">Average: <span style="color: #10b981; font-weight: 600;">${reviewStats.classic.avgRating || "N/A"}/10</span> (${reviewStats.classic.count} ${reviewStats.classic.count === 1 ? "review" : "reviews"})</p>
+                  <p style="margin: 8px 0 0; color: #d4d4d4; font-size: 13px; font-weight: 500;">Reviews:</p>
+${buildReviewListHtml(reviewStats.classic.reviews)}
+                </div>
+`;
+    }
+
+    htmlBody += `
+                <div style="margin-top: 16px; text-align: center;">
+                  <a href="${dashboardUrl}" style="color: #10b981; text-decoration: underline; font-size: 13px;">See past reviews on the dashboard</a>
+                </div>
+              </div>
+            </td>
+          </tr>
+`;
+  }
+
+  htmlBody += `
+
           <!-- Footer -->
           <tr>
             <td style="padding: 24px 32px; border-top: 1px solid #1f1f1f; background-color: #0a0a0a;">
@@ -399,34 +416,6 @@ ${isTest ? `
     textBody += `${week.curator_message}\n\n`;
   }
 
-  if (reviewStats) {
-    textBody += `=== ${reviewStats.prevWeekLabel} Results ===\n\n`;
-
-    if (reviewStats.contemporary.count > 0) {
-      textBody += `🔊 Contemporary: ${reviewStats.contemporary.avgRating}/10 (${reviewStats.contemporary.count} ${reviewStats.contemporary.count === 1 ? 'review' : 'reviews'})\n`;
-      if (reviewStats.contemporary.favoriteTracks.length > 0) {
-        textBody += `   Favorite tracks:\n`;
-        reviewStats.contemporary.favoriteTracks.forEach((ft: any) => {
-          textBody += `   • ${ft.track} – ${ft.name}\n`;
-        });
-      }
-      textBody += `\n`;
-    }
-
-    if (reviewStats.classic.count > 0) {
-      textBody += `💿 Classic: ${reviewStats.classic.avgRating}/10 (${reviewStats.classic.count} ${reviewStats.classic.count === 1 ? 'review' : 'reviews'})\n`;
-      if (reviewStats.classic.favoriteTracks.length > 0) {
-        textBody += `   Favorite tracks:\n`;
-        reviewStats.classic.favoriteTracks.forEach((ft: any) => {
-          textBody += `   • ${ft.track} – ${ft.name}\n`;
-        });
-      }
-      textBody += `\n`;
-    }
-
-    textBody += `---\n\n`;
-  }
-
   textBody += `Here are the picks for this week:\n\n`;
 
   if (week.contemporary_title) {
@@ -458,6 +447,36 @@ ${isTest ? `
     textBody += `Responses by: ${formatDeadline(week.response_deadline)}\n\n`;
   }
 
+  if (reviewStats) {
+    textBody += `Last week's albums\n\n`;
+
+    if (reviewStats.contemporary.count > 0) {
+      textBody += `${reviewStats.contemporary.albumLabel}: ${reviewStats.contemporary.avgRating || "N/A"}/10 (${reviewStats.contemporary.count} ${reviewStats.contemporary.count === 1 ? "review" : "reviews"})\n`;
+      if (reviewStats.contemporary.reviews.length > 0) {
+        reviewStats.contemporary.reviews.forEach((review) => {
+          textBody += `- "${review.reviewText}" — ${review.name}\n`;
+        });
+      } else {
+        textBody += `- No written reviews yet.\n`;
+      }
+      textBody += `\n`;
+    }
+
+    if (reviewStats.classic.count > 0) {
+      textBody += `${reviewStats.classic.albumLabel}: ${reviewStats.classic.avgRating || "N/A"}/10 (${reviewStats.classic.count} ${reviewStats.classic.count === 1 ? "review" : "reviews"})\n`;
+      if (reviewStats.classic.reviews.length > 0) {
+        reviewStats.classic.reviews.forEach((review) => {
+          textBody += `- "${review.reviewText}" — ${review.name}\n`;
+        });
+      } else {
+        textBody += `- No written reviews yet.\n`;
+      }
+      textBody += `\n`;
+    }
+
+    textBody += `See past reviews: ${dashboardUrl}\n\n`;
+  }
+
   textBody += `- Mike\n\n`;
   textBody += `---\n`;
   textBody += `Unsubscribe: ${unsubscribeUrl}`;
@@ -485,6 +504,7 @@ export function buildEmailContent(
     {
       firstName: participant.name.split(' ')[0],
       submitUrl: `${appUrl}/submit?email=${encodeURIComponent(participant.email)}`,
+      dashboardUrl: `${appUrl}/dashboard`,
       unsubscribeUrl: `${appUrl}/unsubscribe?token=${participant.unsubscribe_token}`,
       inviteUrl: `${appUrl}/invite-friend?ref=${participant.id}`,
     },
@@ -703,6 +723,7 @@ export function renderEmailTemplate(
   const replacements = {
     [EMAIL_TEMPLATE_PLACEHOLDERS.firstName]: participant.name.split(' ')[0],
     [EMAIL_TEMPLATE_PLACEHOLDERS.submitUrl]: `${appUrl}/submit?email=${encodeURIComponent(participant.email)}`,
+    [EMAIL_TEMPLATE_PLACEHOLDERS.dashboardUrl]: `${appUrl}/dashboard`,
     [EMAIL_TEMPLATE_PLACEHOLDERS.unsubscribeUrl]: `${appUrl}/unsubscribe?token=${participant.unsubscribe_token}`,
     [EMAIL_TEMPLATE_PLACEHOLDERS.inviteUrl]: `${appUrl}/invite-friend?ref=${participant.id}`,
   };
