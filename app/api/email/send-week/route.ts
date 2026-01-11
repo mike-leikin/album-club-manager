@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
         .from("reviews")
         .select(`
           *,
-          participant:participants(name)
+          participant:participants!reviews_participant_id_fkey(name)
         `)
         .eq("week_number", prevWeek)
         .eq("moderation_status", "approved");

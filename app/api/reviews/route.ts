@@ -43,7 +43,7 @@ export async function GET(request: Request) {
       .select(
         `
         *,
-        participant:participants(*)
+        participant:participants!reviews_participant_id_fkey(*)
       `
       )
       .eq("week_number", parseInt(weekNumber))

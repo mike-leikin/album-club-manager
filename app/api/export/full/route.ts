@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
         .from("reviews")
         .select(`
           *,
-          participant:participants(name, email)
+          participant:participants!reviews_participant_id_fkey(name, email)
         `)
         .order("week_number"),
       supabase.from("rs_500_albums").select("*").order("rank"),

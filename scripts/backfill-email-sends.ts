@@ -88,7 +88,7 @@ const buildReviewStats = async (
 
   const { data: stats } = await supabase
     .from('reviews')
-    .select('*, participant:participants(name)')
+    .select('*, participant:participants!reviews_participant_id_fkey(name)')
     .eq('week_number', prevWeek)
     .eq('moderation_status', 'approved');
 

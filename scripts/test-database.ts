@@ -94,7 +94,7 @@ async function testDatabase() {
     .from('reviews')
     .select(`
       *,
-      participant:participants(*)
+      participant:participants!reviews_participant_id_fkey(*)
     `)
     .limit(3);
 
