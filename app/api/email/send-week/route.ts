@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
     let reviewStats: ReviewStats | null = null;
     const prevWeek = weekNumber - 1;
     if (prevWeek > 0) {
-      const { data: stats } = await supabase
+      const { data: stats, error: statsError } = await supabase
         .from("reviews")
         .select(`
           *,
@@ -98,6 +98,14 @@ export async function POST(request: NextRequest) {
         `)
         .eq("week_number", prevWeek)
         .eq("moderation_status", "approved");
+
+      if (statsError) {
+        logger.warn("Failed to load previous week review stats", {
+          weekNumber,
+          requestId,
+          error: statsError.message,
+        });
+      }
 
       if (stats && stats.length > 0) {
         let prevWeekLabel = `Week ${prevWeek}`;
@@ -111,31 +119,34 @@ export async function POST(request: NextRequest) {
         }
 
         // Calculate stats
-        const contempReviews = stats.filter((r: any) => r.contemporary_rating !== null);
-        const classicReviews = stats.filter((r: any) => r.classic_rating !== null);
+        const contempReviews = stats.filter((r: any) => r.album_type === "contemporary");
+        const classicReviews = stats.filter((r: any) => r.album_type === "classic");
+
+        const buildFavoriteTracks = (reviews: any[]) =>
+          reviews
+            .filter((r: any) => r.favorite_track)
+            .map((r: any) => ({
+              track: r.favorite_track,
+              name: r.participant?.name ?? "Unknown",
+            }))
+            .slice(0, 3);
 
         reviewStats = {
           prevWeek,
           prevWeekLabel,
           contemporary: {
             avgRating: contempReviews.length > 0
-              ? (contempReviews.reduce((sum: number, r: any) => sum + r.contemporary_rating, 0) / contempReviews.length).toFixed(1)
+              ? (contempReviews.reduce((sum: number, r: any) => sum + Number(r.rating), 0) / contempReviews.length).toFixed(1)
               : null,
             count: contempReviews.length,
-            favoriteTracks: contempReviews
-              .filter((r: any) => r.contemporary_favorite_track)
-              .map((r: any) => ({ track: r.contemporary_favorite_track, name: r.participant.name }))
-              .slice(0, 3),
+            favoriteTracks: buildFavoriteTracks(contempReviews),
           },
           classic: {
             avgRating: classicReviews.length > 0
-              ? (classicReviews.reduce((sum: number, r: any) => sum + r.classic_rating, 0) / classicReviews.length).toFixed(1)
+              ? (classicReviews.reduce((sum: number, r: any) => sum + Number(r.rating), 0) / classicReviews.length).toFixed(1)
               : null,
             count: classicReviews.length,
-            favoriteTracks: classicReviews
-              .filter((r: any) => r.classic_favorite_track)
-              .map((r: any) => ({ track: r.classic_favorite_track, name: r.participant.name }))
-              .slice(0, 3),
+            favoriteTracks: buildFavoriteTracks(classicReviews),
           },
         };
       }
