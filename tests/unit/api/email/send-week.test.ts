@@ -264,10 +264,15 @@ describe('POST /api/email/send-week', () => {
     it('includes previous week stats in email when available', async () => {
       const mockPreviousWeekReviews = [
         {
-          contemporary_rating: 8.5,
-          contemporary_favorite_track: 'Song 1',
-          classic_rating: 7.0,
-          classic_favorite_track: 'Classic Song',
+          album_type: 'contemporary',
+          rating: 8.5,
+          favorite_track: 'Song 1',
+          participant: { name: 'John Doe' },
+        },
+        {
+          album_type: 'classic',
+          rating: 7.0,
+          favorite_track: 'Classic Song',
           participant: { name: 'John Doe' },
         },
       ]
