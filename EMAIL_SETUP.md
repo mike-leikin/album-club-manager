@@ -72,6 +72,7 @@ When participants reply to weekly album emails, their responses will be routed t
 This setting is applied to both:
 - Weekly album announcement emails
 - Email retry attempts (if needed)
+- Review submission confirmation emails (transactional)
 
 ## How to Use
 
@@ -91,6 +92,10 @@ Each participant gets a personalized email with:
 - This week's album details with Spotify links
 - **Personalized review link** with their email pre-filled
 - Response deadline
+
+### Transactional Emails
+
+Review submission confirmation emails are sent to anyone who submits, regardless of subscription preferences. They include the submitted review details and a link to `/dashboard`. These messages do not include an unsubscribe link.
 
 ### Example Email
 

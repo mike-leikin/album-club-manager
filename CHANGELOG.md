@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.13.9] - 2026-01-07
+
+### Review Submissions
+
+- Added transactional review confirmation emails with full review details, moderation status, and a dashboard link
+- Logged confirmation send attempts without blocking successful submissions
+- Updated submission success messaging to mention the confirmation email
+
+---
+
+## [2.13.8] - 2026-01-07
+
+### Review Submissions
+
+- Improved past-deadline notice contrast on the submit page and linked to browse reviews
+
+---
+
 ## [2.13.7] - 2026-01-07
 
 ### Review Submissions

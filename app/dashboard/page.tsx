@@ -212,7 +212,7 @@ export default function DashboardPage() {
         throw new Error("Failed to submit review");
       }
 
-      toast.success("Review submitted successfully");
+      toast.success("Review submitted successfully. Confirmation email sent.");
       cancelForm();
       await loadReviews();
     } catch (error) {

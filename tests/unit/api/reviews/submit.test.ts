@@ -1,11 +1,31 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { createMockParticipant } from '@/tests/mocks/factories/participantFactory'
 import { createMockReview } from '@/tests/mocks/factories/reviewFactory'
+import { createMockWeek } from '@/tests/mocks/factories/weekFactory'
 
 // Mock the Supabase client module
 vi.mock('@/lib/supabaseClient', () => ({
   createServerClient: vi.fn(),
 }))
+
+vi.mock('@sentry/nextjs', () => ({
+  captureException: vi.fn(),
+}))
+
+const mockEmailContainer = {
+  send: vi.fn(),
+}
+
+vi.mock('resend', () => {
+  const MockResend = class {
+    get emails() {
+      return mockEmailContainer
+    }
+  }
+  return {
+    Resend: MockResend,
+  }
+})
 
 // Import after mocking
 import { POST } from '@/app/api/reviews/submit/route'
@@ -17,6 +37,7 @@ const mockCreateServerClient = vi.mocked(createServerClient)
 describe('POST /api/reviews/submit', () => {
   let mockSupabase: any
   let mockParticipant: ReturnType<typeof createMockParticipant>
+  let mockWeek: ReturnType<typeof createMockWeek>
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -27,6 +48,18 @@ describe('POST /api/reviews/submit', () => {
       name: 'Test User',
       email: 'test@example.com',
     })
+
+    mockWeek = createMockWeek({
+      week_number: 1,
+      contemporary_title: 'Test Album',
+      contemporary_artist: 'Test Artist',
+      contemporary_year: '2024',
+      classic_title: 'Classic Album',
+      classic_artist: 'Classic Artist',
+      classic_year: '1975',
+    })
+
+    mockEmailContainer.send.mockResolvedValue({ data: { id: 'resend-1' } })
 
     // Create mock Supabase client with proper chaining
     // The trick: all methods return the mock object for chaining,
@@ -47,10 +80,19 @@ describe('POST /api/reviews/submit', () => {
   describe('Successful submissions', () => {
     it('submits review for contemporary album only', async () => {
       // First call: participant lookup chain
-      mockSupabase.single.mockResolvedValueOnce({
-        data: { id: mockParticipant.id },
-        error: null,
-      })
+      mockSupabase.single
+        .mockResolvedValueOnce({
+          data: {
+            id: mockParticipant.id,
+            name: mockParticipant.name,
+            email: mockParticipant.email,
+          },
+          error: null,
+        })
+        .mockResolvedValueOnce({
+          data: mockWeek,
+          error: null,
+        })
 
       // Second call: insert operation - the SECOND .select() call should resolve
       const mockReview = createMockReview({
@@ -93,13 +135,38 @@ describe('POST /api/reviews/submit', () => {
       expect(data.message).toBe('Successfully submitted 1 review(s)')
       expect(data.data).toHaveLength(1)
       expect(data.data[0].album_type).toBe('contemporary')
+      expect(mockEmailContainer.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          to: 'test@example.com',
+          subject: expect.stringContaining('Review Confirmation'),
+        })
+      )
     })
 
     it('submits review for classic album only', async () => {
-      mockSupabase.single.mockResolvedValueOnce({
-        data: { id: mockParticipant.id },
-        error: null,
+      const weekData = createMockWeek({
+        week_number: 2,
+        contemporary_title: 'Test Album',
+        contemporary_artist: 'Test Artist',
+        contemporary_year: '2024',
+        classic_title: 'Classic Album',
+        classic_artist: 'Classic Artist',
+        classic_year: '1975',
       })
+
+      mockSupabase.single
+        .mockResolvedValueOnce({
+          data: {
+            id: mockParticipant.id,
+            name: mockParticipant.name,
+            email: mockParticipant.email,
+          },
+          error: null,
+        })
+        .mockResolvedValueOnce({
+          data: weekData,
+          error: null,
+        })
 
       const mockReview = createMockReview({
         id: 'new-review-2',
@@ -142,10 +209,29 @@ describe('POST /api/reviews/submit', () => {
     })
 
     it('submits both contemporary and classic reviews', async () => {
-      mockSupabase.single.mockResolvedValueOnce({
-        data: { id: mockParticipant.id },
-        error: null,
+      const weekData = createMockWeek({
+        week_number: 3,
+        contemporary_title: 'Test Album',
+        contemporary_artist: 'Test Artist',
+        contemporary_year: '2024',
+        classic_title: 'Classic Album',
+        classic_artist: 'Classic Artist',
+        classic_year: '1975',
       })
+
+      mockSupabase.single
+        .mockResolvedValueOnce({
+          data: {
+            id: mockParticipant.id,
+            name: mockParticipant.name,
+            email: mockParticipant.email,
+          },
+          error: null,
+        })
+        .mockResolvedValueOnce({
+          data: weekData,
+          error: null,
+        })
 
       const mockReviews = [
         createMockReview({
@@ -199,10 +285,19 @@ describe('POST /api/reviews/submit', () => {
     })
 
     it('handles optional fields (favorite_track, review_text)', async () => {
-      mockSupabase.single.mockResolvedValueOnce({
-        data: { id: mockParticipant.id },
-        error: null,
-      })
+      mockSupabase.single
+        .mockResolvedValueOnce({
+          data: {
+            id: mockParticipant.id,
+            name: mockParticipant.name,
+            email: mockParticipant.email,
+          },
+          error: null,
+        })
+        .mockResolvedValueOnce({
+          data: mockWeek,
+          error: null,
+        })
 
       const mockReview = createMockReview({
         id: 'new-review-5',
@@ -241,10 +336,19 @@ describe('POST /api/reviews/submit', () => {
     })
 
     it('trims whitespace from email and text fields', async () => {
-      mockSupabase.single.mockResolvedValueOnce({
-        data: { id: mockParticipant.id },
-        error: null,
-      })
+      mockSupabase.single
+        .mockResolvedValueOnce({
+          data: {
+            id: mockParticipant.id,
+            name: mockParticipant.name,
+            email: mockParticipant.email,
+          },
+          error: null,
+        })
+        .mockResolvedValueOnce({
+          data: mockWeek,
+          error: null,
+        })
 
       const mockReview = createMockReview({
         id: 'new-review-6',
@@ -507,16 +611,26 @@ describe('POST /api/reviews/submit', () => {
   describe('Error handling', () => {
     it('creates a participant when email is not registered', async () => {
       // Mock participant lookup with no results
-      mockSupabase.single.mockResolvedValueOnce({
-        data: null,
-        error: { message: 'Not found' },
-      })
+      mockSupabase.single
+        .mockResolvedValueOnce({
+          data: null,
+          error: { message: 'Not found' },
+        })
+        .mockResolvedValueOnce({
+          data: {
+            id: 'new-participant-id',
+            name: 'New Participant',
+            email: 'nonexistent@example.com',
+          },
+          error: null,
+        })
+        .mockResolvedValueOnce({
+          data: mockWeek,
+          error: null,
+        })
 
       // Mock participant creation
-      mockSupabase.single.mockResolvedValueOnce({
-        data: { id: 'new-participant-id' },
-        error: null,
-      })
+      // Note: week fetch handled above
 
       const mockReview = createMockReview({
         id: 'new-review-6',
@@ -560,10 +674,19 @@ describe('POST /api/reviews/submit', () => {
     })
 
     it('deletes existing reviews before inserting (upsert behavior)', async () => {
-      mockSupabase.single.mockResolvedValueOnce({
-        data: { id: mockParticipant.id },
-        error: null,
-      })
+      mockSupabase.single
+        .mockResolvedValueOnce({
+          data: {
+            id: mockParticipant.id,
+            name: mockParticipant.name,
+            email: mockParticipant.email,
+          },
+          error: null,
+        })
+        .mockResolvedValueOnce({
+          data: mockWeek,
+          error: null,
+        })
 
       const mockReview = createMockReview({
         id: 'new-review-7',
@@ -598,6 +721,59 @@ describe('POST /api/reviews/submit', () => {
       // Verify delete was called
       expect(mockSupabase.from).toHaveBeenCalledWith('reviews')
       expect(mockSupabase.delete).toHaveBeenCalled()
+    })
+
+    it('returns success even if confirmation email fails to send', async () => {
+      mockSupabase.single
+        .mockResolvedValueOnce({
+          data: {
+            id: mockParticipant.id,
+            name: mockParticipant.name,
+            email: mockParticipant.email,
+          },
+          error: null,
+        })
+        .mockResolvedValueOnce({
+          data: mockWeek,
+          error: null,
+        })
+
+      const mockReview = createMockReview({
+        id: 'new-review-8',
+        week_number: 1,
+        participant_id: mockParticipant.id,
+        album_type: 'contemporary',
+        rating: 8.0,
+      })
+
+      mockSupabase.select
+        .mockReturnValueOnce(mockSupabase)
+        .mockResolvedValueOnce({
+          data: [mockReview],
+          error: null,
+        })
+
+      mockEmailContainer.send.mockRejectedValueOnce(new Error('Resend down'))
+
+      const request = new Request('http://localhost/api/reviews/submit', {
+        method: 'POST',
+        body: JSON.stringify({
+          week_number: 1,
+          participant_email: 'test@example.com',
+          contemporary: {
+            rating: 8.0,
+          },
+        }),
+      })
+
+      const response = await POST(request)
+      const data = await response.json()
+
+      expect(response.status).toBe(200)
+      expect(data.success).toBe(true)
+      expect(mockSupabase.insert).toHaveBeenCalledWith(
+        expect.objectContaining({ status: 'failed' })
+      )
     })
 
     it('returns 500 when database insert fails', async () => {

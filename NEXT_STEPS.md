@@ -63,7 +63,13 @@
    - Rate-limited sends with audit trail (`email_sends`, `email_send_recipients`, `email_logs`)
    - **See:** `docs/review-reminder-email-requirements.md`
 
-4. **Deadline Enforcement & Week Lifecycle** ✅ COMPLETE (v2.3)
+4. **Review Submission Confirmation Email** ✅ COMPLETE (v2.13.9)
+   - ✅ Transactional confirmation sent to all submitters
+   - ✅ Includes full review details, moderation status, and `/dashboard` link
+   - ✅ Email failures do not block submission; send attempts logged
+   - **See:** `docs/review-confirmation-email-requirements.md`
+
+5. **Deadline Enforcement & Week Lifecycle** ✅ COMPLETE (v2.3)
    - ✅ Participants can view and review all weeks (current and previous) (v2.3 COMPLETE)
    - ✅ Past deadline warnings (non-blocking, informative) (v2.3 COMPLETE)
    - ✅ Current week clearly distinguished from previous weeks (v2.3 COMPLETE)

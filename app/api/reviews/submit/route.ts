@@ -1,5 +1,14 @@
 import { NextResponse } from "next/server";
+import { Resend } from "resend";
+import * as Sentry from "@sentry/nextjs";
 import { createServerClient } from "@/lib/supabaseClient";
+import {
+  buildReviewConfirmationEmail,
+  type ReviewConfirmationReview,
+  type WeekData,
+} from "@/lib/email/emailBuilder";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 type ReviewSubmission = {
   week_number: number;
@@ -60,30 +69,32 @@ export async function POST(request: Request) {
     }
 
     const normalizedEmail = body.participant_email.trim().toLowerCase();
+    const derivedName = deriveParticipantName(normalizedEmail);
 
     // Find or create participant by email
     const { data: participant, error: participantError } = await supabase
       .from("participants")
-      .select("id")
+      .select("id, name, email")
       .eq("email", normalizedEmail)
       .single();
 
     let participantId = participant?.id;
+    let participantName = participant?.name?.trim() || derivedName;
 
     if (!participantId) {
       const { data: createdParticipant, error: createError } = await supabase
         .from("participants")
         .insert({
           email: normalizedEmail,
-          name: deriveParticipantName(normalizedEmail),
+          name: participantName,
         })
-        .select("id")
+        .select("id, name, email")
         .single();
 
       if (createError || !createdParticipant) {
         const { data: existingParticipant } = await supabase
           .from("participants")
-          .select("id")
+          .select("id, name, email")
           .eq("email", normalizedEmail)
           .single();
 
@@ -92,12 +103,22 @@ export async function POST(request: Request) {
         }
 
         participantId = existingParticipant.id;
+        participantName = existingParticipant.name?.trim() || participantName;
       } else {
         participantId = createdParticipant.id;
+        participantName = createdParticipant.name?.trim() || participantName;
       }
     }
 
-    const reviewsToInsert = [];
+    const reviewsToInsert: Array<{
+      week_number: number;
+      participant_id: string;
+      album_type: "contemporary" | "classic";
+      rating: number;
+      favorite_track: string | null;
+      review_text: string | null;
+      moderation_status: string;
+    }> = [];
 
     // Prepare contemporary review
     if (body.contemporary?.rating) {
@@ -136,7 +157,7 @@ export async function POST(request: Request) {
         rating: body.contemporary.rating,
         favorite_track: body.contemporary.favorite_track?.trim() || null,
         review_text: contemporaryReviewText || null,
-        moderation_status: 'pending',
+        moderation_status: "pending",
       });
     }
 
@@ -174,7 +195,7 @@ export async function POST(request: Request) {
         rating: body.classic.rating,
         favorite_track: body.classic.favorite_track?.trim() || null,
         review_text: classicReviewText || null,
-        moderation_status: 'pending',
+        moderation_status: "pending",
       });
     }
 
@@ -186,6 +207,89 @@ export async function POST(request: Request) {
 
     if (error) {
       throw error;
+    }
+
+    const logEmailAttempt = async (
+      status: "sent" | "failed",
+      resendId?: string,
+      errorMessage?: string
+    ) => {
+      try {
+        await supabase.from("email_logs").insert({
+          week_number: body.week_number,
+          participant_id: participantId,
+          participant_email: normalizedEmail,
+          status,
+          resend_id: resendId,
+          error_message: errorMessage,
+        });
+      } catch (logError) {
+        console.error("Failed to log review confirmation email attempt", logError);
+      }
+    };
+
+    const confirmationReviews: ReviewConfirmationReview[] = (
+      (data || reviewsToInsert) as Array<{
+        album_type: "contemporary" | "classic";
+        rating: number;
+        favorite_track: string | null;
+        review_text: string | null;
+        moderation_status?: string | null;
+      }>
+    ).map((review) => ({
+      albumType: review.album_type,
+      rating: review.rating,
+      favoriteTrack: review.favorite_track,
+      reviewText: review.review_text,
+      moderationStatus: review.moderation_status ?? "pending",
+    }));
+
+    let weekData: WeekData = { week_number: body.week_number };
+    const { data: week, error: weekError } = await supabase
+      .from("weeks")
+      .select(
+        "week_number, created_at, contemporary_title, contemporary_artist, contemporary_year, classic_title, classic_artist, classic_year"
+      )
+      .eq("week_number", body.week_number)
+      .single();
+
+    if (weekError) {
+      console.error("Failed to load week data for confirmation email", weekError);
+      Sentry.captureException(weekError, {
+        tags: { endpoint: "/api/reviews/submit", action: "review_confirmation_week_fetch" },
+        extra: { weekNumber: body.week_number },
+      });
+    } else if (week) {
+      weekData = week;
+    }
+
+    try {
+      const emailContent = buildReviewConfirmationEmail(
+        weekData,
+        { email: normalizedEmail, name: participantName },
+        confirmationReviews
+      );
+      const result = await resend.emails.send({
+        from:
+          process.env.RESEND_FROM_EMAIL ||
+          "Album Club <onboarding@resend.dev>",
+        replyTo: process.env.RESEND_REPLY_TO_EMAIL,
+        to: normalizedEmail,
+        subject: emailContent.subject,
+        html: emailContent.htmlBody,
+        text: emailContent.textBody,
+      });
+
+      await logEmailAttempt("sent", result.data?.id);
+    } catch (emailError) {
+      const errorMessage =
+        emailError instanceof Error ? emailError.message : "Unknown error";
+      await logEmailAttempt("failed", undefined, errorMessage);
+      console.error("Review confirmation email send failed", emailError);
+      Sentry.captureException(emailError, {
+        tags: { endpoint: "/api/reviews/submit", action: "review_confirmation_email" },
+        extra: { participantEmail: normalizedEmail, weekNumber: body.week_number },
+      });
     }
 
     return NextResponse.json({

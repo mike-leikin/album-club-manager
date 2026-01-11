@@ -147,7 +147,9 @@ export default function SubmitPage() {
         localStorage.setItem("albumClubEmail", email.trim());
       }
 
-      toast.success("Reviews submitted successfully! Thank you for your feedback.");
+      toast.success(
+        "Reviews submitted successfully! A confirmation email is on its way."
+      );
 
       // Check if user is authenticated
       const supabase = createAuthClient();
@@ -214,15 +216,22 @@ export default function SubmitPage() {
             </div>
 
             {isPastDeadline && (
-              <div className="mb-6 rounded-lg border border-amber-500/50 bg-amber-900/20 p-4">
+              <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-900">
                 <div className="flex items-start gap-3">
-                  <span className="text-amber-500 text-xl">⚠️</span>
+                  <span className="text-amber-600 text-xl">⚠️</span>
                   <div>
-                    <p className="text-amber-200 font-medium">
-                      This week's deadline has passed
+                    <p className="font-medium">
+                      This week&apos;s deadline has passed, but submissions are still open.
                     </p>
-                    <p className="text-amber-300/80 text-sm mt-1">
-                      You can still submit your review, but it's past the original deadline.
+                    <p className="text-amber-800 text-sm mt-1">
+                      You can still submit your review. Want to read others?{" "}
+                      <a
+                        href="/reviews"
+                        className="font-medium underline underline-offset-2 hover:text-amber-900"
+                      >
+                        Browse reviews
+                      </a>
+                      .
                     </p>
                   </div>
                 </div>

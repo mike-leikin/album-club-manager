@@ -19,6 +19,7 @@ Album Club Manager streamlines the process of running a weekly music club where 
 ### 📧 Automated Email System
 - **Test Email Preview**: Send test email to yourself before sending to all participants (v2.12)
 - **Email History & Resends**: Preview prior sends and resend to selected participants (v2.13)
+- **Review Confirmation Emails**: Transactional confirmation with full review details after submission
 - **One-Click Email Sending**: Send personalized emails to all participants from the admin dashboard
 - **Professional HTML Templates**: Beautiful, responsive email design with album artwork
 - **Curator Messages**: Add optional personal notes to weekly emails (3000 character limit)
@@ -373,6 +374,22 @@ For production deployment with custom email domain:
 3. Configure DNS records (SPF, DKIM, MX)
 4. Update environment variables with your domain
 5. Redeploy on Vercel
+
+## Deployment
+
+Production deploys are handled by Vercel on pushes to `main`.
+
+1. Commit your changes.
+2. Push to `origin/main`:
+```bash
+git push origin main
+```
+3. Vercel will build and deploy automatically.
+
+If you need a manual production deploy, use the Vercel CLI:
+```bash
+vercel --prod
+```
 
 ## Performance Metrics
 

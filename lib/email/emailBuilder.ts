@@ -44,6 +44,19 @@ export interface Participant {
   unsubscribe_token: string;
 }
 
+export interface ReviewConfirmationRecipient {
+  email: string;
+  name: string;
+}
+
+export interface ReviewConfirmationReview {
+  albumType: "contemporary" | "classic";
+  rating: number;
+  favoriteTrack?: string | null;
+  reviewText?: string | null;
+  moderationStatus?: string | null;
+}
+
 type EmailPersonalization = {
   firstName: string;
   submitUrl: string;
@@ -57,6 +70,14 @@ const EMAIL_TEMPLATE_PLACEHOLDERS: EmailPersonalization = {
   unsubscribeUrl: "{{unsubscribe_url}}",
   inviteUrl: "{{invite_url}}",
 };
+
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 
 const formatWeekLabel = (
   dateStr: string | null | undefined,
@@ -470,6 +491,185 @@ export function buildEmailContent(
     reviewStats,
     isTest
   );
+}
+
+export function buildReviewConfirmationEmail(
+  week: WeekData,
+  recipient: ReviewConfirmationRecipient,
+  reviews: ReviewConfirmationReview[]
+): EmailContent {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const weekLabel = formatWeekLabel(week.created_at, week.week_number);
+  const firstName = recipient.name.split(" ")[0] || recipient.name || "there";
+  const safeFirstName = escapeHtml(firstName);
+  const dashboardUrl = `${appUrl}/dashboard`;
+
+  const formatModerationStatus = (status?: string | null) => {
+    if (!status) return "Pending approval";
+    switch (status) {
+      case "approved":
+        return "Approved";
+      case "hidden":
+        return "Hidden";
+      case "pending":
+      default:
+        return "Pending approval";
+    }
+  };
+
+  const buildAlbumDetails = (
+    title?: string | null,
+    artist?: string | null,
+    year?: string | null
+  ) => {
+    const parts = [title, artist].filter(Boolean) as string[];
+    let details = parts.join(" - ");
+    if (year) {
+      details = details ? `${details} (${year})` : year;
+    }
+    return details || "Album details unavailable";
+  };
+
+  let htmlBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Album Club – ${weekLabel} Review Confirmation</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #000000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #000000;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #0a0a0a; border: 1px solid #1f1f1f; border-radius: 16px; overflow: hidden;">
+          <tr>
+            <td style="padding: 32px; background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%); border-bottom: 1px solid #1f1f1f;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 26px; font-weight: 700; letter-spacing: -0.5px;">Album Club</h1>
+              <p style="margin: 8px 0 0; color: #a1a1a1; font-size: 15px;">Review Confirmation – ${weekLabel}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 24px 32px 16px;">
+              <p style="margin: 0 0 12px; color: #e5e5e5; font-size: 16px; line-height: 1.5;">Hi ${safeFirstName},</p>
+              <p style="margin: 0; color: #d4d4d4; font-size: 14px; line-height: 1.6;">Thanks for submitting your review. Here is what we received.</p>
+            </td>
+          </tr>
+`;
+
+  reviews.forEach((review) => {
+    const albumLabel =
+      review.albumType === "contemporary" ? "Contemporary" : "Classic";
+    const albumDetails =
+      review.albumType === "contemporary"
+        ? buildAlbumDetails(
+            week.contemporary_title,
+            week.contemporary_artist,
+            week.contemporary_year
+          )
+        : buildAlbumDetails(
+            week.classic_title,
+            week.classic_artist,
+            week.classic_year
+          );
+    const favoriteTrack = review.favoriteTrack?.trim();
+    const reviewText = review.reviewText?.trim();
+    const moderationStatus = formatModerationStatus(review.moderationStatus);
+    const safeAlbumDetails = escapeHtml(albumDetails);
+    const safeFavoriteTrack = favoriteTrack ? escapeHtml(favoriteTrack) : null;
+    const safeReviewText = reviewText ? escapeHtml(reviewText) : null;
+
+    htmlBody += `
+          <tr>
+            <td style="padding: 0 32px 16px;">
+              <div style="background-color: #111111; border: 1px solid #1f1f1f; border-radius: 12px; padding: 16px;">
+                <h3 style="margin: 0 0 8px; color: #ffffff; font-size: 18px; font-weight: 600;">${albumLabel}</h3>
+                <p style="margin: 0 0 8px; color: #d4d4d4; font-size: 14px;"><strong>${safeAlbumDetails}</strong></p>
+                <p style="margin: 0 0 6px; color: #a1a1a1; font-size: 14px;">Rating: <span style="color: #10b981; font-weight: 600;">${review.rating}/10</span></p>
+                ${
+                  safeFavoriteTrack
+                    ? `<p style="margin: 0 0 6px; color: #a1a1a1; font-size: 14px;">Favorite track: ${safeFavoriteTrack}</p>`
+                    : ""
+                }
+                <p style="margin: 8px 0 6px; color: #a1a1a1; font-size: 13px;">Review:</p>
+                <div style="background-color: #0a0a0a; border: 1px solid #1f1f1f; border-radius: 8px; padding: 12px;">
+                  <p style="margin: 0; color: #e5e5e5; font-size: 14px; line-height: 1.5; white-space: pre-wrap;">${safeReviewText || "No review text submitted."}</p>
+                </div>
+                <p style="margin: 10px 0 0; color: #a1a1a1; font-size: 13px;">Status: ${moderationStatus}</p>
+              </div>
+            </td>
+          </tr>
+`;
+  });
+
+  htmlBody += `
+          <tr>
+            <td style="padding: 8px 32px 24px;">
+              <p style="margin: 0 0 12px; color: #d4d4d4; font-size: 14px; line-height: 1.6;">You can view or edit your submission on your dashboard anytime, even while it is pending or hidden.</p>
+              <a href="${dashboardUrl}" style="display: inline-block; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 12px 18px; border-radius: 8px; font-size: 14px; font-weight: 600;">Open Dashboard</a>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 24px 32px; border-top: 1px solid #1f1f1f;">
+              <p style="margin: 0; color: #737373; font-size: 12px;">Album Club</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`;
+
+  const textLines: string[] = [
+    `Album Club - ${weekLabel} Review Confirmation`,
+    "",
+    `Hi ${firstName},`,
+    "Thanks for submitting your review. Here is what we received.",
+    "",
+  ];
+
+  reviews.forEach((review) => {
+    const albumLabel =
+      review.albumType === "contemporary" ? "Contemporary" : "Classic";
+    const albumDetails =
+      review.albumType === "contemporary"
+        ? buildAlbumDetails(
+            week.contemporary_title,
+            week.contemporary_artist,
+            week.contemporary_year
+          )
+        : buildAlbumDetails(
+            week.classic_title,
+            week.classic_artist,
+            week.classic_year
+          );
+    const favoriteTrack = review.favoriteTrack?.trim();
+    const reviewText = review.reviewText?.trim();
+    const moderationStatus = formatModerationStatus(review.moderationStatus);
+
+    textLines.push(albumLabel);
+    textLines.push(`Album: ${albumDetails}`);
+    textLines.push(`Rating: ${review.rating}/10`);
+    if (favoriteTrack) {
+      textLines.push(`Favorite track: ${favoriteTrack}`);
+    }
+    textLines.push(`Review: ${reviewText || "No review text submitted."}`);
+    textLines.push(`Status: ${moderationStatus}`);
+    textLines.push("");
+  });
+
+  textLines.push(`View or edit your submission: ${dashboardUrl}`);
+  textLines.push(
+    "You can view your submission on the dashboard even while it is pending or hidden."
+  );
+
+  return {
+    htmlBody,
+    textBody: textLines.join("\n"),
+    subject: `Album Club – ${weekLabel} Review Confirmation`,
+  };
 }
 
 export function buildWeeklyEmailTemplate(
