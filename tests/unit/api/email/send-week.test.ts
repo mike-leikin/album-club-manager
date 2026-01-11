@@ -21,6 +21,17 @@ vi.mock('@/lib/logger', () => ({
 
 vi.mock('@sentry/nextjs', () => ({
   captureException: vi.fn(),
+  captureMessage: vi.fn(),
+  withScope: vi.fn((callback) =>
+    callback({
+      setLevel: vi.fn(),
+      setContext: vi.fn(),
+      setUser: vi.fn(),
+      setTag: vi.fn(),
+    })
+  ),
+  setUser: vi.fn(),
+  addBreadcrumb: vi.fn(),
 }))
 
 // Create a container for the mock that can be accessed in tests

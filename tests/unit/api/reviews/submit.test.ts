@@ -10,6 +10,17 @@ vi.mock('@/lib/supabaseClient', () => ({
 
 vi.mock('@sentry/nextjs', () => ({
   captureException: vi.fn(),
+  captureMessage: vi.fn(),
+  withScope: vi.fn((callback) =>
+    callback({
+      setLevel: vi.fn(),
+      setContext: vi.fn(),
+      setUser: vi.fn(),
+      setTag: vi.fn(),
+    })
+  ),
+  setUser: vi.fn(),
+  addBreadcrumb: vi.fn(),
 }))
 
 const mockEmailContainer = {
