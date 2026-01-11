@@ -206,6 +206,8 @@ export async function POST(request: Request) {
 
     const derivedName = deriveParticipantName(normalizedEmail);
 
+    const weekNumber = body.week_number;
+
     // Find or create participant by email
     const { data: participant, error: participantError } = await supabase
       .from("participants")
@@ -382,7 +384,7 @@ export async function POST(request: Request) {
     ) => {
       try {
         await supabase.from("email_logs").insert({
-          week_number: body.week_number,
+          week_number: weekNumber,
           participant_id: participantId,
           participant_email: normalizedEmail,
           status,
@@ -410,13 +412,13 @@ export async function POST(request: Request) {
       moderationStatus: review.moderation_status ?? "pending",
     }));
 
-    let weekData: WeekData = { week_number: body.week_number };
+    let weekData: WeekData = { week_number: weekNumber };
     const { data: week, error: weekError } = await supabase
       .from("weeks")
       .select(
         "week_number, created_at, contemporary_title, contemporary_artist, contemporary_year, classic_title, classic_artist, classic_year"
       )
-      .eq("week_number", body.week_number)
+      .eq("week_number", weekNumber)
       .single();
 
     if (weekError) {
