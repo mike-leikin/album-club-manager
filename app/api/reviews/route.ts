@@ -51,6 +51,16 @@ export async function GET(request: Request) {
       .order("created_at", { ascending: false });
 
     if (reviewsError) {
+      console.error("reviews_api.fetch_failed", {
+        week_number: weekNumber,
+        supabase_url_set: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL),
+        anon_key_set: Boolean(process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
+        service_key_set: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
+        error_message: reviewsError.message,
+        error_code: reviewsError.code,
+        error_details: reviewsError.details,
+        error_hint: reviewsError.hint,
+      });
       throw reviewsError;
     }
 
