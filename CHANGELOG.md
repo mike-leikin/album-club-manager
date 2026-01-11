@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.13.10] - 2026-01-11
+
+### Review Submissions
+
+- Added request IDs to `/api/reviews/submit` responses and `X-Request-Id` header
+- Added structured logging for submission lifecycle events and failures
+- Persisted failed submissions in `review_submission_logs` with metadata-only payloads
+- Added database migration for `review_submission_logs`
+
+---
+
 ## [2.13.9] - 2026-01-07
 
 ### Review Submissions

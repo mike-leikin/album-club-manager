@@ -131,8 +131,10 @@ describe('POST /api/reviews/submit', () => {
       const data = await response.json()
 
       expect(response.status).toBe(200)
+      expect(response.headers.get('X-Request-Id')).toBe('test-uuid-1234')
       expect(data.success).toBe(true)
       expect(data.message).toBe('Successfully submitted 1 review(s)')
+      expect(data.request_id).toBe('test-uuid-1234')
       expect(data.data).toHaveLength(1)
       expect(data.data[0].album_type).toBe('contemporary')
       expect(mockEmailContainer.send).toHaveBeenCalledWith(
@@ -403,7 +405,10 @@ describe('POST /api/reviews/submit', () => {
       const data = await response.json()
 
       expect(response.status).toBe(400)
+      expect(response.headers.get('X-Request-Id')).toBe('test-uuid-1234')
       expect(data.error).toBe('Valid week number is required')
+      expect(data.request_id).toBe('test-uuid-1234')
+      expect(mockSupabase.from).toHaveBeenCalledWith('review_submission_logs')
     })
 
     it('returns 400 when week_number is less than 1', async () => {
