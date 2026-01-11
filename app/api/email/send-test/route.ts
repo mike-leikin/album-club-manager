@@ -141,35 +141,78 @@ export async function POST(request: NextRequest) {
           prevWeekLabel = formatWeekLabel(prevWeekData.created_at, prevWeek);
         }
 
-        // Calculate stats
-        const contempReviews = stats.filter((r: any) => r.album_type === "contemporary");
-        const classicReviews = stats.filter((r: any) => r.album_type === "classic");
+        // Calculate stats (supports current and legacy review schemas)
+        const contempRatings: number[] = [];
+        const classicRatings: number[] = [];
+        const contempFavorites: Array<{ track: string; name: string }> = [];
+        const classicFavorites: Array<{ track: string; name: string }> = [];
 
-        const buildFavoriteTracks = (reviews: any[]) =>
-          reviews
-            .filter((r: any) => r.favorite_track)
-            .map((r: any) => ({
-              track: r.favorite_track,
-              name: r.participant?.name ?? "Unknown",
-            }))
-            .slice(0, 3);
+        const addRating = (target: number[], value: any) => {
+          const parsed = Number(value);
+          if (Number.isFinite(parsed)) {
+            target.push(parsed);
+          }
+        };
+
+        const addFavorite = (
+          target: Array<{ track: string; name: string }>,
+          track: any,
+          name: string | null | undefined
+        ) => {
+          if (typeof track !== "string") return;
+          const trimmed = track.trim();
+          if (!trimmed) return;
+          target.push({ track: trimmed, name: name?.trim() || "Unknown" });
+        };
+
+        stats.forEach((review: any) => {
+          const participantName = review.participant?.name ?? "Unknown";
+          if (review.album_type === "contemporary") {
+            addRating(contempRatings, review.rating);
+            addFavorite(contempFavorites, review.favorite_track, participantName);
+            return;
+          }
+          if (review.album_type === "classic") {
+            addRating(classicRatings, review.rating);
+            addFavorite(classicFavorites, review.favorite_track, participantName);
+            return;
+          }
+
+          // Legacy combined review rows (pre album_type)
+          if (review.contemporary_rating !== null && review.contemporary_rating !== undefined) {
+            addRating(contempRatings, review.contemporary_rating);
+            addFavorite(
+              contempFavorites,
+              review.contemporary_favorite_track,
+              participantName
+            );
+          }
+          if (review.classic_rating !== null && review.classic_rating !== undefined) {
+            addRating(classicRatings, review.classic_rating);
+            addFavorite(
+              classicFavorites,
+              review.classic_favorite_track,
+              participantName
+            );
+          }
+        });
 
         reviewStats = {
           prevWeek,
           prevWeekLabel,
           contemporary: {
-            avgRating: contempReviews.length > 0
-              ? (contempReviews.reduce((sum: number, r: any) => sum + Number(r.rating), 0) / contempReviews.length).toFixed(1)
+            avgRating: contempRatings.length > 0
+              ? (contempRatings.reduce((sum, rating) => sum + rating, 0) / contempRatings.length).toFixed(1)
               : null,
-            count: contempReviews.length,
-            favoriteTracks: buildFavoriteTracks(contempReviews),
+            count: contempRatings.length,
+            favoriteTracks: contempFavorites.slice(0, 3),
           },
           classic: {
-            avgRating: classicReviews.length > 0
-              ? (classicReviews.reduce((sum: number, r: any) => sum + Number(r.rating), 0) / classicReviews.length).toFixed(1)
+            avgRating: classicRatings.length > 0
+              ? (classicRatings.reduce((sum, rating) => sum + rating, 0) / classicRatings.length).toFixed(1)
               : null,
-            count: classicReviews.length,
-            favoriteTracks: buildFavoriteTracks(classicReviews),
+            count: classicRatings.length,
+            favoriteTracks: classicFavorites.slice(0, 3),
           },
         };
       }
