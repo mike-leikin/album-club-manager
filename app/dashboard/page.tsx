@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { createAuthClient } from "@/lib/auth/supabaseAuthClientBrowser";
 import type { Review, Week } from "@/lib/types/database";
+import BrowseReviews from "@/components/reviews/BrowseReviews";
 
 type ReviewWithWeek = Review & {
   week: Week;
@@ -38,6 +40,21 @@ type MyReviewsResponse = {
   };
 };
 
+type ReviewSubmissionPayload = {
+  week_number: number;
+  participant_email: string;
+  contemporary?: {
+    rating: number;
+    favorite_track: string | null;
+    review_text: string | null;
+  };
+  classic?: {
+    rating: number;
+    favorite_track: string | null;
+    review_text: string | null;
+  };
+};
+
 const formatWeekLabel = (
   dateStr: string | null | undefined,
   fallbackWeekNumber?: number
@@ -65,6 +82,7 @@ export default function DashboardPage() {
   const [userName, setUserName] = useState<string>("");
   const [isCurator, setIsCurator] = useState(false);
   const [participantEmail, setParticipantEmail] = useState<string>("");
+  const [activeView, setActiveView] = useState<"my" | "browse">("my");
 
   // Editing/adding form state
   const [formRating, setFormRating] = useState("");
@@ -191,7 +209,7 @@ export default function DashboardPage() {
         review_text: formReviewText || null,
       };
 
-      const payload: any = {
+      const payload: ReviewSubmissionPayload = {
         week_number: weekNumber,
         participant_email: participantEmail,
       };
@@ -281,32 +299,26 @@ export default function DashboardPage() {
               </p>
             </div>
             <div className="flex gap-3">
-              <a
+              <Link
                 href="/"
                 className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Home
-              </a>
-              <a
-                href="/reviews"
-                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Browse Reviews
-              </a>
+              </Link>
               {isCurator && (
-                <a
+                <Link
                   href="/admin"
                   className="px-4 py-2 text-white bg-blue-600 border border-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   Admin Panel
-                </a>
+                </Link>
               )}
-              <a
+              <Link
                 href="/settings"
                 className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors inline-block text-center"
               >
                 Settings
-              </a>
+              </Link>
               <button
                 onClick={handleSignOut}
                 className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -319,126 +331,171 @@ export default function DashboardPage() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        {/* Stats Section */}
-        {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-sm font-medium text-gray-500">
-                Total Reviews
-              </div>
-              <div className="mt-2 text-3xl font-bold text-gray-900">
-                {stats.totalReviews}
-              </div>
-            </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-sm font-medium text-gray-500">
-                Participation Rate
-              </div>
-              <div className="mt-2 text-3xl font-bold text-blue-600">
-                {stats.participationRate}%
-              </div>
-              <div className="text-xs text-gray-500 mt-1">
-                {Math.floor(stats.totalReviews / 2)} of {stats.totalWeeks} weeks
-              </div>
-            </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-sm font-medium text-gray-500">
-                Avg Contemporary
-              </div>
-              <div className="mt-2 text-3xl font-bold text-purple-600">
-                {stats.avgContemporaryRating?.toFixed(1) || "—"}
-              </div>
-              <div className="text-xs text-gray-500 mt-1">
-                {stats.contemporaryCount} reviews
-              </div>
-            </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-sm font-medium text-gray-500">
-                Avg Classic
-              </div>
-              <div className="mt-2 text-3xl font-bold text-orange-600">
-                {stats.avgClassicRating?.toFixed(1) || "—"}
-              </div>
-              <div className="text-xs text-gray-500 mt-1">
-                {stats.classicCount} reviews
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Current Week Section */}
-        {currentWeek && (
-          <div className="mb-8">
-            <div className="mb-4">
-              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <span>📅</span> Current Week
-              </h2>
-            </div>
-            <WeekCard
-              week={currentWeek}
-              editingReviewId={editingReviewId}
-              addingReview={addingReview}
-              formRating={formRating}
-              formFavoriteTrack={formFavoriteTrack}
-              formReviewText={formReviewText}
-              isSaving={isSaving}
-              onStartEditing={startEditing}
-              onStartAdding={startAdding}
-              onCancelForm={cancelForm}
-              onSaveEdit={saveEdit}
-              onSaveNew={saveNew}
-              onDeleteReview={deleteReview}
-              onRatingChange={setFormRating}
-              onFavoriteTrackChange={setFormFavoriteTrack}
-              onReviewTextChange={setFormReviewText}
-              isCurrentWeek={true}
-            />
-          </div>
-        )}
-
-        {/* Previous Weeks Section */}
-        {previousWeeks.length > 0 && (
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
           <div>
-            <div className="mb-4">
-              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <span>📚</span> Previous Weeks
-              </h2>
-            </div>
-            <div className="space-y-6">
-              {previousWeeks.map((week) => (
-                <WeekCard
-                  key={week.week_number}
-                  week={week}
-                  editingReviewId={editingReviewId}
-                  addingReview={addingReview}
-                  formRating={formRating}
-                  formFavoriteTrack={formFavoriteTrack}
-                  formReviewText={formReviewText}
-                  isSaving={isSaving}
-                  onStartEditing={startEditing}
-                  onStartAdding={startAdding}
-                  onCancelForm={cancelForm}
-                  onSaveEdit={saveEdit}
-                  onSaveNew={saveNew}
-                  onDeleteReview={deleteReview}
-                  onRatingChange={setFormRating}
-                  onFavoriteTrackChange={setFormFavoriteTrack}
-                  onReviewTextChange={setFormReviewText}
-                  isCurrentWeek={false}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Empty State */}
-        {allWeeks.length === 0 && (
-          <div className="bg-white rounded-lg shadow px-6 py-12 text-center">
-            <p className="text-gray-500">
-              No weeks have been created yet. Check back soon!
+            <h2 className="text-xl font-semibold text-gray-900">Reviews</h2>
+            <p className="text-sm text-gray-500">
+              Review the current week or browse past weeks in one place.
             </p>
           </div>
-        )}
+          <div className="inline-flex w-full md:w-auto rounded-lg border border-gray-200 bg-white p-1">
+            <button
+              onClick={() => setActiveView("my")}
+              className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                activeView === "my"
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              My Reviews
+            </button>
+            <button
+              onClick={() => setActiveView("browse")}
+              className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                activeView === "browse"
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              Browse Reviews
+            </button>
+          </div>
+        </div>
+
+        <section className={activeView === "my" ? "" : "hidden"}>
+          {/* Stats Section */}
+          {stats && (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+              <div className="bg-white rounded-lg shadow p-6">
+                <div className="text-sm font-medium text-gray-500">
+                  Total Reviews
+                </div>
+                <div className="mt-2 text-3xl font-bold text-gray-900">
+                  {stats.totalReviews}
+                </div>
+              </div>
+              <div className="bg-white rounded-lg shadow p-6">
+                <div className="text-sm font-medium text-gray-500">
+                  Participation Rate
+                </div>
+                <div className="mt-2 text-3xl font-bold text-blue-600">
+                  {stats.participationRate}%
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  {Math.floor(stats.totalReviews / 2)} of {stats.totalWeeks} weeks
+                </div>
+              </div>
+              <div className="bg-white rounded-lg shadow p-6">
+                <div className="text-sm font-medium text-gray-500">
+                  Avg Contemporary
+                </div>
+                <div className="mt-2 text-3xl font-bold text-purple-600">
+                  {stats.avgContemporaryRating?.toFixed(1) || "—"}
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  {stats.contemporaryCount} reviews
+                </div>
+              </div>
+              <div className="bg-white rounded-lg shadow p-6">
+                <div className="text-sm font-medium text-gray-500">
+                  Avg Classic
+                </div>
+                <div className="mt-2 text-3xl font-bold text-orange-600">
+                  {stats.avgClassicRating?.toFixed(1) || "—"}
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  {stats.classicCount} reviews
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Current Week Section */}
+          {currentWeek && (
+            <div className="mb-8">
+              <div className="mb-4">
+                <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                  <span>📅</span> Current Week
+                </h2>
+              </div>
+              <WeekCard
+                week={currentWeek}
+                editingReviewId={editingReviewId}
+                addingReview={addingReview}
+                formRating={formRating}
+                formFavoriteTrack={formFavoriteTrack}
+                formReviewText={formReviewText}
+                isSaving={isSaving}
+                onStartEditing={startEditing}
+                onStartAdding={startAdding}
+                onCancelForm={cancelForm}
+                onSaveEdit={saveEdit}
+                onSaveNew={saveNew}
+                onDeleteReview={deleteReview}
+                onRatingChange={setFormRating}
+                onFavoriteTrackChange={setFormFavoriteTrack}
+                onReviewTextChange={setFormReviewText}
+                isCurrentWeek={true}
+              />
+            </div>
+          )}
+
+          {/* Previous Weeks Section */}
+          {previousWeeks.length > 0 && (
+            <div>
+              <div className="mb-4">
+                <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                  <span>📚</span> Previous Weeks
+                </h2>
+              </div>
+              <div className="space-y-6">
+                {previousWeeks.map((week) => (
+                  <WeekCard
+                    key={week.week_number}
+                    week={week}
+                    editingReviewId={editingReviewId}
+                    addingReview={addingReview}
+                    formRating={formRating}
+                    formFavoriteTrack={formFavoriteTrack}
+                    formReviewText={formReviewText}
+                    isSaving={isSaving}
+                    onStartEditing={startEditing}
+                    onStartAdding={startAdding}
+                    onCancelForm={cancelForm}
+                    onSaveEdit={saveEdit}
+                    onSaveNew={saveNew}
+                    onDeleteReview={deleteReview}
+                    onRatingChange={setFormRating}
+                    onFavoriteTrackChange={setFormFavoriteTrack}
+                    onReviewTextChange={setFormReviewText}
+                    isCurrentWeek={false}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {allWeeks.length === 0 && (
+            <div className="bg-white rounded-lg shadow px-6 py-12 text-center">
+              <p className="text-gray-500">
+                No weeks have been created yet. Check back soon!
+              </p>
+            </div>
+          )}
+        </section>
+
+        <section className={activeView === "browse" ? "" : "hidden"}>
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <span>📝</span> Browse Reviews
+            </h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Read approved reviews from previous weeks.
+            </p>
+          </div>
+          <BrowseReviews variant="embedded" enabled={activeView === "browse"} />
+        </section>
       </main>
     </div>
   );
@@ -668,7 +725,7 @@ function AlbumSlot({
           <div className="space-y-4">
             {isPastDeadline && isAdding && (
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm text-amber-800">
-                ⚠️ You're submitting past the deadline, but that's okay!
+                ⚠️ You&apos;re submitting past the deadline, but that&apos;s okay!
               </div>
             )}
             <div>

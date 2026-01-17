@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.13.13] - 2026-01-17
+
+### Reviewer Dashboard
+
+- Combined review submission/editing and browsing into a single `/dashboard` experience
+- Added an in-page switcher between My Reviews and Browse Reviews
+- Reused the public browse UI on `/reviews` and in the dashboard
+
+---
+
 ## [2.13.12] - 2026-01-17
 
 ### Review Reminder Emails

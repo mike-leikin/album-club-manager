@@ -11,19 +11,24 @@ The participant dashboard allows authenticated users to view and manage their al
 - Display album artwork, details, and ratings
 - See both contemporary and classic album reviews side-by-side
 
-### 2. Participation Statistics
+### 2. Browse Community Reviews
+- Switch to a browse view on the dashboard to read approved reviews from past weeks
+- Expand weeks on demand; review data loads lazily
+- Locked weeks (before the response deadline) are not expandable
+
+### 3. Participation Statistics
 - **Total Reviews**: Count of all reviews submitted
 - **Participation Rate**: Percentage of weeks reviewed out of total weeks
 - **Average Ratings**: Separate averages for contemporary and classic albums
 - **Review Breakdown**: Count of contemporary vs classic reviews
 
-### 3. Review Editing
+### 4. Review Editing
 - Edit ratings (0-10 scale)
 - Update favorite track
 - Modify review text
 - Real-time validation and saving
 
-### 4. Review Management
+### 5. Review Management
 - Delete reviews with confirmation dialog
 - Changes update statistics immediately
 - Preserves review history integrity
@@ -131,6 +136,12 @@ When reviews exist:
 - Reviews grouped by week in reverse chronological order
 - Each week shows both contemporary and classic reviews side-by-side
 - Visual album art and metadata for context
+
+### Browse View
+When switching to Browse Reviews:
+- Weeks are listed in reverse chronological order
+- Each week expands to show approved reviews for that week
+- Weeks before the deadline remain locked
 
 ### Editing Flow
 1. Click "Edit" button on any review card
