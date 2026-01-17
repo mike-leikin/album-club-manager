@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.13.12] - 2026-01-17
+
+### Review Reminder Emails
+
+- Added reminder-specific email preferences and unsubscribe tokens for participants
+- Added reminder email template with settings link and one-click reminder unsubscribe
+- Added curator-only reminder send API with recipient filtering and audit logging
+- Added admin UI action to send reminders for the current week
+- Updated settings and unsubscribe flows to support reminder opt-out
+
+---
+
 ## [2.13.10] - 2026-01-11
 
 ### Review Submissions

@@ -10,6 +10,7 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [participant, setParticipant] = useState<any>(null);
   const [emailSubscribed, setEmailSubscribed] = useState(true);
+  const [reminderEmailSubscribed, setReminderEmailSubscribed] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -59,6 +60,7 @@ export default function SettingsPage() {
 
       setParticipant(participantData);
       setEmailSubscribed((participantData as any)?.email_subscribed ?? true);
+      setReminderEmailSubscribed((participantData as any)?.reminder_email_subscribed ?? true);
       setName((participantData as any)?.name || '');
       setEmail((participantData as any)?.email || '');
     } catch (error) {
@@ -97,16 +99,15 @@ export default function SettingsPage() {
       const supabase = createAuthClient();
       const { error } = await (supabase
         .from('participants') as any)
-        .update({ email_subscribed: emailSubscribed })
+        .update({
+          email_subscribed: emailSubscribed,
+          reminder_email_subscribed: reminderEmailSubscribed,
+        })
         .eq('id', (participant as any)?.id);
 
       if (error) throw error;
 
-      toast.success(
-        emailSubscribed
-          ? 'You will receive weekly emails'
-          : 'You have unsubscribed from weekly emails'
-      );
+      toast.success('Email preferences updated');
     } catch (error) {
       console.error('Failed to update preference:', error);
       toast.error('Failed to update email preference');
@@ -319,6 +320,23 @@ export default function SettingsPage() {
                 </label>
                 <p className="mt-1 text-sm text-gray-500">
                   Get notified each week when new albums are posted. You can still log in and submit reviews even if unsubscribed.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <input
+                type="checkbox"
+                id="reminderEmailSubscribed"
+                checked={reminderEmailSubscribed}
+                onChange={(e) => setReminderEmailSubscribed(e.target.checked)}
+                className="mt-1 h-4 w-4 rounded border-gray-300 bg-white text-emerald-500 focus:ring-emerald-500 focus:ring-offset-zinc-900"
+              />
+              <div className="flex-1">
+                <label htmlFor="reminderEmailSubscribed" className="block text-sm font-medium text-gray-900 cursor-pointer">
+                  Receive reminder emails
+                </label>
+                <p className="mt-1 text-sm text-gray-500">
+                  Get a nudge mid-week if you have not submitted any reviews yet. Reminders are separate from weekly announcements.
                 </p>
               </div>
             </div>

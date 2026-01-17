@@ -60,7 +60,9 @@ export default function AdminPage() {
   const [isLoadingPreviousWeek, setIsLoadingPreviousWeek] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [isSendingTestEmail, setIsSendingTestEmail] = useState(false);
+  const [isSendingReminder, setIsSendingReminder] = useState(false);
   const [showEmailPreview, setShowEmailPreview] = useState(false);
+  const [currentWeekNumber, setCurrentWeekNumber] = useState<number | null>(null);
 
   // Review stats for previous week
   const [reviewStats, setReviewStats] = useState<ReviewStats | null>(null);
@@ -328,6 +330,7 @@ export default function AdminPage() {
         if (result?.data) {
           const latest = result.data;
           const nextWeekNumber = latest.week_number ? latest.week_number + 1 : 1;
+          setCurrentWeekNumber(latest.week_number ?? null);
           setWeekNumber(String(nextWeekNumber));
 
           // Load the latest week's data as template
@@ -350,6 +353,7 @@ export default function AdminPage() {
         } else {
           // No weeks exist yet, start with week 1
           setWeekNumber("1");
+          setCurrentWeekNumber(null);
         }
       } catch (error) {
         console.error(error);
@@ -485,6 +489,65 @@ export default function AdminPage() {
     }
   };
 
+  const handleSendReminder = async () => {
+    if (!currentWeekNumber) {
+      toast.error("No current week available for reminders.");
+      return;
+    }
+
+    setIsSendingReminder(true);
+    try {
+      const countResponse = await fetch("/api/email/send-reminder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ weekNumber: currentWeekNumber, dryRun: true }),
+      });
+
+      const countResult = await countResponse.json();
+      if (!countResponse.ok) {
+        throw new Error(countResult.error || "Failed to load reminder recipients");
+      }
+
+      const eligibleCount = Number(countResult.eligible || 0);
+      if (eligibleCount === 0) {
+        toast.success("No reminder emails to send.");
+        return;
+      }
+
+      const confirmed = confirm(
+        `Send reminder for Week ${currentWeekNumber} to ${eligibleCount} participant(s)?`
+      );
+      if (!confirmed) return;
+
+      const response = await fetch("/api/email/send-reminder", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ weekNumber: currentWeekNumber }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to send reminder emails");
+      }
+
+      const skipped = Number(result.skipped || 0);
+      const summary =
+        skipped > 0
+          ? `Reminder sent to ${result.sent} participant(s). Skipped ${skipped}.`
+          : `Reminder sent to ${result.sent} participant(s)!`;
+      toast.success(summary);
+      if (result.failed > 0) {
+        toast.error(`${result.failed} reminder email(s) failed to send`);
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to send reminder emails"
+      );
+    } finally {
+      setIsSendingReminder(false);
+    }
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
 
@@ -536,6 +599,7 @@ export default function AdminPage() {
       }
 
       toast.success("Week saved successfully!");
+      setCurrentWeekNumber(parsedWeekNumber);
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -727,6 +791,21 @@ export default function AdminPage() {
                 className={actionButtonClass}
               >
                 {isSendingEmail ? "Sending..." : "📧 Send Email"}
+              </button>
+              <button
+                type="button"
+                onClick={handleSendReminder}
+                disabled={isSendingReminder || !currentWeekNumber}
+                className={actionButtonClass}
+                title={
+                  currentWeekNumber
+                    ? `Send reminder for Week ${currentWeekNumber}`
+                    : "No current week available"
+                }
+              >
+                {isSendingReminder
+                  ? "Sending..."
+                  : `🔔 Send Reminder${currentWeekNumber ? ` (Week ${currentWeekNumber})` : ""}`}
               </button>
             </div>
           </div>

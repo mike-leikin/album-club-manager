@@ -19,6 +19,7 @@ Album Club Manager streamlines the process of running a weekly music club where 
 ### 📧 Automated Email System
 - **Test Email Preview**: Send test email to yourself before sending to all participants (v2.12)
 - **Email History & Resends**: Preview prior sends and resend to selected participants (v2.13)
+- **Review Reminder Emails**: Manual reminders for the current week with per-recipient opt-out
 - **Review Confirmation Emails**: Transactional confirmation with full review details after submission
 - **One-Click Email Sending**: Send personalized emails to all participants from the admin dashboard
 - **Professional HTML Templates**: Beautiful, responsive email design with album artwork
@@ -29,7 +30,7 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Custom Domain**: Emails sent from `weekly@albumclub.club` with full SPF/DKIM verification
 - **Unsubscribe System**: Secure token-based unsubscribe links in all emails
 - **Subscription Management**: Users can unsubscribe while remaining active members
-- **Email Preferences**: Toggle email subscriptions from Settings page without deleting account
+- **Email Preferences**: Toggle weekly and reminder subscriptions from Settings page without deleting account
 
 ### 👥 Participant Management
 - **Bulk CSV Import**: Add multiple participants at once via CSV upload
@@ -50,7 +51,7 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Curator Dual-Access**: Curators can access both admin panel and their own reviews
 - **Account Settings**: Comprehensive user settings at `/settings`
   - Edit name and email address
-  - Manage email subscription preferences
+  - Manage weekly and reminder email preferences
   - Delete account with review preservation
 
 ### 👥 Friend Referral System

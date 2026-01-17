@@ -46,6 +46,13 @@ export interface Participant {
   unsubscribe_token: string;
 }
 
+export interface ReminderParticipant {
+  id: string;
+  email: string;
+  name: string;
+  reminder_unsubscribe_token: string;
+}
+
 export interface ReviewConfirmationRecipient {
   email: string;
   name: string;
@@ -65,6 +72,7 @@ type EmailPersonalization = {
   dashboardUrl: string;
   unsubscribeUrl: string;
   inviteUrl: string;
+  settingsUrl: string;
 };
 
 const EMAIL_TEMPLATE_PLACEHOLDERS: EmailPersonalization = {
@@ -73,6 +81,7 @@ const EMAIL_TEMPLATE_PLACEHOLDERS: EmailPersonalization = {
   dashboardUrl: "{{dashboard_url}}",
   unsubscribeUrl: "{{unsubscribe_url}}",
   inviteUrl: "{{invite_url}}",
+  settingsUrl: "{{settings_url}}",
 };
 
 const escapeHtml = (value: string) =>
@@ -683,6 +692,115 @@ export function buildReviewConfirmationEmail(
   };
 }
 
+export function buildReminderEmailTemplate(week: WeekData): EmailContent {
+  const weekLabel = formatWeekLabel(week.created_at, week.week_number);
+  const deadlineLabel = week.response_deadline
+    ? formatDeadline(week.response_deadline)
+    : null;
+
+  const deadlineHtml = deadlineLabel
+    ? `
+          <tr>
+            <td style="padding: 0 32px 16px;">
+              <p style="margin: 0; color: #e5e5e5; font-size: 15px; line-height: 1.5;">
+                Responses due by <strong style="color: #ffffff;">${deadlineLabel}</strong>.
+              </p>
+            </td>
+          </tr>
+`
+    : "";
+
+  const htmlBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Album Club – ${weekLabel} Reminder</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #000000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #000000;">
+    <tr>
+      <td align="center" style="padding: 40px 20px;">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #0a0a0a; border: 1px solid #1f1f1f; border-radius: 16px; overflow: hidden;">
+          <tr>
+            <td style="padding: 32px 32px 24px; background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%); border-bottom: 1px solid #1f1f1f;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 26px; font-weight: 700; letter-spacing: -0.5px;">Album Club</h1>
+              <p style="margin: 8px 0 0; color: #a1a1a1; font-size: 16px;">${weekLabel} • Reminder</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding: 24px 32px 8px;">
+              <p style="margin: 0; color: #e5e5e5; font-size: 16px; line-height: 1.6;">Hi ${EMAIL_TEMPLATE_PLACEHOLDERS.firstName},</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding: 0 32px 16px;">
+              <p style="margin: 0; color: #e5e5e5; font-size: 15px; line-height: 1.6;">
+                Friendly reminder: we haven&apos;t seen your reviews for ${weekLabel} yet.
+              </p>
+            </td>
+          </tr>
+${deadlineHtml}
+          <tr>
+            <td style="padding: 8px 32px 24px;">
+              <a href="${EMAIL_TEMPLATE_PLACEHOLDERS.submitUrl}" style="display: inline-block; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-size: 15px; font-weight: 600; letter-spacing: 0.2px;">
+                Submit Your Review
+              </a>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding: 0 32px 16px;">
+              <p style="margin: 0; color: #9ca3af; font-size: 13px; line-height: 1.6;">
+                Manage preferences: <a href="${EMAIL_TEMPLATE_PLACEHOLDERS.settingsUrl}" style="color: #10b981; text-decoration: underline;">Settings</a>
+              </p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding: 0 32px 32px;">
+              <p style="margin: 0; color: #6b7280; font-size: 12px; line-height: 1.6;">
+                <a href="${EMAIL_TEMPLATE_PLACEHOLDERS.unsubscribeUrl}" style="color: #737373; text-decoration: underline;">Unsubscribe from reminder emails</a>
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`;
+
+  const textLines: string[] = [
+    `Hi ${EMAIL_TEMPLATE_PLACEHOLDERS.firstName},`,
+    "",
+    `Friendly reminder: we haven't seen your reviews for ${weekLabel} yet.`,
+    "",
+    "Submit your review:",
+    EMAIL_TEMPLATE_PLACEHOLDERS.submitUrl,
+  ];
+
+  if (deadlineLabel) {
+    textLines.push("", `Responses due by ${deadlineLabel}.`);
+  }
+
+  textLines.push(
+    "",
+    `Manage preferences: ${EMAIL_TEMPLATE_PLACEHOLDERS.settingsUrl}`,
+    `Unsubscribe from reminder emails: ${EMAIL_TEMPLATE_PLACEHOLDERS.unsubscribeUrl}`
+  );
+
+  return {
+    htmlBody,
+    textBody: textLines.join("\n"),
+    subject: `Reminder: Album Club – ${weekLabel}`,
+  };
+}
+
 export function buildWeeklyEmailTemplate(
   week: WeekData,
   reviewStats: ReviewStats | null
@@ -717,6 +835,28 @@ export function renderEmailTemplate(
     [EMAIL_TEMPLATE_PLACEHOLDERS.dashboardUrl]: `${appUrl}/dashboard`,
     [EMAIL_TEMPLATE_PLACEHOLDERS.unsubscribeUrl]: `${appUrl}/unsubscribe?token=${participant.unsubscribe_token}`,
     [EMAIL_TEMPLATE_PLACEHOLDERS.inviteUrl]: `${appUrl}/invite-friend?ref=${participant.id}`,
+    [EMAIL_TEMPLATE_PLACEHOLDERS.settingsUrl]: `${appUrl}/settings`,
+  };
+
+  return {
+    subject: template.subject,
+    htmlBody: applyReplacements(template.htmlBody, replacements),
+    textBody: applyReplacements(template.textBody, replacements),
+  };
+}
+
+export function renderReminderEmailTemplate(
+  template: EmailContent,
+  participant: ReminderParticipant
+): EmailContent {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const replacements = {
+    [EMAIL_TEMPLATE_PLACEHOLDERS.firstName]: participant.name.split(' ')[0],
+    [EMAIL_TEMPLATE_PLACEHOLDERS.submitUrl]: `${appUrl}/submit?email=${encodeURIComponent(participant.email)}`,
+    [EMAIL_TEMPLATE_PLACEHOLDERS.dashboardUrl]: `${appUrl}/dashboard`,
+    [EMAIL_TEMPLATE_PLACEHOLDERS.unsubscribeUrl]: `${appUrl}/unsubscribe?token=${participant.reminder_unsubscribe_token}&type=reminder`,
+    [EMAIL_TEMPLATE_PLACEHOLDERS.inviteUrl]: `${appUrl}/invite-friend?ref=${participant.id}`,
+    [EMAIL_TEMPLATE_PLACEHOLDERS.settingsUrl]: `${appUrl}/settings`,
   };
 
   return {

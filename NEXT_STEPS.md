@@ -57,10 +57,10 @@
    - Filter history by participant
    - Add send-history support for reminders/results/onboarding/admin messages
 
-3. **Review Reminder Emails** (manual send, current week only)
-   - Admin-only send for current week to participants with zero reviews
-   - Respects `email_subscribed` and reminder opt-out; includes `/settings` link + one-click unsubscribe
-   - Rate-limited sends with audit trail (`email_sends`, `email_send_recipients`, `email_logs`)
+3. **Review Reminder Emails** ✅ COMPLETE (v2.13.12)
+   - ✅ Admin-only send for current week to participants with zero reviews
+   - ✅ Respects `email_subscribed` + reminder opt-out; includes `/settings` link + one-click unsubscribe
+   - ✅ Rate-limited sends with audit trail (`email_sends`, `email_send_recipients`, `email_logs`)
    - **See:** `docs/review-reminder-email-requirements.md`
 
 4. **Review Submission Confirmation Email** ✅ COMPLETE (v2.13.9)
@@ -139,7 +139,7 @@
    - ✅ Documentation - TESTING.md comprehensive guide (COMPLETE)
    - ⏳ Component Tests - ParticipantsManager, SpotifySearch, Dashboard (Future enhancement)
    - ⏳ Integration Tests - Full user flows (Future enhancement)
-   - **Current status**: 92 tests total, 92 passing (6 test files), 100% pass rate, 100% line coverage on all API routes
+   - **Current status**: 94 tests total, 94 passing (6 test files), 100% pass rate, 100% line coverage on all API routes
    - **CI/CD**: GitHub Actions configured for automated testing on push/PR with Node 18.x and 20.x
    - **Pre-deployment**: Vercel builds blocked if tests fail via `prebuild` npm hook
    - **See**: [docs/TESTING.md](docs/TESTING.md) for complete testing guide

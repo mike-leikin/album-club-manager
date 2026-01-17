@@ -5,7 +5,8 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = createServerClient();
     const body = await request.json();
-    const { token, resubscribe = false } = body;
+    const { token, resubscribe = false, emailType = "weekly" } = body;
+    const isReminder = emailType === "reminder";
 
     if (!token) {
       return NextResponse.json(
@@ -15,10 +16,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Find participant by unsubscribe token
+    const tokenColumn = isReminder
+      ? "reminder_unsubscribe_token"
+      : "unsubscribe_token";
     const { data: participant, error: fetchError } = await supabase
       .from("participants")
       .select("*")
-      .eq("unsubscribe_token", token)
+      .eq(tokenColumn, token)
       .single();
 
     if (fetchError || !participant) {
@@ -29,10 +33,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Update email subscription status
+    const updateColumn = isReminder
+      ? "reminder_email_subscribed"
+      : "email_subscribed";
     const { error: updateError } = await (supabase
       .from("participants") as any)
       .update({
-        email_subscribed: !resubscribe
+        [updateColumn]: !resubscribe,
       })
       .eq("id", (participant as any).id);
 
@@ -49,8 +56,12 @@ export async function POST(request: NextRequest) {
       email: (participant as any).email,
       subscribed: !resubscribe,
       message: resubscribe
-        ? "You have been resubscribed to weekly emails"
-        : "You have been unsubscribed from weekly emails",
+        ? isReminder
+          ? "You have been resubscribed to reminder emails"
+          : "You have been resubscribed to weekly emails"
+        : isReminder
+          ? "You have been unsubscribed from reminder emails"
+          : "You have been unsubscribed from weekly emails",
     });
   } catch (error) {
     const message =

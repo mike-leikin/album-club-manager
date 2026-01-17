@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabaseClient";
 import { requireCurator } from "@/lib/auth/utils";
-import { renderEmailTemplate } from "@/lib/email/emailBuilder";
+import { renderEmailTemplate, renderReminderEmailTemplate } from "@/lib/email/emailBuilder";
 
 export async function GET(
   request: NextRequest,
@@ -34,7 +34,7 @@ export async function GET(
         sent_at,
         resend_id,
         error_message,
-        participant:participants(id, name, email, unsubscribe_token)
+        participant:participants(id, name, email, unsubscribe_token, reminder_unsubscribe_token)
       `)
       .eq("send_id", id)
       .order("sent_at", { ascending: false });
@@ -49,19 +49,25 @@ export async function GET(
     );
 
     if (previewRecipient?.participant) {
-      const previewContent = renderEmailTemplate(
-        {
-          subject: send.subject,
-          htmlBody: send.html_body,
-          textBody: send.text_body,
-        },
-        {
-          id: previewRecipient.participant.id,
-          email: previewRecipient.participant.email,
-          name: previewRecipient.participant.name,
-          unsubscribe_token: previewRecipient.participant.unsubscribe_token,
-        }
-      );
+      const template = {
+        subject: send.subject,
+        htmlBody: send.html_body,
+        textBody: send.text_body,
+      };
+      const isReminder = send.email_type === "reminder";
+      const previewContent = isReminder
+        ? renderReminderEmailTemplate(template, {
+            id: previewRecipient.participant.id,
+            email: previewRecipient.participant.email,
+            name: previewRecipient.participant.name,
+            reminder_unsubscribe_token: previewRecipient.participant.reminder_unsubscribe_token,
+          })
+        : renderEmailTemplate(template, {
+            id: previewRecipient.participant.id,
+            email: previewRecipient.participant.email,
+            name: previewRecipient.participant.name,
+            unsubscribe_token: previewRecipient.participant.unsubscribe_token,
+          });
 
       preview = {
         html_body: previewContent.htmlBody,

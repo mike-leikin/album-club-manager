@@ -84,6 +84,18 @@ This setting is applied to both:
 4. Click **Preview Email** to see what participants will receive
 5. Click **📧 Send Email** to send to all participants
 
+### Send Review Reminder Email
+
+1. Go to Admin Dashboard → Week Management tab
+2. Click **🔔 Send Reminder (Week X)**
+3. Confirm the recipient count
+
+Reminders only go to participants who:
+- Are active (not deleted)
+- Are subscribed to weekly emails
+- Are subscribed to reminder emails
+- Have not submitted any reviews for the current week
+
 ### What Participants Receive
 
 Each participant gets a personalized email with:
@@ -92,6 +104,15 @@ Each participant gets a personalized email with:
 - This week's album details with Spotify links
 - **Personalized review link** with their email pre-filled
 - Response deadline
+
+### Reminder Emails
+
+Reminder emails are short nudges sent manually during the current week. They include:
+- Subject: `Reminder: Album Club – Week X`
+- A personalized review submission link
+- The response deadline (if set)
+- A reminder-specific unsubscribe link
+- A manage-preferences link to `/settings`
 
 ### Transactional Emails
 

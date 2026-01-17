@@ -7,6 +7,9 @@ import Link from 'next/link';
 function UnsubscribeContent() {
   const searchParams = useSearchParams();
   const token = searchParams?.get('token');
+  const emailType = searchParams?.get('type') || 'weekly';
+  const isReminder = emailType === 'reminder';
+  const emailLabel = isReminder ? 'reminder emails' : 'weekly album emails';
 
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');
@@ -22,7 +25,7 @@ function UnsubscribeContent() {
 
     // Auto-unsubscribe on page load
     handleUnsubscribe();
-  }, [token]);
+  }, [token, emailType]);
 
   const handleUnsubscribe = async () => {
     if (!token) return;
@@ -32,7 +35,7 @@ function UnsubscribeContent() {
       const response = await fetch('/api/unsubscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, resubscribe: false }),
+        body: JSON.stringify({ token, resubscribe: false, emailType }),
       });
 
       const data = await response.json();
@@ -58,7 +61,7 @@ function UnsubscribeContent() {
       const response = await fetch('/api/unsubscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, resubscribe: true }),
+        body: JSON.stringify({ token, resubscribe: true, emailType }),
       });
 
       const data = await response.json();
@@ -103,14 +106,14 @@ function UnsubscribeContent() {
 
               {userName && (
                 <p className="text-zinc-400 text-sm text-center">
-                  Hi {userName}! You have been unsubscribed from weekly album emails.
+                  Hi {userName}! You have been unsubscribed from {emailLabel}.
                 </p>
               )}
 
               <div className="space-y-3 border-t border-zinc-800 pt-4">
                 <p className="text-zinc-300 text-sm">What this means:</p>
                 <ul className="space-y-2 text-zinc-400 text-sm list-disc list-inside">
-                  <li>You won't receive weekly album emails</li>
+                  <li>You won't receive {emailLabel}</li>
                   <li>You can still log in and submit reviews</li>
                   <li>Your account remains active</li>
                   <li>You can resubscribe anytime</li>
@@ -123,7 +126,9 @@ function UnsubscribeContent() {
                   disabled={isResubscribing}
                   className="w-full rounded-md bg-emerald-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isResubscribing ? 'Resubscribing...' : 'Resubscribe to Weekly Emails'}
+                  {isResubscribing
+                    ? 'Resubscribing...'
+                    : `Resubscribe to ${isReminder ? 'Reminder' : 'Weekly'} Emails`}
                 </button>
 
                 <Link

@@ -103,6 +103,7 @@ async function importParticipants() {
             name: participant.name,
             email: participant.email,
             email_subscribed: true,
+            reminder_email_subscribed: true,
           });
 
         if (insertError) {

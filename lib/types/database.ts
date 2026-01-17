@@ -78,6 +78,8 @@ export interface Database {
           is_curator: boolean
           email_subscribed: boolean
           unsubscribe_token: string
+          reminder_email_subscribed: boolean
+          reminder_unsubscribe_token: string
           referred_by: string | null
           referral_count: number
           created_at: string
@@ -92,6 +94,8 @@ export interface Database {
           is_curator?: boolean
           email_subscribed?: boolean
           unsubscribe_token?: string
+          reminder_email_subscribed?: boolean
+          reminder_unsubscribe_token?: string
           referred_by?: string | null
           referral_count?: number
           created_at?: string
@@ -106,6 +110,8 @@ export interface Database {
           is_curator?: boolean
           email_subscribed?: boolean
           unsubscribe_token?: string
+          reminder_email_subscribed?: boolean
+          reminder_unsubscribe_token?: string
           referred_by?: string | null
           referral_count?: number
           created_at?: string

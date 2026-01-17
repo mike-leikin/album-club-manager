@@ -47,6 +47,7 @@ type Participant = {
   name: string;
   email: string;
   email_subscribed: boolean;
+  reminder_email_subscribed: boolean;
 };
 
 const formatDate = (dateStr: string) => {
@@ -177,6 +178,12 @@ export default function EmailHistoryTab() {
     return ids;
   }, [selectedSend]);
 
+  const isReminderSend = selectedSend?.send.email_type === "reminder";
+
+  const isParticipantEligible = (participant: Participant) =>
+    participant.email_subscribed &&
+    (!isReminderSend || participant.reminder_email_subscribed);
+
   const filteredParticipants = useMemo(() => {
     if (!searchTerm) return participants;
     const term = searchTerm.toLowerCase();
@@ -203,7 +210,7 @@ export default function EmailHistoryTab() {
     const missing = participants
       .filter(
         (participant) =>
-          participant.email_subscribed && !originalRecipientIds.has(participant.id)
+          isParticipantEligible(participant) && !originalRecipientIds.has(participant.id)
       )
       .map((participant) => participant.id);
     setSelectedRecipientIds(new Set(missing));
@@ -468,11 +475,12 @@ export default function EmailHistoryTab() {
                       filteredParticipants.map((participant) => {
                         const isOriginal = originalRecipientIds.has(participant.id);
                         const isSelected = selectedRecipientIds.has(participant.id);
+                        const isEligible = isParticipantEligible(participant);
                         return (
                           <label
                             key={participant.id}
                             className={`flex items-center justify-between gap-3 rounded-md px-2 py-2 ${
-                              participant.email_subscribed
+                              isEligible
                                 ? "cursor-pointer hover:bg-zinc-900/60"
                                 : "opacity-50"
                             }`}
@@ -490,7 +498,7 @@ export default function EmailHistoryTab() {
                               <input
                                 type="checkbox"
                                 checked={isSelected}
-                                disabled={!participant.email_subscribed}
+                                disabled={!isEligible}
                                 onChange={() => toggleRecipient(participant.id)}
                                 className="h-4 w-4 rounded border-zinc-600 bg-zinc-900"
                               />

@@ -3,7 +3,7 @@ import { Resend } from "resend";
 import { createServerClient } from "@/lib/supabaseClient";
 import { createApiLogger } from "@/lib/logger";
 import { requireCurator } from "@/lib/auth/utils";
-import { renderEmailTemplate } from "@/lib/email/emailBuilder";
+import { renderEmailTemplate, renderReminderEmailTemplate } from "@/lib/email/emailBuilder";
 import * as Sentry from "@sentry/nextjs";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -49,7 +49,7 @@ export async function POST(
 
     const { data: participants, error: participantsError } = await supabase
       .from("participants")
-      .select("id, name, email, unsubscribe_token, email_subscribed")
+      .select("id, name, email, unsubscribe_token, email_subscribed, reminder_email_subscribed, reminder_unsubscribe_token")
       .in("id", uniqueParticipantIds)
       .is("deleted_at", null);
 
@@ -63,11 +63,13 @@ export async function POST(
     const missingIds = uniqueParticipantIds.filter(
       (participantId: string) => !participantMap.has(participantId)
     );
-    const eligibleParticipants = (participants || []).filter(
-      (participant: any) => participant.email_subscribed
-    );
+    const isReminder = send.email_type === "reminder";
+    const isEligible = (participant: any) =>
+      participant.email_subscribed &&
+      (!isReminder || participant.reminder_email_subscribed);
+    const eligibleParticipants = (participants || []).filter(isEligible);
     const unsubscribed = (participants || []).filter(
-      (participant: any) => !participant.email_subscribed
+      (participant: any) => !isEligible(participant)
     );
 
     if (eligibleParticipants.length === 0) {
@@ -157,12 +159,19 @@ export async function POST(
     const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
     const sendEmail = async (participant: any) => {
-      const personalized = renderEmailTemplate(template, {
-        id: participant.id,
-        email: participant.email,
-        name: participant.name,
-        unsubscribe_token: participant.unsubscribe_token,
-      });
+      const personalized = isReminder
+        ? renderReminderEmailTemplate(template, {
+            id: participant.id,
+            email: participant.email,
+            name: participant.name,
+            reminder_unsubscribe_token: participant.reminder_unsubscribe_token,
+          })
+        : renderEmailTemplate(template, {
+            id: participant.id,
+            email: participant.email,
+            name: participant.name,
+            unsubscribe_token: participant.unsubscribe_token,
+          });
 
       try {
         const result = await resend.emails.send({
