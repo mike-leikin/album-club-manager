@@ -115,9 +115,10 @@ Each participant gets a personalized email with:
 ### Reminder Emails
 
 Reminder emails are short nudges sent manually during the current week. They include:
-- Subject: `Reminder: Album Club – Week X`
+- Subject: `Reminder: Album Club - Reviews due by [due date]`
 - A personalized review submission link
 - The response deadline (if set)
+- The current week's album artist + title details
 - A reminder-specific unsubscribe link
 - A manage-preferences link to `/settings`
 

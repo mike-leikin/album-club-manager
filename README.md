@@ -19,7 +19,7 @@ Album Club Manager streamlines the process of running a weekly music club where 
 ### 📧 Automated Email System
 - **Test Email Preview**: Send test email to yourself before sending to all participants (v2.12)
 - **Email History & Resends**: Preview prior sends and resend to selected participants (v2.13)
-- **Review Reminder Emails**: Manual reminders for the current week with per-recipient opt-out
+- **Review Reminder Emails**: Manual reminders for the current week, due-date subject line, and per-recipient opt-out
 - **Review Confirmation Emails**: Transactional confirmation with full review details after submission
 - **One-Click Email Sending**: Send personalized emails to all participants from the admin dashboard
 - **Professional HTML Templates**: Beautiful, responsive email design with album artwork

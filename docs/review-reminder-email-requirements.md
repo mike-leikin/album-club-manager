@@ -22,11 +22,13 @@ Send a reminder email for a given week to participants who have not submitted an
 - Must have **zero** reviews for the target week (any album_type counts as a review).
   - Moderation status does not affect eligibility (pending counts as submitted).
 - Email content:
-  - Subject includes week label (Week X or date) and communicates it is a reminder.
+  - Subject: `Reminder: Album Club - Reviews due by [due date]` (fallback if no deadline set).
   - Personalized greeting with participant first name.
   - Clear CTA link to submit: `/submit?email=...`.
   - Include the response deadline when available.
+  - Include album artist + title details for the current week.
   - Provide both HTML and plain text versions.
+  - Do not reference the original weekly send date in the body.
 - Include a "manage preferences" line that points to `/settings` (login required).
 - Include a one-click unsubscribe link for reminder emails (token-based).
 - Send mechanics:

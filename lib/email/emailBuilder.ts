@@ -694,22 +694,93 @@ export function buildReviewConfirmationEmail(
 }
 
 export function buildReminderEmailTemplate(week: WeekData): EmailContent {
-  const weekLabel = formatWeekLabel(week.created_at, week.week_number);
   const deadlineLabel = week.response_deadline
     ? formatDeadline(week.response_deadline)
     : null;
+  const subject = deadlineLabel
+    ? `Reminder: Album Club - Reviews due by ${deadlineLabel}`
+    : "Reminder: Album Club - Reviews due soon";
+
+  const buildAlbumLabel = (
+    artist?: string | null,
+    title?: string | null,
+    year?: string | null
+  ) => {
+    const safeArtist = artist?.trim();
+    const safeTitle = title?.trim();
+    const safeYear = year?.trim();
+    if (!safeArtist && !safeTitle && !safeYear) return null;
+    const base = [safeArtist, safeTitle].filter(Boolean).join(" - ");
+    const label = base || safeArtist || safeTitle || "Album";
+    return safeYear ? `${label} (${safeYear})` : label;
+  };
+
+  const contemporaryLabel = buildAlbumLabel(
+    week.contemporary_artist,
+    week.contemporary_title,
+    week.contemporary_year
+  );
+  const classicLabel = buildAlbumLabel(
+    week.classic_artist,
+    week.classic_title,
+    week.classic_year
+  );
 
   const deadlineHtml = deadlineLabel
     ? `
           <tr>
             <td style="padding: 0 32px 16px;">
               <p style="margin: 0; color: #e5e5e5; font-size: 15px; line-height: 1.5;">
-                Responses due by <strong style="color: #ffffff;">${deadlineLabel}</strong>.
+                Reviews due by <strong style="color: #ffffff;">${deadlineLabel}</strong>.
               </p>
             </td>
           </tr>
 `
     : "";
+
+  const albumRows = [
+    contemporaryLabel
+      ? `
+          <tr>
+            <td style="padding: 0 0 10px;">
+              <p style="margin: 0; color: #9ca3af; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;">Contemporary</p>
+              <p style="margin: 4px 0 0; color: #ffffff; font-size: 15px; line-height: 1.5;">${escapeHtml(contemporaryLabel)}</p>
+            </td>
+          </tr>
+`
+      : null,
+    classicLabel
+      ? `
+          <tr>
+            <td style="padding: 0;">
+              <p style="margin: 0; color: #9ca3af; font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;">Classic</p>
+              <p style="margin: 4px 0 0; color: #ffffff; font-size: 15px; line-height: 1.5;">${escapeHtml(classicLabel)}</p>
+            </td>
+          </tr>
+`
+      : null,
+  ]
+    .filter(Boolean)
+    .join("");
+
+  const albumsHtml = albumRows
+    ? `
+          <tr>
+            <td style="padding: 0 32px 20px;">
+              <p style="margin: 0 0 12px; color: #e5e5e5; font-size: 15px; font-weight: 600;">This week's albums</p>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                ${albumRows}
+              </table>
+            </td>
+          </tr>
+`
+    : `
+          <tr>
+            <td style="padding: 0 32px 20px;">
+              <p style="margin: 0; color: #9ca3af; font-size: 14px;">Album details are coming soon.</p>
+            </td>
+          </tr>
+`;
 
   const htmlBody = `
 <!DOCTYPE html>
@@ -717,7 +788,7 @@ export function buildReminderEmailTemplate(week: WeekData): EmailContent {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Album Club – ${weekLabel} Reminder</title>
+  <title>Album Club – Review Reminder</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #000000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #000000;">
@@ -727,7 +798,7 @@ export function buildReminderEmailTemplate(week: WeekData): EmailContent {
           <tr>
             <td style="padding: 32px 32px 24px; background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%); border-bottom: 1px solid #1f1f1f;">
               <h1 style="margin: 0; color: #ffffff; font-size: 26px; font-weight: 700; letter-spacing: -0.5px;">Album Club</h1>
-              <p style="margin: 8px 0 0; color: #a1a1a1; font-size: 16px;">${weekLabel} • Reminder</p>
+              <p style="margin: 8px 0 0; color: #a1a1a1; font-size: 16px;">Review Reminder</p>
             </td>
           </tr>
 
@@ -740,11 +811,12 @@ export function buildReminderEmailTemplate(week: WeekData): EmailContent {
           <tr>
             <td style="padding: 0 32px 16px;">
               <p style="margin: 0; color: #e5e5e5; font-size: 15px; line-height: 1.6;">
-                Friendly reminder: we haven&apos;t seen your reviews for ${weekLabel} yet.
+                Friendly reminder: we haven&apos;t seen your reviews for this week&apos;s picks yet.
               </p>
             </td>
           </tr>
 ${deadlineHtml}
+${albumsHtml}
           <tr>
             <td style="padding: 8px 32px 24px;">
               <a href="${EMAIL_TEMPLATE_PLACEHOLDERS.submitUrl}" style="display: inline-block; background-color: #10b981; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-size: 15px; font-weight: 600; letter-spacing: 0.2px;">
@@ -779,17 +851,28 @@ ${deadlineHtml}
   const textLines: string[] = [
     `Hi ${EMAIL_TEMPLATE_PLACEHOLDERS.firstName},`,
     "",
-    `Friendly reminder: we haven't seen your reviews for ${weekLabel} yet.`,
-    "",
-    "Submit your review:",
-    EMAIL_TEMPLATE_PLACEHOLDERS.submitUrl,
+    "Friendly reminder: we haven't seen your reviews for this week's picks yet.",
   ];
 
   if (deadlineLabel) {
-    textLines.push("", `Responses due by ${deadlineLabel}.`);
+    textLines.push("", `Reviews due by ${deadlineLabel}.`);
+  }
+
+  textLines.push("", "This week's albums:");
+  if (contemporaryLabel) {
+    textLines.push(`- Contemporary: ${contemporaryLabel}`);
+  }
+  if (classicLabel) {
+    textLines.push(`- Classic: ${classicLabel}`);
+  }
+  if (!contemporaryLabel && !classicLabel) {
+    textLines.push("- Album details are coming soon.");
   }
 
   textLines.push(
+    "",
+    "Submit your review:",
+    EMAIL_TEMPLATE_PLACEHOLDERS.submitUrl,
     "",
     `Manage preferences: ${EMAIL_TEMPLATE_PLACEHOLDERS.settingsUrl}`,
     `Unsubscribe from reminder emails: ${EMAIL_TEMPLATE_PLACEHOLDERS.unsubscribeUrl}`
@@ -798,7 +881,7 @@ ${deadlineHtml}
   return {
     htmlBody,
     textBody: textLines.join("\n"),
-    subject: `Reminder: Album Club – ${weekLabel}`,
+    subject,
   };
 }
 
