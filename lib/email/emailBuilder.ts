@@ -507,6 +507,7 @@ export function buildEmailContent(
       dashboardUrl: `${appUrl}/dashboard`,
       unsubscribeUrl: `${appUrl}/unsubscribe?token=${participant.unsubscribe_token}`,
       inviteUrl: `${appUrl}/invite-friend?ref=${participant.id}`,
+      settingsUrl: `${appUrl}/settings`,
     },
     reviewStats,
     isTest
