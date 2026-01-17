@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "prebuild": "npm run test:run",
+    "prebuild": "npm run typecheck && npm run test:run",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -13,6 +13,7 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest watch",
+    "typecheck": "tsc --noEmit",
     "db:inspect": "tsx scripts/inspect-schema.ts",
     "db:test": "tsx scripts/test-database.ts",
     "db:seed": "tsx scripts/seed-sample-reviews.ts",

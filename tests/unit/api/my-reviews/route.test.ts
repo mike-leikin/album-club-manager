@@ -22,13 +22,9 @@ const mockRequireAuth = vi.mocked(requireAuth)
 
 describe('My Reviews API', () => {
   let mockSupabase: any
-  let originalEnv: string | undefined
 
   beforeEach(() => {
     vi.clearAllMocks()
-
-    // Save original NODE_ENV
-    originalEnv = process.env.NODE_ENV
 
     // Create mock Supabase client
     mockSupabase = {
@@ -44,15 +40,12 @@ describe('My Reviews API', () => {
   })
 
   afterEach(() => {
-    // Restore original NODE_ENV
-    if (originalEnv !== undefined) {
-      process.env.NODE_ENV = originalEnv
-    }
+    vi.unstubAllEnvs()
   })
 
   describe('Authentication', () => {
     it('returns 401 when not authenticated in production', async () => {
-      process.env.NODE_ENV = 'production'
+      vi.stubEnv('NODE_ENV', 'production')
 
       mockRequireAuth.mockRejectedValueOnce(new Error('Unauthorized'))
 
@@ -68,7 +61,7 @@ describe('My Reviews API', () => {
     })
 
     it('returns 404 when authenticated user has no participant record', async () => {
-      process.env.NODE_ENV = 'production'
+      vi.stubEnv('NODE_ENV', 'production')
 
       mockRequireAuth.mockResolvedValueOnce({
         user: { id: 'auth-user-1', email: 'user@test.com' },
@@ -94,7 +87,7 @@ describe('My Reviews API', () => {
 
   describe('Development mode', () => {
     it('allows email parameter in development mode', async () => {
-      process.env.NODE_ENV = 'development'
+      vi.stubEnv('NODE_ENV', 'development')
 
       const participant = createMockParticipant({
         id: 'participant-1',
@@ -129,7 +122,7 @@ describe('My Reviews API', () => {
     })
 
     it('returns 404 when development email not found', async () => {
-      process.env.NODE_ENV = 'development'
+      vi.stubEnv('NODE_ENV', 'development')
 
       mockSupabase.single.mockResolvedValueOnce({
         data: null,
@@ -151,7 +144,7 @@ describe('My Reviews API', () => {
 
   describe('Statistics calculation', () => {
     it('calculates statistics correctly', async () => {
-      process.env.NODE_ENV = 'development'
+      vi.stubEnv('NODE_ENV', 'development')
 
       const participant = createMockParticipant({
         id: 'participant-1',
@@ -231,7 +224,7 @@ describe('My Reviews API', () => {
     })
 
     it('handles zero reviews correctly', async () => {
-      process.env.NODE_ENV = 'development'
+      vi.stubEnv('NODE_ENV', 'development')
 
       const participant = createMockParticipant({
         id: 'participant-1',
@@ -272,7 +265,7 @@ describe('My Reviews API', () => {
     })
 
     it('rounds average ratings to 1 decimal place', async () => {
-      process.env.NODE_ENV = 'development'
+      vi.stubEnv('NODE_ENV', 'development')
 
       const participant = createMockParticipant({
         id: 'participant-1',
@@ -330,7 +323,7 @@ describe('My Reviews API', () => {
 
   describe('Current week determination', () => {
     it('determines current week as latest non-expired week', async () => {
-      process.env.NODE_ENV = 'development'
+      vi.stubEnv('NODE_ENV', 'development')
 
       const participant = createMockParticipant({
         id: 'participant-1',
@@ -373,7 +366,7 @@ describe('My Reviews API', () => {
     })
 
     it('determines current week as most recent when all expired', async () => {
-      process.env.NODE_ENV = 'development'
+      vi.stubEnv('NODE_ENV', 'development')
 
       const participant = createMockParticipant({
         id: 'participant-1',
@@ -418,7 +411,7 @@ describe('My Reviews API', () => {
 
   describe('Week review status', () => {
     it('marks weeks as past deadline correctly', async () => {
-      process.env.NODE_ENV = 'development'
+      vi.stubEnv('NODE_ENV', 'development')
 
       const participant = createMockParticipant({
         id: 'participant-1',
@@ -464,7 +457,7 @@ describe('My Reviews API', () => {
     })
 
     it('associates reviews with correct weeks', async () => {
-      process.env.NODE_ENV = 'development'
+      vi.stubEnv('NODE_ENV', 'development')
 
       const participant = createMockParticipant({
         id: 'participant-1',
@@ -536,7 +529,7 @@ describe('My Reviews API', () => {
 
   describe('Curator status', () => {
     it('includes curator status in response', async () => {
-      process.env.NODE_ENV = 'development'
+      vi.stubEnv('NODE_ENV', 'development')
 
       const curator = createMockParticipant({
         id: 'participant-1',
@@ -566,7 +559,7 @@ describe('My Reviews API', () => {
 
   describe('Error handling', () => {
     it('returns 500 when reviews query fails', async () => {
-      process.env.NODE_ENV = 'development'
+      vi.stubEnv('NODE_ENV', 'development')
 
       const participant = createMockParticipant({
         id: 'participant-1',
@@ -596,7 +589,7 @@ describe('My Reviews API', () => {
     })
 
     it('returns 500 when weeks query fails', async () => {
-      process.env.NODE_ENV = 'development'
+      vi.stubEnv('NODE_ENV', 'development')
 
       const participant = createMockParticipant({
         id: 'participant-1',
