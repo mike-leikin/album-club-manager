@@ -61,6 +61,7 @@ export default function AdminPage() {
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [isSendingTestEmail, setIsSendingTestEmail] = useState(false);
   const [isSendingReminder, setIsSendingReminder] = useState(false);
+  const [isSendingReminderTest, setIsSendingReminderTest] = useState(false);
   const [showEmailPreview, setShowEmailPreview] = useState(false);
   const [currentWeekNumber, setCurrentWeekNumber] = useState<number | null>(null);
 
@@ -450,6 +451,35 @@ export default function AdminPage() {
     }
   };
 
+  const handleSendReminderTest = async () => {
+    if (!currentWeekNumber) {
+      toast.error("No current week available for reminder test.");
+      return;
+    }
+
+    setIsSendingReminderTest(true);
+    try {
+      const response = await fetch("/api/email/send-reminder-test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ weekNumber: currentWeekNumber }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to send reminder test email");
+      }
+
+      toast.success(result.message || "Reminder test email sent");
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to send reminder test email"
+      );
+    } finally {
+      setIsSendingReminderTest(false);
+    }
+  };
+
   const handleSendEmail = async () => {
     const parsedWeekNumber = Number(weekNumber);
     if (!Number.isFinite(parsedWeekNumber) || parsedWeekNumber <= 0) {
@@ -783,6 +813,21 @@ export default function AdminPage() {
                 title="Send a test email to yourself to preview the actual HTML email"
               >
                 {isSendingTestEmail ? "Sending..." : "🧪 Send Test Email"}
+              </button>
+              <button
+                type="button"
+                onClick={handleSendReminderTest}
+                disabled={isSendingReminderTest || !currentWeekNumber}
+                className={actionButtonClass}
+                title={
+                  currentWeekNumber
+                    ? `Send reminder test for Week ${currentWeekNumber}`
+                    : "No current week available"
+                }
+              >
+                {isSendingReminderTest
+                  ? "Sending..."
+                  : `🧪 Send Reminder Test${currentWeekNumber ? ` (Week ${currentWeekNumber})` : ""}`}
               </button>
               <button
                 type="button"
