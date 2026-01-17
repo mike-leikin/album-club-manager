@@ -74,6 +74,7 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Delete Weeks**: Remove weeks from history with confirmation dialog (curator-only)
 - **Enhanced Date Picker**: Dark mode calendar with minimum date validation
 - **Email Preview**: See exactly what participants will receive before sending
+- **Reminder Test Send**: Send the reminder template to yourself before blasting
 - **Email History Tab**: Send-instance view with previews and manual resends
 - **Email Delivery Tracking**: Complete audit trail with retry capability for failed sends
 - **Data Export**: One-click export of all reviews, participants, and week history

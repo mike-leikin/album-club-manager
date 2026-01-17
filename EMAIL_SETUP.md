@@ -84,6 +84,13 @@ This setting is applied to both:
 4. Click **Preview Email** to see what participants will receive
 5. Click **📧 Send Email** to send to all participants
 
+### Send Reminder Test Email
+
+1. Go to Admin Dashboard → Week Management tab
+2. Click **🧪 Send Reminder Test (Week X)**
+
+This sends the reminder template to the curator email for the current week so you can verify copy, links, and unsubscribe behavior before sending reminders.
+
 ### Send Review Reminder Email
 
 1. Go to Admin Dashboard → Week Management tab
