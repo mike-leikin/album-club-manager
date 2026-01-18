@@ -82,7 +82,6 @@ export default function DashboardPage() {
   const [userName, setUserName] = useState<string>("");
   const [isCurator, setIsCurator] = useState(false);
   const [participantEmail, setParticipantEmail] = useState<string>("");
-  const [activeView, setActiveView] = useState<"my" | "browse">("my");
 
   // Editing/adding form state
   const [formRating, setFormRating] = useState("");
@@ -331,171 +330,117 @@ export default function DashboardPage() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-8">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Reviews</h2>
-            <p className="text-sm text-gray-500">
-              Review the current week or browse past weeks in one place.
-            </p>
-          </div>
-          <div className="inline-flex w-full md:w-auto rounded-lg border border-gray-200 bg-white p-1">
-            <button
-              onClick={() => setActiveView("my")}
-              className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                activeView === "my"
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              My Reviews
-            </button>
-            <button
-              onClick={() => setActiveView("browse")}
-              className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                activeView === "browse"
-                  ? "bg-blue-600 text-white"
-                  : "text-gray-700 hover:bg-gray-50"
-              }`}
-            >
-              Browse Reviews
-            </button>
-          </div>
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-gray-900">Reviews</h2>
+          <p className="text-sm text-gray-500">
+            Review the current week and scroll through past weeks.
+          </p>
         </div>
 
-        <section className={activeView === "my" ? "" : "hidden"}>
-          {/* Stats Section */}
-          {stats && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="text-sm font-medium text-gray-500">
-                  Total Reviews
-                </div>
-                <div className="mt-2 text-3xl font-bold text-gray-900">
-                  {stats.totalReviews}
-                </div>
+        {/* Stats Section */}
+        {stats && (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="text-sm font-medium text-gray-500">
+                Total Reviews
               </div>
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="text-sm font-medium text-gray-500">
-                  Participation Rate
-                </div>
-                <div className="mt-2 text-3xl font-bold text-blue-600">
-                  {stats.participationRate}%
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {Math.floor(stats.totalReviews / 2)} of {stats.totalWeeks} weeks
-                </div>
-              </div>
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="text-sm font-medium text-gray-500">
-                  Avg Contemporary
-                </div>
-                <div className="mt-2 text-3xl font-bold text-purple-600">
-                  {stats.avgContemporaryRating?.toFixed(1) || "—"}
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {stats.contemporaryCount} reviews
-                </div>
-              </div>
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="text-sm font-medium text-gray-500">
-                  Avg Classic
-                </div>
-                <div className="mt-2 text-3xl font-bold text-orange-600">
-                  {stats.avgClassicRating?.toFixed(1) || "—"}
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {stats.classicCount} reviews
-                </div>
+              <div className="mt-2 text-3xl font-bold text-gray-900">
+                {stats.totalReviews}
               </div>
             </div>
-          )}
-
-          {/* Current Week Section */}
-          {currentWeek && (
-            <div className="mb-8">
-              <div className="mb-4">
-                <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                  <span>📅</span> Current Week
-                </h2>
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="text-sm font-medium text-gray-500">
+                Participation Rate
               </div>
-              <WeekCard
-                week={currentWeek}
-                editingReviewId={editingReviewId}
-                addingReview={addingReview}
-                formRating={formRating}
-                formFavoriteTrack={formFavoriteTrack}
-                formReviewText={formReviewText}
-                isSaving={isSaving}
-                onStartEditing={startEditing}
-                onStartAdding={startAdding}
-                onCancelForm={cancelForm}
-                onSaveEdit={saveEdit}
-                onSaveNew={saveNew}
-                onDeleteReview={deleteReview}
-                onRatingChange={setFormRating}
-                onFavoriteTrackChange={setFormFavoriteTrack}
-                onReviewTextChange={setFormReviewText}
-                isCurrentWeek={true}
-              />
-            </div>
-          )}
-
-          {/* Previous Weeks Section */}
-          {previousWeeks.length > 0 && (
-            <div>
-              <div className="mb-4">
-                <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                  <span>📚</span> Previous Weeks
-                </h2>
+              <div className="mt-2 text-3xl font-bold text-blue-600">
+                {stats.participationRate}%
               </div>
-              <div className="space-y-6">
-                {previousWeeks.map((week) => (
-                  <WeekCard
-                    key={week.week_number}
-                    week={week}
-                    editingReviewId={editingReviewId}
-                    addingReview={addingReview}
-                    formRating={formRating}
-                    formFavoriteTrack={formFavoriteTrack}
-                    formReviewText={formReviewText}
-                    isSaving={isSaving}
-                    onStartEditing={startEditing}
-                    onStartAdding={startAdding}
-                    onCancelForm={cancelForm}
-                    onSaveEdit={saveEdit}
-                    onSaveNew={saveNew}
-                    onDeleteReview={deleteReview}
-                    onRatingChange={setFormRating}
-                    onFavoriteTrackChange={setFormFavoriteTrack}
-                    onReviewTextChange={setFormReviewText}
-                    isCurrentWeek={false}
-                  />
-                ))}
+              <div className="text-xs text-gray-500 mt-1">
+                {Math.floor(stats.totalReviews / 2)} of {stats.totalWeeks} weeks
               </div>
             </div>
-          )}
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="text-sm font-medium text-gray-500">
+                Avg Contemporary
+              </div>
+              <div className="mt-2 text-3xl font-bold text-purple-600">
+                {stats.avgContemporaryRating?.toFixed(1) || "—"}
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                {stats.contemporaryCount} reviews
+              </div>
+            </div>
+            <div className="bg-white rounded-lg shadow p-6">
+              <div className="text-sm font-medium text-gray-500">
+                Avg Classic
+              </div>
+              <div className="mt-2 text-3xl font-bold text-orange-600">
+                {stats.avgClassicRating?.toFixed(1) || "—"}
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                {stats.classicCount} reviews
+              </div>
+            </div>
+          </div>
+        )}
 
-          {/* Empty State */}
-          {allWeeks.length === 0 && (
-            <div className="bg-white rounded-lg shadow px-6 py-12 text-center">
-              <p className="text-gray-500">
-                No weeks have been created yet. Check back soon!
+        {/* Current Week Section */}
+        {currentWeek && (
+          <div className="mb-8">
+            <div className="mb-4">
+              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <span>📅</span> Current Week
+              </h2>
+            </div>
+            <WeekCard
+              week={currentWeek}
+              editingReviewId={editingReviewId}
+              addingReview={addingReview}
+              formRating={formRating}
+              formFavoriteTrack={formFavoriteTrack}
+              formReviewText={formReviewText}
+              isSaving={isSaving}
+              onStartEditing={startEditing}
+              onStartAdding={startAdding}
+              onCancelForm={cancelForm}
+              onSaveEdit={saveEdit}
+              onSaveNew={saveNew}
+              onDeleteReview={deleteReview}
+              onRatingChange={setFormRating}
+              onFavoriteTrackChange={setFormFavoriteTrack}
+              onReviewTextChange={setFormReviewText}
+              isCurrentWeek={true}
+            />
+          </div>
+        )}
+
+        {/* Previous Weeks Section */}
+        {previousWeeks.length > 0 && (
+          <div>
+            <div className="mb-4">
+              <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <span>📚</span> Previous Weeks
+              </h2>
+              <p className="text-sm text-gray-500 mt-1">
+                Read approved reviews from past weeks.
               </p>
             </div>
-          )}
-        </section>
+            <BrowseReviews
+              variant="embedded"
+              weeksOverride={previousWeeks}
+              lockMode="none"
+            />
+          </div>
+        )}
 
-        <section className={activeView === "browse" ? "" : "hidden"}>
-          <div className="mb-4">
-            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <span>📝</span> Browse Reviews
-            </h2>
-            <p className="text-sm text-gray-500 mt-1">
-              Read approved reviews from previous weeks.
+        {/* Empty State */}
+        {allWeeks.length === 0 && (
+          <div className="bg-white rounded-lg shadow px-6 py-12 text-center">
+            <p className="text-gray-500">
+              No weeks have been created yet. Check back soon!
             </p>
           </div>
-          <BrowseReviews variant="embedded" enabled={activeView === "browse"} />
-        </section>
+        )}
       </main>
     </div>
   );

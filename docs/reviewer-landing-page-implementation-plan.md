@@ -1,9 +1,9 @@
 # Reviewer Landing Page (Unified Dashboard) Implementation Plan
 
 ## Phase 1: Confirm UX and routing decisions
-- Choose the in-page switch (tabs, segmented control, or anchor-based sections).
+- Confirm vertical scroll layout (current week first, past weeks below).
 - Keep `/reviews` public (reusing browse components).
-- Confirm default view on load and how view state is preserved across toggles.
+- Confirm closed-week behavior (no edit/delete for non-current weeks).
 
 ## Phase 2: Extract reusable browse components
 - Move the existing browse UI from `app/reviews/page.tsx` into shared components (e.g., `components/reviews/`).
@@ -12,14 +12,14 @@
 
 ## Phase 3: Integrate browse view into `/dashboard`
 - Add browse state and data fetching alongside the existing `loadReviews()` call.
-- Fetch `/api/weeks?all=true` for the browse list.
+- Use the weeks list from `/api/my-reviews` to render past weeks on the dashboard.
 - Trigger `/api/reviews?week_number=` on expansion and cache results per week.
-- Keep browse loading and error state isolated from personal review state.
+- Keep browse loading and error state isolated from current-week review state.
+- Remove edit/delete actions for non-current weeks.
 
 ## Phase 4: Update dashboard layout and navigation
-- Add the in-page switcher in the dashboard header or main content.
-- Replace the "Browse Reviews" button with a switch or anchor to the browse view.
-- Ensure mobile layout keeps the switch visible and avoids long scroll jumps.
+- Replace the "Browse Reviews" button with inline past-week sections.
+- Ensure the past-week list is expandable and scroll-friendly on mobile.
 
 ## Phase 5: Reconcile `/reviews` route
 - Option A: Update `app/reviews/page.tsx` to reuse the extracted browse components.
@@ -28,5 +28,5 @@
 
 ## Phase 6: Documentation and tests
 - Update `PARTICIPANT_DASHBOARD.md` to reflect the unified reviewer experience.
-- Add or update tests for view switching and browse expansion caching.
-- Validate loading/error states for both views.
+- Add or update tests for browse expansion caching and closed-week read-only behavior.
+- Validate loading/error states for the current week and past-week sections.

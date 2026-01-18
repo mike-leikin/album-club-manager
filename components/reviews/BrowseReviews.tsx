@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { getFirstName } from "@/lib/utils/names";
 import type { Week, Review, Participant } from "@/lib/types/database";
@@ -28,19 +28,47 @@ type WeekWithReviews = Week & {
 type BrowseReviewsProps = {
   variant?: "page" | "embedded";
   enabled?: boolean;
+  weeksOverride?: Week[];
+  lockMode?: "deadline" | "none";
 };
+
+function mergeWeeks(
+  prev: WeekWithReviews[],
+  incoming: Week[]
+): WeekWithReviews[] {
+  const prevMap = new Map(prev.map(week => [week.week_number, week]));
+  return incoming.map(week => {
+    const existing = prevMap.get(week.week_number);
+    if (!existing) return { ...week };
+    return {
+      ...week,
+      reviewsData: existing.reviewsData,
+      isLoading: existing.isLoading,
+    };
+  });
+}
 
 export default function BrowseReviews({
   variant = "embedded",
   enabled = true,
+  weeksOverride,
+  lockMode = "deadline",
 }: BrowseReviewsProps) {
   const [weeks, setWeeks] = useState<WeekWithReviews[]>([]);
   const [expandedWeeks, setExpandedWeeks] = useState<Set<number>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const weeksKey = useMemo(
+    () =>
+      weeksOverride
+        ? weeksOverride.map(week => week.week_number).join(",")
+        : "",
+    [weeksOverride]
+  );
 
   const loadWeeks = useCallback(async () => {
+    if (weeksOverride) return;
     setIsLoading(true);
     setLoadError(null);
     try {
@@ -61,12 +89,20 @@ export default function BrowseReviews({
       setIsLoading(false);
       setHasLoaded(true);
     }
-  }, []);
+  }, [weeksOverride]);
 
   useEffect(() => {
-    if (!enabled || hasLoaded) return;
+    if (!enabled || hasLoaded || weeksOverride) return;
     loadWeeks();
-  }, [enabled, hasLoaded, loadWeeks]);
+  }, [enabled, hasLoaded, loadWeeks, weeksOverride]);
+
+  useEffect(() => {
+    if (!weeksOverride) return;
+    setWeeks(prev => mergeWeeks(prev, weeksOverride));
+    setHasLoaded(true);
+    setIsLoading(false);
+    setLoadError(null);
+  }, [weeksKey, weeksOverride]);
 
   async function loadWeekReviews(weekNumber: number) {
     // Mark week as loading
@@ -117,6 +153,7 @@ export default function BrowseReviews({
   }
 
   function isWeekLocked(week: Week): boolean {
+    if (lockMode === "none") return false;
     if (!week.response_deadline) return false;
     return new Date(week.response_deadline) > new Date();
   }

@@ -12,9 +12,9 @@ The participant dashboard allows authenticated users to view and manage their al
 - See both contemporary and classic album reviews side-by-side
 
 ### 2. Browse Community Reviews
-- Switch to a browse view on the dashboard to read approved reviews from past weeks
+- Past weeks appear below the current week as expandable sections
 - Expand weeks on demand; review data loads lazily
-- Locked weeks (before the response deadline) are not expandable
+- Past weeks are read-only (no edit/delete actions)
 
 ### 3. Participation Statistics
 - **Total Reviews**: Count of all reviews submitted
@@ -137,11 +137,11 @@ When reviews exist:
 - Each week shows both contemporary and classic reviews side-by-side
 - Visual album art and metadata for context
 
-### Browse View
-When switching to Browse Reviews:
+### Past Week Reviews
+When scrolling past the current week:
 - Weeks are listed in reverse chronological order
 - Each week expands to show approved reviews for that week
-- Weeks before the deadline remain locked
+- Past weeks are read-only (no edit/delete actions)
 
 ### Editing Flow
 1. Click "Edit" button on any review card
