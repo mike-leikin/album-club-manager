@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.13.14] - 2026-01-17
+
+### Reviewer Dashboard
+
+- Moved past-week community reviews into the main dashboard scroll
+- Past weeks are expandable and read-only (no edit/delete actions)
+
+---
+
 ## [2.13.13] - 2026-01-17
 
 ### Reviewer Dashboard

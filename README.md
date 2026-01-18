@@ -113,9 +113,9 @@ Album Club Manager streamlines the process of running a weekly music club where 
 - **Full Details**: Ratings, favorite tracks, and complete review text
 - **No Authentication**: Anyone can browse reviews for completed weeks
 
-### 🧭 Unified Reviewer Dashboard (v2.13.13)
-- **Single-Page Experience**: Participants can submit/edit reviews and browse past weeks in one place
-- **In-Page Switcher**: Toggle between My Reviews and Browse Reviews without leaving `/dashboard`
+### 🧭 Unified Reviewer Dashboard (v2.13.14)
+- **Single-Page Experience**: Participants submit/edit the current week and scroll past weeks inline
+- **Expandable Past Weeks**: Read-only community reviews for closed weeks, lazily loaded
 - **Shared Browse UI**: Same read-only browse experience as `/reviews`, with lazy loading
 
 ### 🎨 Reviewer-Friendly Landing Page (v2.5)

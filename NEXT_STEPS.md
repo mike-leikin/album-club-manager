@@ -181,7 +181,7 @@
    - ✅ Read-only view of reviews with first names only (v2.4 COMPLETE)
    - ✅ Locked state for current week (deadline not passed) (v2.4 COMPLETE)
    - ✅ Lazy loading of reviews (performance optimized) (v2.4 COMPLETE)
-   - ✅ Unified reviewer dashboard with browse switcher (v2.13.13 COMPLETE)
+   - ✅ Unified reviewer dashboard with inline past-week browse (v2.13.14 COMPLETE)
    - ✅ Reviewer-friendly landing page with welcoming copy (v2.5 COMPLETE)
    - ✅ Smart role-based routing (curators → admin, reviewers → dashboard) (v2.5 COMPLETE)
    - ✅ Public access links (browse reviews, submit review) (v2.5 COMPLETE)
