@@ -55,10 +55,18 @@ export async function POST(request: NextRequest) {
       .from("weeks")
       .select("*")
       .eq("week_number", weekNumber)
-      .single();
+      .maybeSingle();
 
-    if (weekError || !week) {
-      logger.error("Week not found", { weekNumber, requestId }, weekError);
+    if (weekError) {
+      logger.error("Failed to load week for test email", { weekNumber, requestId }, weekError);
+      return NextResponse.json(
+        { error: "Failed to load week" },
+        { status: 500 }
+      );
+    }
+
+    if (!week) {
+      logger.info("Week not found for test email", { weekNumber, requestId });
       return NextResponse.json(
         { error: "Week not found. Please save the week first." },
         { status: 404 }
@@ -82,10 +90,18 @@ export async function POST(request: NextRequest) {
       .select("*")
       .eq("email", user.email)
       .eq("is_curator", true)
-      .single();
+      .maybeSingle();
 
-    if (curatorError || !curator) {
-      logger.error("Curator participant record not found", { email: user.email, requestId }, curatorError);
+    if (curatorError) {
+      logger.error("Failed to load curator participant record", { email: user.email, requestId }, curatorError);
+      return NextResponse.json(
+        { error: "Failed to load curator participant record" },
+        { status: 500 }
+      );
+    }
+
+    if (!curator) {
+      logger.info("Curator participant record not found", { email: user.email, requestId });
       return NextResponse.json(
         { error: "Curator participant record not found" },
         { status: 404 }

@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.13.15] - 2026-01-18
+
+### Email Reliability
+
+- Prevent test email sends from throwing on missing rows (clean 404/500 handling, less Sentry noise)
+- Guard cookie access in weekly sends when a cookie store is unavailable (e.g., tests)
+
+---
+
 ## [2.13.14] - 2026-01-17
 
 ### Reviewer Dashboard

@@ -3,6 +3,7 @@
 A full-stack web application for managing a music album club with automated email notifications, Spotify integration, and comprehensive admin tools.
 
 🌐 **Live App**: [albumclub.club](https://albumclub.club)
+🗓️ **Latest Release**: v2.13.15 (2026-01-18)
 
 ## Overview
 
@@ -18,6 +19,7 @@ Album Club Manager streamlines the process of running a weekly music club where 
 
 ### 📧 Automated Email System
 - **Test Email Preview**: Send test email to yourself before sending to all participants (v2.12)
+- **Test Email Reliability**: Missing week/curator rows return clean errors without noisy exceptions
 - **Email History & Resends**: Preview prior sends and resend to selected participants (v2.13)
 - **Review Reminder Emails**: Manual reminders for the current week, due-date subject line, and per-recipient opt-out
 - **Review Confirmation Emails**: Transactional confirmation with full review details after submission

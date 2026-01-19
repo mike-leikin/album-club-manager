@@ -234,7 +234,7 @@
 
 **All Core Features Complete!** 🎉
 
-**Version 2.13** - Email History & Manual Resends (2026-01-06)
+**Version 2.13.15** - Email Reliability (2026-01-18)
 
 - ✅ **Spotify Integration**: Fully operational with auto-populate and album art
 - ✅ **RS 500 Integration**: Complete with search, filter, and usage tracking
@@ -264,7 +264,12 @@
 
 **The app is production-ready and fully operational!**
 
-**Latest Session Accomplishments (2026-01-06)**:
+**Latest Session Accomplishments (2026-01-18)**:
+
+- ✅ **Email Reliability**: `/api/email/send-test` now treats missing rows as 404s without throwing
+- ✅ **Weekly Send Robustness**: Guarded cookie access in `/api/email/send-week` for non-cookie contexts (tests)
+
+**Previous Session Accomplishments (2026-01-06)**:
 
 **v2.13 - Email History & Manual Resends:**
 - ✅ **Email History Tab**: Send-instance table grouped by week with content preview and recipient statuses
