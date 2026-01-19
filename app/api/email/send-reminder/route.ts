@@ -37,7 +37,10 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (currentWeekError || !currentWeek) {
-      logger.error("No current week found for reminder", { requestId }, currentWeekError);
+      const currentWeekLoadError = currentWeekError
+        ? new Error(currentWeekError.message)
+        : undefined;
+      logger.error("No current week found for reminder", { requestId }, currentWeekLoadError);
       return NextResponse.json(
         { error: "Current week not found" },
         { status: 404 }
@@ -73,7 +76,10 @@ export async function POST(request: NextRequest) {
       .order("name");
 
     if (participantsError || !participants) {
-      logger.error("Failed to load participants for reminder", { requestId }, participantsError);
+      const participantsLoadError = participantsError
+        ? new Error(participantsError.message)
+        : undefined;
+      logger.error("Failed to load participants for reminder", { requestId }, participantsLoadError);
       return NextResponse.json(
         { error: "Failed to load participants" },
         { status: 500 }
@@ -93,7 +99,8 @@ export async function POST(request: NextRequest) {
       .eq("week_number", targetWeekNumber);
 
     if (reviewError) {
-      logger.error("Failed to load reviews for reminder", { requestId }, reviewError);
+      const reviewLoadError = new Error(reviewError.message);
+      logger.error("Failed to load reviews for reminder", { requestId }, reviewLoadError);
       return NextResponse.json(
         { error: "Failed to load review data" },
         { status: 500 }

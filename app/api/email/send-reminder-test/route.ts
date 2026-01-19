@@ -49,7 +49,10 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (currentWeekError || !currentWeek) {
-      logger.error("Current week not found for reminder test", { requestId }, currentWeekError);
+      const currentWeekLoadError = currentWeekError
+        ? new Error(currentWeekError.message)
+        : undefined;
+      logger.error("Current week not found for reminder test", { requestId }, currentWeekLoadError);
       return NextResponse.json(
         { error: "Current week not found. Please save the week first." },
         { status: 404 }
@@ -76,7 +79,8 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (weekError || !week) {
-      logger.error("Week not found for reminder test", { targetWeekNumber, requestId }, weekError);
+      const weekLoadError = weekError ? new Error(weekError.message) : undefined;
+      logger.error("Week not found for reminder test", { targetWeekNumber, requestId }, weekLoadError);
       return NextResponse.json(
         { error: "Week not found. Please save the week first." },
         { status: 404 }
@@ -100,7 +104,12 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (curatorError || !curator) {
-      logger.error("Curator participant record not found", { email: user.email, requestId }, curatorError);
+      const curatorLoadError = curatorError ? new Error(curatorError.message) : undefined;
+      logger.error(
+        "Curator participant record not found",
+        { email: user.email, requestId },
+        curatorLoadError
+      );
       return NextResponse.json(
         { error: "Curator participant record not found" },
         { status: 404 }

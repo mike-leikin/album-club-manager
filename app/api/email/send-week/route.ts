@@ -54,7 +54,8 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (weekError || !week) {
-      logger.error("Week not found", { weekNumber, requestId }, weekError);
+      const weekLoadError = weekError ? new Error(weekError.message) : undefined;
+      logger.error("Week not found", { weekNumber, requestId }, weekLoadError);
       return NextResponse.json(
         { error: "Week not found" },
         { status: 404 }
@@ -89,7 +90,10 @@ export async function POST(request: NextRequest) {
       .order("name");
 
     if (participantsError || !participants || participants.length === 0) {
-      logger.error("No participants found", { weekNumber, requestId }, participantsError);
+      const participantsLoadError = participantsError
+        ? new Error(participantsError.message)
+        : undefined;
+      logger.error("No participants found", { weekNumber, requestId }, participantsLoadError);
       return NextResponse.json(
         { error: "No participants found" },
         { status: 404 }

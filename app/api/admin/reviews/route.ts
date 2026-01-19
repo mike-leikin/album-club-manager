@@ -28,9 +28,19 @@ export async function GET(request: NextRequest) {
 
     // Apply filters
     if (weekNumber) query = query.eq("week_number", parseInt(weekNumber));
-    if (status && status !== 'all') query = query.eq("moderation_status", status);
+    if (status && status !== 'all') {
+      const allowedStatuses = ['pending', 'approved', 'hidden'] as const;
+      if (allowedStatuses.includes(status as (typeof allowedStatuses)[number])) {
+        query = query.eq("moderation_status", status as (typeof allowedStatuses)[number]);
+      }
+    }
     if (participantId) query = query.eq("participant_id", participantId);
-    if (albumType && albumType !== 'all') query = query.eq("album_type", albumType);
+    if (albumType && albumType !== 'all') {
+      const allowedAlbumTypes = ['contemporary', 'classic'] as const;
+      if (allowedAlbumTypes.includes(albumType as (typeof allowedAlbumTypes)[number])) {
+        query = query.eq("album_type", albumType as (typeof allowedAlbumTypes)[number]);
+      }
+    }
 
     const { data: reviews, error } = await query;
 

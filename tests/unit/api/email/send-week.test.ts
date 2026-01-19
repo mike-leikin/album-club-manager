@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { createMockParticipant } from '@/tests/mocks/factories/participantFactory'
 import { createMockWeek } from '@/tests/mocks/factories/weekFactory'
@@ -119,13 +120,15 @@ describe('POST /api/email/send-week', () => {
       update: vi.fn().mockReturnThis(),
     }
 
-    mockCreateServerClient.mockReturnValue(mockSupabase)
+    mockCreateServerClient.mockReturnValue(
+      mockSupabase as unknown as ReturnType<typeof createServerClient>
+    )
   })
 
   describe('Authentication', () => {
     it('returns 401 when not authenticated', async () => {
-      const unauthorizedResponse = new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
+      const unauthorizedResponse = NextResponse.json(
+        { error: 'Unauthorized' },
         { status: 401 }
       )
       mockRequireCuratorApi.mockResolvedValueOnce(unauthorizedResponse)
@@ -143,8 +146,8 @@ describe('POST /api/email/send-week', () => {
     })
 
     it('returns 403 when not a curator', async () => {
-      const forbiddenResponse = new Response(
-        JSON.stringify({ error: 'Forbidden: Curator access required' }),
+      const forbiddenResponse = NextResponse.json(
+        { error: 'Forbidden: Curator access required' },
         { status: 403 }
       )
       mockRequireCuratorApi.mockResolvedValueOnce(forbiddenResponse)

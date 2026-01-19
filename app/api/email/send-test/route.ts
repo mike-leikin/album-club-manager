@@ -58,7 +58,8 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     if (weekError) {
-      logger.error("Failed to load week for test email", { weekNumber, requestId }, weekError);
+      const weekLoadError = new Error(weekError.message);
+      logger.error("Failed to load week for test email", { weekNumber, requestId }, weekLoadError);
       return NextResponse.json(
         { error: "Failed to load week" },
         { status: 500 }
@@ -93,7 +94,12 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     if (curatorError) {
-      logger.error("Failed to load curator participant record", { email: user.email, requestId }, curatorError);
+      const curatorLoadError = new Error(curatorError.message);
+      logger.error(
+        "Failed to load curator participant record",
+        { email: user.email, requestId },
+        curatorLoadError
+      );
       return NextResponse.json(
         { error: "Failed to load curator participant record" },
         { status: 500 }

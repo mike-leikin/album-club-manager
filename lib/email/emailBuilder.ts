@@ -8,20 +8,20 @@ export interface EmailContent {
 
 export interface WeekData {
   week_number: number;
-  created_at?: string;
-  response_deadline?: string;
-  curator_message?: string;
-  contemporary_title?: string;
-  contemporary_artist?: string;
-  contemporary_year?: string;
-  contemporary_spotify_url?: string;
-  contemporary_album_art_url?: string;
-  classic_title?: string;
-  classic_artist?: string;
-  classic_year?: string;
-  classic_spotify_url?: string;
-  classic_album_art_url?: string;
-  rs_rank?: number;
+  created_at?: string | null;
+  response_deadline?: string | null;
+  curator_message?: string | null;
+  contemporary_title?: string | null;
+  contemporary_artist?: string | null;
+  contemporary_year?: string | null;
+  contemporary_spotify_url?: string | null;
+  contemporary_album_art_url?: string | null;
+  classic_title?: string | null;
+  classic_artist?: string | null;
+  classic_year?: string | null;
+  classic_spotify_url?: string | null;
+  classic_album_art_url?: string | null;
+  rs_rank?: number | null;
 }
 
 export interface ReviewStats {

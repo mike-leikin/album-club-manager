@@ -35,7 +35,32 @@ describe('My Reviews API', () => {
     week_number: number
     isCurrentWeek: boolean
     isPastDeadline: boolean
-    reviews?: { contemporary: unknown; classic: unknown }
+    reviews: {
+      contemporary: { rating: number } | null
+      classic: { rating: number } | null
+    }
+  }
+  type ApiStats = {
+    totalReviews: number
+    contemporaryCount: number
+    classicCount: number
+    avgContemporaryRating: number | null
+    avgClassicRating: number | null
+    participationRate: number
+    totalWeeks: number
+  }
+  type ApiResponse = {
+    data: {
+      participant: { name: string; isCurator: boolean }
+      stats: ApiStats
+      allWeeks: ApiWeek[]
+    }
+    error?: string
+    details?: string
+  }
+  type ApiErrorResponse = {
+    error: string
+    details?: string
   }
 
   let mockSupabase: MockSupabase
@@ -54,7 +79,9 @@ describe('My Reviews API', () => {
       single: vi.fn(),
     }
 
-    mockCreateServerClient.mockReturnValue(mockSupabase)
+    mockCreateServerClient.mockReturnValue(
+      mockSupabase as unknown as ReturnType<typeof createServerClient>
+    )
   })
 
   afterEach(() => {
@@ -72,7 +99,7 @@ describe('My Reviews API', () => {
       })
 
       const response = await GET(request)
-      const data = await response.json()
+      const data = (await response.json()) as ApiResponse
 
       expect(response.status).toBe(401)
       expect(data.error).toBe('Unauthorized')
@@ -98,7 +125,7 @@ describe('My Reviews API', () => {
       })
 
       const response = await GET(request)
-      const data = (await response.json()) as { data: { allWeeks: ApiWeek[] } }
+      const data = (await response.json()) as ApiErrorResponse
 
       expect(response.status).toBe(404)
       expect(data.error).toContain('Participant not found')
@@ -132,7 +159,7 @@ describe('My Reviews API', () => {
       })
 
       const response = await GET(request)
-      const data = await response.json()
+      const data = (await response.json()) as ApiResponse
 
       expect(response.status).toBe(200)
       expect(data.data.participant.name).toBe('Dev User')
@@ -155,7 +182,7 @@ describe('My Reviews API', () => {
       })
 
       const response = await GET(request)
-      const data = await response.json()
+      const data = (await response.json()) as ApiErrorResponse
 
       expect(response.status).toBe(404)
       expect(data.error).toContain('Participant not found')
@@ -230,7 +257,7 @@ describe('My Reviews API', () => {
       })
 
       const response = await GET(request)
-      const data = await response.json()
+      const data = (await response.json()) as ApiResponse
 
       expect(response.status).toBe(200)
       expect(data.data.stats).toEqual({
@@ -271,7 +298,7 @@ describe('My Reviews API', () => {
       })
 
       const response = await GET(request)
-      const data = await response.json()
+      const data = (await response.json()) as ApiResponse
 
       expect(response.status).toBe(200)
       expect(data.data.stats).toEqual({
@@ -334,7 +361,7 @@ describe('My Reviews API', () => {
       })
 
       const response = await GET(request)
-      const data = await response.json()
+      const data = (await response.json()) as ApiResponse
 
       expect(response.status).toBe(200)
       // (8.3 + 8.7) / 2 = 8.5
@@ -375,12 +402,16 @@ describe('My Reviews API', () => {
       })
 
       const response = await GET(request)
-      const data = await response.json()
+      const data = (await response.json()) as ApiResponse
 
       expect(response.status).toBe(200)
       expect(mockSupabase.not).toHaveBeenCalledWith('published_at', 'is', null)
 
       const currentWeek = data.data.allWeeks.find((w) => w.isCurrentWeek)
+      expect(currentWeek).toBeDefined()
+      if (!currentWeek) {
+        throw new Error('Expected a current week to be defined.')
+      }
       expect(currentWeek.week_number).toBe(2)
     })
 
@@ -406,7 +437,7 @@ describe('My Reviews API', () => {
       })
 
       const response = await GET(request)
-      const data = (await response.json()) as { data: { allWeeks: ApiWeek[] } }
+      const data = (await response.json()) as ApiResponse
 
       expect(response.status).toBe(200)
 
@@ -448,13 +479,18 @@ describe('My Reviews API', () => {
       })
 
       const response = await GET(request)
-      const data = (await response.json()) as { data: { allWeeks: ApiWeek[] } }
+      const data = (await response.json()) as ApiResponse
 
       expect(response.status).toBe(200)
 
       const pastWeek = data.data.allWeeks.find((w) => w.week_number === 1)
       const futureWeek = data.data.allWeeks.find((w) => w.week_number === 2)
 
+      expect(pastWeek).toBeDefined()
+      expect(futureWeek).toBeDefined()
+      if (!pastWeek || !futureWeek) {
+        throw new Error('Expected both weeks to be defined.')
+      }
       expect(pastWeek.isPastDeadline).toBe(true)
       expect(futureWeek.isPastDeadline).toBe(false)
     })
@@ -513,15 +549,23 @@ describe('My Reviews API', () => {
       })
 
       const response = await GET(request)
-      const data = (await response.json()) as { data: { allWeeks: ApiWeek[] } }
+      const data = (await response.json()) as ApiResponse
 
       expect(response.status).toBe(200)
 
       const week1Data = data.data.allWeeks.find((w) => w.week_number === 1)
       const week2Data = data.data.allWeeks.find((w) => w.week_number === 2)
 
+      expect(week1Data).toBeDefined()
+      expect(week2Data).toBeDefined()
+      if (!week1Data || !week2Data) {
+        throw new Error('Expected both weeks to be defined.')
+      }
       expect(week1Data.reviews.contemporary).not.toBeNull()
       expect(week1Data.reviews.classic).not.toBeNull()
+      if (!week1Data.reviews.contemporary || !week1Data.reviews.classic) {
+        throw new Error('Expected reviews to be present for week 1.')
+      }
       expect(week1Data.reviews.contemporary.rating).toBe(8.5)
       expect(week1Data.reviews.classic.rating).toBe(9.0)
 
@@ -553,7 +597,7 @@ describe('My Reviews API', () => {
       })
 
       const response = await GET(request)
-      const data = await response.json()
+      const data = (await response.json()) as ApiResponse
 
       expect(response.status).toBe(200)
       expect(data.data.participant.isCurator).toBe(true)
@@ -585,7 +629,7 @@ describe('My Reviews API', () => {
       })
 
       const response = await GET(request)
-      const data = await response.json()
+      const data = (await response.json()) as ApiErrorResponse
 
       expect(response.status).toBe(500)
       expect(data.error).toContain('Database connection failed')
@@ -616,7 +660,7 @@ describe('My Reviews API', () => {
       })
 
       const response = await GET(request)
-      const data = await response.json()
+      const data = (await response.json()) as ApiErrorResponse
 
       expect(response.status).toBe(500)
       expect(data.error).toContain('Database connection failed')

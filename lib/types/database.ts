@@ -71,6 +71,7 @@ export interface Database {
           published_at?: string | null
           created_at?: string
         }
+        Relationships: []
       }
       participants: {
         Row: {
@@ -121,6 +122,7 @@ export interface Database {
           updated_at?: string
           deleted_at?: string | null
         }
+        Relationships: []
       }
       reviews: {
         Row: {
@@ -171,6 +173,7 @@ export interface Database {
           moderated_by?: string | null
           moderation_notes?: string | null
         }
+        Relationships: []
       }
       rs_500_albums: {
         Row: {
@@ -218,6 +221,181 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
+      }
+      email_logs: {
+        Row: {
+          id: number
+          week_number: number
+          participant_id: string | null
+          participant_email: string
+          status: string
+          sent_at: string | null
+          resend_id: string | null
+          error_message: string | null
+        }
+        Insert: {
+          id?: number
+          week_number: number
+          participant_id?: string | null
+          participant_email: string
+          status: string
+          sent_at?: string | null
+          resend_id?: string | null
+          error_message?: string | null
+        }
+        Update: {
+          id?: number
+          week_number?: number
+          participant_id?: string | null
+          participant_email?: string
+          status?: string
+          sent_at?: string | null
+          resend_id?: string | null
+          error_message?: string | null
+        }
+        Relationships: []
+      }
+      email_sends: {
+        Row: {
+          id: string
+          week_number: number
+          email_type: string
+          subject: string
+          html_body: string
+          text_body: string
+          created_by: string | null
+          source_send_id: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          week_number: number
+          email_type: string
+          subject: string
+          html_body: string
+          text_body: string
+          created_by?: string | null
+          source_send_id?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          week_number?: number
+          email_type?: string
+          subject?: string
+          html_body?: string
+          text_body?: string
+          created_by?: string | null
+          source_send_id?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      email_send_recipients: {
+        Row: {
+          id: string
+          send_id: string
+          participant_id: string | null
+          participant_email: string
+          status: 'queued' | 'sent' | 'failed'
+          sent_at: string | null
+          resend_id: string | null
+          error_message: string | null
+        }
+        Insert: {
+          id?: string
+          send_id: string
+          participant_id?: string | null
+          participant_email: string
+          status: 'queued' | 'sent' | 'failed'
+          sent_at?: string | null
+          resend_id?: string | null
+          error_message?: string | null
+        }
+        Update: {
+          id?: string
+          send_id?: string
+          participant_id?: string | null
+          participant_email?: string
+          status?: 'queued' | 'sent' | 'failed'
+          sent_at?: string | null
+          resend_id?: string | null
+          error_message?: string | null
+        }
+        Relationships: []
+      }
+      review_submission_logs: {
+        Row: {
+          id: string
+          request_id: string
+          week_number: number | null
+          participant_email: string | null
+          participant_id: string | null
+          status: 'validation_failed' | 'participant_not_found' | 'db_error' | 'unexpected_error'
+          error_message: string | null
+          error_code: string | null
+          error_details: Json | null
+          metadata: Json | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          request_id: string
+          week_number?: number | null
+          participant_email?: string | null
+          participant_id?: string | null
+          status: 'validation_failed' | 'participant_not_found' | 'db_error' | 'unexpected_error'
+          error_message?: string | null
+          error_code?: string | null
+          error_details?: Json | null
+          metadata?: Json | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          request_id?: string
+          week_number?: number | null
+          participant_email?: string | null
+          participant_id?: string | null
+          status?: 'validation_failed' | 'participant_not_found' | 'db_error' | 'unexpected_error'
+          error_message?: string | null
+          error_code?: string | null
+          error_details?: Json | null
+          metadata?: Json | null
+          created_at?: string
+        }
+        Relationships: []
+      }
+      _migrations: {
+        Row: {
+          id: number
+          name: string
+          applied_at: string
+          checksum: string
+          execution_time_ms: number | null
+          success: boolean
+          error_message: string | null
+        }
+        Insert: {
+          id?: number
+          name: string
+          applied_at?: string
+          checksum: string
+          execution_time_ms?: number | null
+          success?: boolean
+          error_message?: string | null
+        }
+        Update: {
+          id?: number
+          name?: string
+          applied_at?: string
+          checksum?: string
+          execution_time_ms?: number | null
+          success?: boolean
+          error_message?: string | null
+        }
+        Relationships: []
       }
       invitations: {
         Row: {
@@ -268,6 +446,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
     }
     Views: {
