@@ -105,7 +105,7 @@ const formatWeekLabel = (
   if (Number.isNaN(date.getTime())) {
     return fallbackWeekNumber ? `Week ${fallbackWeekNumber}` : "Album Club";
   }
-  return date.toLocaleDateString("en-US", {
+  return formatDateOnlyEastern(dateStr, {
     month: "short",
     day: "numeric",
     year: "numeric",

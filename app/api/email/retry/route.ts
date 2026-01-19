@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createServerClient } from "@/lib/supabaseClient";
+import { formatDateOnlyEastern } from "@/lib/utils/dates";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -149,7 +150,7 @@ export async function POST(request: NextRequest) {
       if (Number.isNaN(date.getTime())) {
         return fallbackWeekNumber ? `Week ${fallbackWeekNumber}` : "Album Club";
       }
-      return date.toLocaleDateString("en-US", {
+      return formatDateOnlyEastern(dateStr, {
         month: "short",
         day: "numeric",
         year: "numeric",
@@ -160,8 +161,7 @@ export async function POST(request: NextRequest) {
 
     // Format deadline
     const formatDeadline = (dateStr: string) => {
-      const date = new Date(dateStr);
-      return date.toLocaleDateString("en-US", {
+      return formatDateOnlyEastern(dateStr, {
         weekday: "long",
         month: "long",
         day: "numeric",

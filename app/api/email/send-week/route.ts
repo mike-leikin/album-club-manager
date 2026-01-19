@@ -8,6 +8,7 @@ import type { ReviewStats } from "@/lib/email/emailBuilder";
 import * as Sentry from "@sentry/nextjs";
 import { createServerClient as createAuthClient } from "@supabase/ssr";
 import { getFirstName } from "@/lib/utils/names";
+import { formatDateOnlyEastern } from "@/lib/utils/dates";
 import type { Database } from "@/lib/types/database";
 
 type ParticipantRow = Database["public"]["Tables"]["participants"]["Row"];
@@ -113,7 +114,7 @@ export async function POST(request: NextRequest) {
       if (Number.isNaN(date.getTime())) {
         return fallbackWeekNumber ? `Week ${fallbackWeekNumber}` : "Album Club";
       }
-      return date.toLocaleDateString("en-US", {
+      return formatDateOnlyEastern(dateStr, {
         month: "short",
         day: "numeric",
         year: "numeric",

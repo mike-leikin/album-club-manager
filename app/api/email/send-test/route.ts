@@ -7,6 +7,7 @@ import { buildEmailContent, ReviewStats } from "@/lib/email/emailBuilder";
 import * as Sentry from "@sentry/nextjs";
 import { createServerClient } from '@supabase/ssr'
 import { getFirstName } from "@/lib/utils/names";
+import { formatDateOnlyEastern } from "@/lib/utils/dates";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -125,7 +126,7 @@ export async function POST(request: NextRequest) {
       if (Number.isNaN(date.getTime())) {
         return fallbackWeekNumber ? `Week ${fallbackWeekNumber}` : "Album Club";
       }
-      return date.toLocaleDateString("en-US", {
+      return formatDateOnlyEastern(dateStr, {
         month: "short",
         day: "numeric",
         year: "numeric",
