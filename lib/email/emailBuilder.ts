@@ -1,3 +1,5 @@
+import { formatDateOnlyEastern } from "@/lib/utils/dates";
+
 export interface EmailContent {
   htmlBody: string;
   textBody: string;
@@ -110,14 +112,12 @@ const formatWeekLabel = (
   });
 };
 
-const formatDeadline = (dateStr: string) => {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("en-US", {
+const formatDeadline = (dateStr: string) =>
+  formatDateOnlyEastern(dateStr, {
     weekday: "long",
     month: "long",
     day: "numeric",
   });
-};
 
 const buildEmailContentFromParams = (
   week: WeekData,

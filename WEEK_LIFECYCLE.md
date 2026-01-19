@@ -21,13 +21,13 @@ The Week Lifecycle enhancement transforms the participant dashboard from showing
 ### 2. Deadline Awareness
 
 **Visual Indicators:**
-- ⚠️ **Past Deadline Badge**: Amber warning badge on weeks where deadline has passed
+- ⚠️ **Past Deadline Badge**: Amber warning badge on weeks before the latest published week
 - 🟢 **Current Week Badge**: Green "Current" badge on the active week
-- **Deadline Display**: Shows formatted deadline date and time on all weeks
+- **Deadline Display**: Shows formatted deadline date in Eastern time
 
 **Submit Form:**
 - Displays deadline prominently at the top
-- Shows warning banner when deadline has passed
+- Shows warning banner once the next week has been published
 - Still allows submission (non-blocking, informative only)
 
 ### 3. Add Reviews to Any Week
@@ -41,9 +41,9 @@ Participants can now:
 ### 4. Current Week Detection
 
 **Smart Logic:**
-- Current week = Latest week that hasn't passed its deadline
-- If all weeks are past deadline → Most recent week is marked current
-- If no deadline is set → Week never expires (always current)
+- Current week = Latest week with `published_at` set (weekly email sent)
+- Draft weeks (`published_at` is null) are hidden from participants
+- If no published weeks → No current week is shown
 
 ## User Interface
 
@@ -54,7 +54,7 @@ Participants can now:
 │  📊 Statistics Cards                    │
 ├─────────────────────────────────────────┤
 │  📅 Current Week (Week 15)              │
-│  Deadline: March 15, 2026 at 11:59 PM   │
+│  Deadline: March 15, 2026              │
 │  ┌────────────┐  ┌────────────┐        │
 │  │ Contemp    │  │ Classic    │        │
 │  │ [Review]   │  │ [Add]      │        │
@@ -128,7 +128,7 @@ type WeekWithReviewStatus = Week & {
 
 #### Frontend
 - [/app/dashboard/page.tsx](app/dashboard/page.tsx) - Completely restructured with new components
-- [/app/submit/page.tsx](app/submit/page.tsx) - Added deadline warning banner
+- [/app/submit/page.tsx](app/submit/page.tsx) - Deadline display adjusted for published cadence
 
 #### Infrastructure
 - [/middleware.ts](middleware.ts) - Added development mode bypass for testing
@@ -136,26 +136,18 @@ type WeekWithReviewStatus = Week & {
 ### Helper Functions
 
 ```typescript
-// Check if deadline has passed
-function isPastDeadline(deadline: string | null): boolean {
-  if (!deadline) return false;
-  return new Date(deadline) < new Date();
-}
-
-// Determine which week is current
+// Determine which week is current based on published weeks
 function determineCurrentWeek(allWeeks: Week[]): number | null {
   if (allWeeks.length === 0) return null;
+  const publishedWeeks = allWeeks.filter(w => w.published_at);
+  if (publishedWeeks.length === 0) return null;
+  return Math.max(...publishedWeeks.map(w => w.week_number));
+}
 
-  // Find weeks that haven't passed deadline
-  const nonPastWeeks = allWeeks.filter(w => !isPastDeadline(w.response_deadline));
-
-  // If there are non-past weeks, return the latest one
-  if (nonPastWeeks.length > 0) {
-    return Math.max(...nonPastWeeks.map(w => w.week_number));
-  }
-
-  // Otherwise, return the most recent week
-  return Math.max(...allWeeks.map(w => w.week_number));
+// Determine whether a week is past deadline based on publish cadence
+function isPastDeadline(weekNumber: number, currentWeekNumber: number | null): boolean {
+  if (!currentWeekNumber) return false;
+  return weekNumber < currentWeekNumber;
 }
 ```
 
@@ -206,9 +198,9 @@ http://localhost:3000/dashboard?dev=true&email=participant@example.com
 
 ## Edge Cases Handled
 
-1. **No weeks exist yet** → Empty state message
-2. **All weeks past deadline** → Most recent week still marked "Current"
-3. **No deadline set** → Week never expires (no warning shown)
+1. **No published weeks yet** → Empty state message (drafts hidden)
+2. **Draft exists ahead of current** → Latest published week stays current
+3. **No deadline set** → Week still stays current until next week is published
 4. **User has zero reviews** → All weeks show "Add Review" buttons
 5. **Week with only 1 album type** → Other slot shows "No album set"
 
@@ -262,7 +254,6 @@ Potential additions in future versions:
    - Lock past weeks from editing
 
 2. **Week States**
-   - Draft (not yet published)
    - Active (accepting reviews)
    - Closed (past deadline, read-only)
    - Archived (hidden from main view)
@@ -287,14 +278,13 @@ Potential additions in future versions:
 **Manual Testing Checklist:**
 - ✅ Dashboard shows all weeks (not just reviewed ones)
 - ✅ Current week has green border and badge
-- ✅ Past deadline shows amber warning badge
+- ✅ Past deadline badge appears after the next week is published
 - ✅ Can add review to previous week
-- ✅ Can add review to week past deadline
-- ✅ Warning message appears when submitting past deadline
+- ✅ Can add review to weeks before the current published week
 - ✅ "No album set" appears for missing albums
 - ✅ Statistics calculate correctly
 - ✅ Edit/delete still work on existing reviews
-- ✅ Submit form shows deadline warning when past due
+- ✅ Submit form shows deadline date in Eastern time
 
 **Development Mode Testing:**
 ```bash
@@ -306,15 +296,15 @@ http://localhost:3000/dashboard?dev=true&email=curator@test.com
 
 ## Rollout Notes
 
-**Database Changes:** None required - uses existing schema
+**Database Changes:** Adds `published_at` to `weeks`
 
-**Migration Required:** No
+**Migration Required:** Yes
 
 **Breaking Changes:** None - fully backwards compatible
 
 **Deployment Steps:**
-1. Deploy code to production
-2. No database migrations needed
+1. Apply database migration
+2. Deploy code to production
 3. Feature works immediately for all users
 4. Existing reviews and functionality unchanged
 

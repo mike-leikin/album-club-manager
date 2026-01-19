@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabaseClient";
 import { requireAuth } from "@/lib/auth/utils";
-import type { Review, Week } from "@/lib/types/database";
+import type { Database, Review, Week } from "@/lib/types/database";
 
 type ReviewWithWeek = Review & {
-  week: Week;
+  week: Week | null;
 };
 
 type ReviewStats = {
@@ -26,40 +26,35 @@ type WeekWithReviewStatus = Week & {
   isCurrentWeek: boolean;
 };
 
-// Helper function to check if deadline has passed
-function isPastDeadline(deadline: string | null): boolean {
-  if (!deadline) return false;
-  return new Date(deadline) < new Date();
-}
+type ParticipantSummary = Pick<
+  Database["public"]["Tables"]["participants"]["Row"],
+  "id" | "name" | "is_curator"
+>;
 
-// Helper function to determine current week
+// Helper function to determine current week based on published state
 function determineCurrentWeek(allWeeks: Week[]): number | null {
   if (allWeeks.length === 0) return null;
+  const publishedWeeks = allWeeks.filter(w => w.published_at);
+  if (publishedWeeks.length === 0) return null;
+  return Math.max(...publishedWeeks.map(w => w.week_number));
+}
 
-  // Find weeks that haven't passed deadline
-  const nonPastWeeks = allWeeks.filter(w => !isPastDeadline(w.response_deadline));
-
-  // If there are non-past weeks, return the latest one
-  if (nonPastWeeks.length > 0) {
-    return Math.max(...nonPastWeeks.map(w => w.week_number));
-  }
-
-  // Otherwise, return the most recent week
-  return Math.max(...allWeeks.map(w => w.week_number));
+function isWeekPastDeadline(weekNumber: number, currentWeekNumber: number | null): boolean {
+  if (!currentWeekNumber) return false;
+  return weekNumber < currentWeekNumber;
 }
 
 // GET /api/my-reviews - Get all reviews for the authenticated user
 export async function GET(request: Request) {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const supabase = createServerClient() as any;
+    const supabase = createServerClient();
 
     // Development mode: Allow email parameter for testing
     const isDevelopment = process.env.NODE_ENV === 'development';
     const url = new URL(request.url);
     const devEmail = url.searchParams.get('email');
 
-    let participant;
+    let participant: ParticipantSummary | null = null;
 
     if (isDevelopment && devEmail) {
       // Development bypass - look up participant by email
@@ -122,10 +117,11 @@ export async function GET(request: Request) {
       throw reviewsError;
     }
 
-    // Fetch ALL weeks (not just weeks with reviews)
+    // Fetch ALL published weeks (not just weeks with reviews)
     const { data: allWeeks, error: allWeeksError } = await supabase
       .from("weeks")
       .select("*")
+      .not("published_at", "is", null)
       .order("week_number", { ascending: false });
 
     if (allWeeksError) {
@@ -154,7 +150,7 @@ export async function GET(request: Request) {
     const weeksWithStatus: WeekWithReviewStatus[] = (allWeeks || []).map((week: Week) => ({
       ...week,
       reviews: reviewsMap.get(week.week_number) || { contemporary: null, classic: null },
-      isPastDeadline: isPastDeadline(week.response_deadline),
+      isPastDeadline: isWeekPastDeadline(week.week_number, currentWeekNumber),
       isCurrentWeek: week.week_number === currentWeekNumber,
     }));
 
@@ -173,7 +169,7 @@ export async function GET(request: Request) {
     }
 
     const weeksMap = new Map((weeks || []).map((w: Week) => [w.week_number, w]));
-    const reviewsWithWeeks = (reviews || []).map((r: Review) => ({
+    const reviewsWithWeeks: ReviewWithWeek[] = (reviews || []).map((r) => ({
       ...r,
       week: weeksMap.get(r.week_number) || null,
     }));
@@ -182,20 +178,20 @@ export async function GET(request: Request) {
 
     // Calculate statistics
     const contemporaryReviews = reviewsWithWeeks.filter(
-      (r: any) => r.album_type === "contemporary"
+      (r) => r.album_type === "contemporary"
     );
     const classicReviews = reviewsWithWeeks.filter(
-      (r: any) => r.album_type === "classic"
+      (r) => r.album_type === "classic"
     );
 
-    const calcAvg = (reviewList: any[]) => {
+    const calcAvg = (reviewList: ReviewWithWeek[]) => {
       if (reviewList.length === 0) return null;
       const sum = reviewList.reduce((acc, r) => acc + Number(r.rating), 0);
       return Math.round((sum / reviewList.length) * 10) / 10;
     };
 
     // Count unique weeks reviewed
-    const uniqueWeeks = new Set(reviewsWithWeeks.map((r: any) => r.week_number));
+    const uniqueWeeks = new Set(reviewsWithWeeks.map((r) => r.week_number));
 
     const stats: ReviewStats = {
       totalReviews: reviewsWithWeeks.length,

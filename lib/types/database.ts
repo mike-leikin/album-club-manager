@@ -30,6 +30,7 @@ export interface Database {
           classic_album_art_url: string | null
           rs_rank: number | null
           curator_message: string | null
+          published_at: string | null
           created_at: string
         }
         Insert: {
@@ -48,6 +49,7 @@ export interface Database {
           classic_album_art_url?: string | null
           rs_rank?: number | null
           curator_message?: string | null
+          published_at?: string | null
           created_at?: string
         }
         Update: {
@@ -66,6 +68,7 @@ export interface Database {
           classic_album_art_url?: string | null
           rs_rank?: number | null
           curator_message?: string | null
+          published_at?: string | null
           created_at?: string
         }
       }

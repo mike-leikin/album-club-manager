@@ -22,6 +22,7 @@ export function createMockWeek(overrides?: Partial<Week>): Week {
     classic_album_art_url: 'https://i.scdn.co/image/classic',
     rs_rank: 100,
     curator_message: null,
+    published_at: new Date().toISOString(),
     created_at: new Date().toISOString(),
     ...overrides,
   }

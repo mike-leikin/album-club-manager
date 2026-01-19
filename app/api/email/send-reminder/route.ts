@@ -9,6 +9,10 @@ import {
 } from "@/lib/email/emailBuilder";
 import * as Sentry from "@sentry/nextjs";
 import { createServerClient as createAuthClient } from "@supabase/ssr";
+import type { Database } from "@/lib/types/database";
+
+type ParticipantRow = Database["public"]["Tables"]["participants"]["Row"];
+type ReviewParticipantRow = Pick<Database["public"]["Tables"]["reviews"]["Row"], "participant_id">;
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -22,13 +26,13 @@ export async function POST(request: NextRequest) {
   try {
     const { weekNumber, dryRun = false } = await request.json();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const supabase = createServerClient() as any;
+    const supabase = createServerClient();
 
     const { data: currentWeek, error: currentWeekError } = await supabase
       .from("weeks")
       .select("*")
-      .order("week_number", { ascending: false })
+      .not("published_at", "is", null)
+      .order("published_at", { ascending: false })
       .limit(1)
       .single();
 
@@ -97,12 +101,12 @@ export async function POST(request: NextRequest) {
     }
 
     const reviewedIds = new Set(
-      (reviewRows || [])
-        .map((review: any) => review.participant_id)
-        .filter(Boolean)
+      (reviewRows as ReviewParticipantRow[] || [])
+        .map((review) => review.participant_id)
+        .filter((id): id is string => Boolean(id))
     );
     const recipients = participants.filter(
-      (participant: any) => !reviewedIds.has(participant.id)
+      (participant: ParticipantRow) => !reviewedIds.has(participant.id)
     );
     const skippedCount = participants.length - recipients.length;
 
@@ -127,7 +131,7 @@ export async function POST(request: NextRequest) {
     }
 
     let curatorId: string | null = null;
-    const hasCookieStore = typeof (request as any).cookies?.get === "function";
+    const hasCookieStore = typeof request.cookies.get === "function";
     if (
       hasCookieStore &&
       process.env.NEXT_PUBLIC_SUPABASE_URL &&
@@ -246,7 +250,7 @@ export async function POST(request: NextRequest) {
 
     const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    const sendEmail = async (participant: any) => {
+    const sendEmail = async (participant: ParticipantRow) => {
       const personalized = renderReminderEmailTemplate(emailTemplate, {
         id: participant.id,
         email: participant.email,
@@ -282,7 +286,7 @@ export async function POST(request: NextRequest) {
 
     const results: PromiseSettledResult<unknown>[] = [];
     for (let i = 0; i < recipients.length; i += 2) {
-      const batch = recipients.slice(i, i + 2).map((participant: any) => sendEmail(participant));
+      const batch = recipients.slice(i, i + 2).map((participant) => sendEmail(participant));
       const batchResults = await Promise.allSettled(batch);
       results.push(...batchResults);
 

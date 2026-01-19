@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import type { NextRequest } from 'next/server'
 import { createMockParticipant } from '@/tests/mocks/factories/participantFactory'
 import { createMockWeek } from '@/tests/mocks/factories/weekFactory'
 
@@ -54,13 +55,24 @@ vi.mock('resend', () => {
 import { POST } from '@/app/api/email/send-week/route'
 import { createServerClient } from '@/lib/supabaseClient'
 import { requireCuratorApi } from '@/lib/auth/apiAuth'
-import { Resend } from 'resend'
-
 const mockCreateServerClient = vi.mocked(createServerClient)
 const mockRequireCuratorApi = vi.mocked(requireCuratorApi)
 
 describe('POST /api/email/send-week', () => {
-  let mockSupabase: any
+  type MockSupabase = {
+    from: ReturnType<typeof vi.fn>
+    select: ReturnType<typeof vi.fn>
+    eq: ReturnType<typeof vi.fn>
+    is: ReturnType<typeof vi.fn>
+    order: ReturnType<typeof vi.fn>
+    single: ReturnType<typeof vi.fn>
+    insert: ReturnType<typeof vi.fn>
+    update: ReturnType<typeof vi.fn>
+  }
+
+  const toNextRequest = (request: Request) => request as unknown as NextRequest
+
+  let mockSupabase: MockSupabase
   let mockParticipants: ReturnType<typeof createMockParticipant>[]
   let mockWeek: ReturnType<typeof createMockWeek>
 
@@ -104,6 +116,7 @@ describe('POST /api/email/send-week', () => {
       order: vi.fn().mockReturnThis(),
       single: vi.fn(),
       insert: vi.fn().mockReturnThis(),
+      update: vi.fn().mockReturnThis(),
     }
 
     mockCreateServerClient.mockReturnValue(mockSupabase)
@@ -115,14 +128,14 @@ describe('POST /api/email/send-week', () => {
         JSON.stringify({ error: 'Unauthorized' }),
         { status: 401 }
       )
-      mockRequireCuratorApi.mockResolvedValueOnce(unauthorizedResponse as any)
+      mockRequireCuratorApi.mockResolvedValueOnce(unauthorizedResponse)
 
       const request = new Request('http://localhost/api/email/send-week', {
         method: 'POST',
         body: JSON.stringify({ weekNumber: 1 }),
       })
 
-      const response = await POST(request as any)
+      const response = await POST(toNextRequest(request))
       const data = await response.json()
 
       expect(response.status).toBe(401)
@@ -134,14 +147,14 @@ describe('POST /api/email/send-week', () => {
         JSON.stringify({ error: 'Forbidden: Curator access required' }),
         { status: 403 }
       )
-      mockRequireCuratorApi.mockResolvedValueOnce(forbiddenResponse as any)
+      mockRequireCuratorApi.mockResolvedValueOnce(forbiddenResponse)
 
       const request = new Request('http://localhost/api/email/send-week', {
         method: 'POST',
         body: JSON.stringify({ weekNumber: 1 }),
       })
 
-      const response = await POST(request as any)
+      const response = await POST(toNextRequest(request))
       const data = await response.json()
 
       expect(response.status).toBe(403)
@@ -156,7 +169,7 @@ describe('POST /api/email/send-week', () => {
         body: JSON.stringify({}),
       })
 
-      const response = await POST(request as any)
+      const response = await POST(toNextRequest(request))
       const data = await response.json()
 
       expect(response.status).toBe(400)
@@ -177,7 +190,7 @@ describe('POST /api/email/send-week', () => {
         body: JSON.stringify({ weekNumber: 999 }),
       })
 
-      const response = await POST(request as any)
+      const response = await POST(toNextRequest(request))
       const data = await response.json()
 
       expect(response.status).toBe(404)
@@ -206,7 +219,7 @@ describe('POST /api/email/send-week', () => {
         body: JSON.stringify({ weekNumber: 1 }),
       })
 
-      const response = await POST(request as any)
+      const response = await POST(toNextRequest(request))
       const data = await response.json()
 
       expect(response.status).toBe(404)
@@ -248,7 +261,7 @@ describe('POST /api/email/send-week', () => {
         body: JSON.stringify({ weekNumber: 1 }),
       })
 
-      const response = await POST(request as any)
+      const response = await POST(toNextRequest(request))
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -326,7 +339,7 @@ describe('POST /api/email/send-week', () => {
         body: JSON.stringify({ weekNumber: 2 }), // Week 2, so previous week = 1
       })
 
-      const response = await POST(request as any)
+      const response = await POST(toNextRequest(request))
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -367,7 +380,7 @@ describe('POST /api/email/send-week', () => {
         body: JSON.stringify({ weekNumber: 1 }),
       })
 
-      await POST(request as any)
+      await POST(toNextRequest(request))
 
       // Verify email logs were inserted
       expect(mockSupabase.from).toHaveBeenCalledWith('email_logs')
@@ -406,7 +419,7 @@ describe('POST /api/email/send-week', () => {
         body: JSON.stringify({ weekNumber: 1 }),
       })
 
-      const response = await POST(request as any)
+      const response = await POST(toNextRequest(request))
       const data = await response.json()
 
       expect(response.status).toBe(200)
@@ -446,7 +459,7 @@ describe('POST /api/email/send-week', () => {
         body: JSON.stringify({ weekNumber: 1 }),
       })
 
-      const response = await POST(request as any)
+      const response = await POST(toNextRequest(request))
       const data = await response.json()
 
       // Should still succeed even if logging fails
@@ -466,7 +479,7 @@ describe('POST /api/email/send-week', () => {
         body: JSON.stringify({ weekNumber: 1 }),
       })
 
-      const response = await POST(request as any)
+      const response = await POST(toNextRequest(request))
       const data = await response.json()
 
       expect(response.status).toBe(500)
@@ -500,7 +513,7 @@ describe('POST /api/email/send-week', () => {
         body: JSON.stringify({ weekNumber: 1 }),
       })
 
-      await POST(request as any)
+      await POST(toNextRequest(request))
 
       const emailCall = mockEmailContainer.send.mock.calls[0][0]
       expect(emailCall.html).toContain('submit?email=')
@@ -532,7 +545,7 @@ describe('POST /api/email/send-week', () => {
         body: JSON.stringify({ weekNumber: 1 }),
       })
 
-      await POST(request as any)
+      await POST(toNextRequest(request))
 
       const emailCall = mockEmailContainer.send.mock.calls[0][0]
       expect(emailCall.html).toContain('Hi John')
@@ -564,7 +577,7 @@ describe('POST /api/email/send-week', () => {
         body: JSON.stringify({ weekNumber: 1 }),
       })
 
-      await POST(request as any)
+      await POST(toNextRequest(request))
 
       const emailCall = mockEmailContainer.send.mock.calls[0][0]
       expect(emailCall.html).toContain('Test Album')
@@ -598,7 +611,7 @@ describe('POST /api/email/send-week', () => {
         body: JSON.stringify({ weekNumber: 1 }),
       })
 
-      await POST(request as any)
+      await POST(toNextRequest(request))
 
       const emailCall = mockEmailContainer.send.mock.calls[0][0]
       expect(emailCall.html).toContain('Deadline')

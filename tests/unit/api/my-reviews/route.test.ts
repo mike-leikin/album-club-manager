@@ -16,12 +16,29 @@ vi.mock('@/lib/auth/utils', () => ({
 import { GET } from '@/app/api/my-reviews/route'
 import { createServerClient } from '@/lib/supabaseClient'
 import { requireAuth } from '@/lib/auth/utils'
+import type { UserSession } from '@/lib/auth/utils'
 
 const mockCreateServerClient = vi.mocked(createServerClient)
 const mockRequireAuth = vi.mocked(requireAuth)
 
 describe('My Reviews API', () => {
-  let mockSupabase: any
+  type MockSupabase = {
+    from: ReturnType<typeof vi.fn>
+    select: ReturnType<typeof vi.fn>
+    eq: ReturnType<typeof vi.fn>
+    order: ReturnType<typeof vi.fn>
+    in: ReturnType<typeof vi.fn>
+    single: ReturnType<typeof vi.fn>
+    not: ReturnType<typeof vi.fn>
+  }
+  type ApiWeek = {
+    week_number: number
+    isCurrentWeek: boolean
+    isPastDeadline: boolean
+    reviews?: { contemporary: unknown; classic: unknown }
+  }
+
+  let mockSupabase: MockSupabase
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -31,6 +48,7 @@ describe('My Reviews API', () => {
       from: vi.fn().mockReturnThis(),
       select: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
+      not: vi.fn().mockReturnThis(),
       order: vi.fn().mockReturnThis(),
       in: vi.fn().mockReturnThis(),
       single: vi.fn(),
@@ -63,9 +81,12 @@ describe('My Reviews API', () => {
     it('returns 404 when authenticated user has no participant record', async () => {
       vi.stubEnv('NODE_ENV', 'production')
 
-      mockRequireAuth.mockResolvedValueOnce({
+      const session: UserSession = {
         user: { id: 'auth-user-1', email: 'user@test.com' },
-      } as any)
+        isCurator: false,
+      }
+
+      mockRequireAuth.mockResolvedValueOnce(session)
 
       mockSupabase.single.mockResolvedValueOnce({
         data: null,
@@ -77,7 +98,7 @@ describe('My Reviews API', () => {
       })
 
       const response = await GET(request)
-      const data = await response.json()
+      const data = (await response.json()) as { data: { allWeeks: ApiWeek[] } }
 
       expect(response.status).toBe(404)
       expect(data.error).toContain('Participant not found')
@@ -322,7 +343,7 @@ describe('My Reviews API', () => {
   })
 
   describe('Current week determination', () => {
-    it('determines current week as latest non-expired week', async () => {
+    it('determines current week as latest published week', async () => {
       vi.stubEnv('NODE_ENV', 'development')
 
       const participant = createMockParticipant({
@@ -332,17 +353,14 @@ describe('My Reviews API', () => {
         is_curator: false,
       })
 
-      const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-      const pastDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-
       const week1 = createMockWeek({
         week_number: 1,
-        response_deadline: pastDate,
+        published_at: '2024-01-01T12:00:00Z',
       })
 
       const week2 = createMockWeek({
         week_number: 2,
-        response_deadline: futureDate,
+        published_at: '2024-01-08T12:00:00Z',
       })
 
       mockSupabase.single
@@ -360,12 +378,13 @@ describe('My Reviews API', () => {
       const data = await response.json()
 
       expect(response.status).toBe(200)
+      expect(mockSupabase.not).toHaveBeenCalledWith('published_at', 'is', null)
 
-      const currentWeek = data.data.allWeeks.find((w: any) => w.isCurrentWeek)
+      const currentWeek = data.data.allWeeks.find((w) => w.isCurrentWeek)
       expect(currentWeek.week_number).toBe(2)
     })
 
-    it('determines current week as most recent when all expired', async () => {
+    it('returns no current week when no published weeks exist', async () => {
       vi.stubEnv('NODE_ENV', 'development')
 
       const participant = createMockParticipant({
@@ -375,37 +394,24 @@ describe('My Reviews API', () => {
         is_curator: false,
       })
 
-      const pastDate1 = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString()
-      const pastDate2 = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-
-      const week1 = createMockWeek({
-        week_number: 1,
-        response_deadline: pastDate1,
-      })
-
-      const week2 = createMockWeek({
-        week_number: 2,
-        response_deadline: pastDate2,
-      })
-
       mockSupabase.single
         .mockResolvedValueOnce({ data: participant, error: null })
 
       mockSupabase.order
         .mockResolvedValueOnce({ data: [], error: null }) // Reviews
-        .mockResolvedValueOnce({ data: [week2, week1], error: null }) // All weeks
+        .mockResolvedValueOnce({ data: [], error: null }) // All weeks
 
       const request = new Request('http://localhost/api/my-reviews?email=expired@test.com', {
         method: 'GET',
       })
 
       const response = await GET(request)
-      const data = await response.json()
+      const data = (await response.json()) as { data: { allWeeks: ApiWeek[] } }
 
       expect(response.status).toBe(200)
 
-      const currentWeek = data.data.allWeeks.find((w: any) => w.isCurrentWeek)
-      expect(currentWeek.week_number).toBe(2) // Most recent week
+      const currentWeek = data.data.allWeeks.find((w) => w.isCurrentWeek)
+      expect(currentWeek).toBeUndefined()
     })
   })
 
@@ -420,17 +426,14 @@ describe('My Reviews API', () => {
         is_curator: false,
       })
 
-      const pastDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-      const futureDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
-
       const week1 = createMockWeek({
         week_number: 1,
-        response_deadline: pastDate,
+        published_at: '2024-01-01T12:00:00Z',
       })
 
       const week2 = createMockWeek({
         week_number: 2,
-        response_deadline: futureDate,
+        published_at: '2024-01-08T12:00:00Z',
       })
 
       mockSupabase.single
@@ -445,12 +448,12 @@ describe('My Reviews API', () => {
       })
 
       const response = await GET(request)
-      const data = await response.json()
+      const data = (await response.json()) as { data: { allWeeks: ApiWeek[] } }
 
       expect(response.status).toBe(200)
 
-      const pastWeek = data.data.allWeeks.find((w: any) => w.week_number === 1)
-      const futureWeek = data.data.allWeeks.find((w: any) => w.week_number === 2)
+      const pastWeek = data.data.allWeeks.find((w) => w.week_number === 1)
+      const futureWeek = data.data.allWeeks.find((w) => w.week_number === 2)
 
       expect(pastWeek.isPastDeadline).toBe(true)
       expect(futureWeek.isPastDeadline).toBe(false)
@@ -510,12 +513,12 @@ describe('My Reviews API', () => {
       })
 
       const response = await GET(request)
-      const data = await response.json()
+      const data = (await response.json()) as { data: { allWeeks: ApiWeek[] } }
 
       expect(response.status).toBe(200)
 
-      const week1Data = data.data.allWeeks.find((w: any) => w.week_number === 1)
-      const week2Data = data.data.allWeeks.find((w: any) => w.week_number === 2)
+      const week1Data = data.data.allWeeks.find((w) => w.week_number === 1)
+      const week2Data = data.data.allWeeks.find((w) => w.week_number === 2)
 
       expect(week1Data.reviews.contemporary).not.toBeNull()
       expect(week1Data.reviews.classic).not.toBeNull()

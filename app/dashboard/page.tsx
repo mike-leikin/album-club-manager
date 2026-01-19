@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { createAuthClient } from "@/lib/auth/supabaseAuthClientBrowser";
 import type { Review, Week } from "@/lib/types/database";
 import BrowseReviews from "@/components/reviews/BrowseReviews";
+import { formatDateOnlyEastern } from "@/lib/utils/dates";
 
 type ReviewWithWeek = Review & {
   week: Week;
@@ -507,12 +508,10 @@ function WeekCard({
             </h3>
             {week.response_deadline && (
               <p className="text-sm text-gray-500 mt-1">
-                Deadline: {new Date(week.response_deadline).toLocaleDateString('en-US', {
-                  month: 'long',
-                  day: 'numeric',
-                  year: 'numeric',
-                  hour: 'numeric',
-                  minute: '2-digit'
+                Deadline: {formatDateOnlyEastern(week.response_deadline, {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
                 })}
               </p>
             )}

@@ -9,6 +9,7 @@ import EmailHistoryTab from "@/components/EmailHistoryTab";
 import AdminReviewsTab from "@/components/AdminReviewsTab";
 import InvitationsManager from "@/components/InvitationsManager";
 import type { Database } from "@/lib/types/database";
+import { formatDateOnlyEastern } from "@/lib/utils/dates";
 
 type Album = {
   title: string;
@@ -64,6 +65,7 @@ export default function AdminPage() {
   const [isSendingReminderTest, setIsSendingReminderTest] = useState(false);
   const [showEmailPreview, setShowEmailPreview] = useState(false);
   const [currentWeekNumber, setCurrentWeekNumber] = useState<number | null>(null);
+  const [editingWeekPublishedAt, setEditingWeekPublishedAt] = useState<string | null>(null);
 
   // Review stats for previous week
   const [reviewStats, setReviewStats] = useState<ReviewStats | null>(null);
@@ -94,9 +96,7 @@ export default function AdminPage() {
 
   const formatDeadline = (value: string) => {
     if (!value) return "";
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return value;
-    return date.toLocaleDateString("en-US", {
+    return formatDateOnlyEastern(value, {
       weekday: "long",
       month: "short",
       day: "numeric",
@@ -316,52 +316,84 @@ export default function AdminPage() {
   useEffect(() => {
     let cancelled = false;
 
-    const fetchLatestWeek = async () => {
+    const fetchWeekState = async () => {
       try {
-        const response = await fetch("/api/weeks");
+        const response = await fetch("/api/weeks/all");
         const result = await response.json();
 
         if (!response.ok) {
-          throw new Error(result?.error || "Failed to load latest week.");
+          throw new Error(result?.error || "Failed to load weeks.");
         }
 
         if (cancelled) return;
 
-        // If there's a latest week, set up form for the NEXT week
-        if (result?.data) {
-          const latest = result.data;
-          const nextWeekNumber = latest.week_number ? latest.week_number + 1 : 1;
-          setCurrentWeekNumber(latest.week_number ?? null);
-          setWeekNumber(String(nextWeekNumber));
+        const allWeeks = Array.isArray(result?.data) ? result.data : [];
 
-          // Load the latest week's data as template
-          setResponseDeadline(latest.response_deadline ?? "");
-          setContemporary({
-            title: latest.contemporary_title ?? "",
-            artist: latest.contemporary_artist ?? "",
-            year: latest.contemporary_year ?? "",
-            spotifyUrl: latest.contemporary_spotify_url ?? "",
-            albumArtUrl: latest.contemporary_album_art_url ?? "",
-          });
-          setClassic({
-            title: latest.classic_title ?? "",
-            artist: latest.classic_artist ?? "",
-            year: latest.classic_year ?? "",
-            spotifyUrl: latest.classic_spotify_url ?? "",
-            albumArtUrl: latest.classic_album_art_url ?? "",
-            rollingStoneRank: latest.rs_rank ? String(latest.rs_rank) : "",
-          });
-        } else {
-          // No weeks exist yet, start with week 1
+        if (allWeeks.length === 0) {
           setWeekNumber("1");
           setCurrentWeekNumber(null);
+          setEditingWeekPublishedAt(null);
+          return;
+        }
+
+        const sorted = [...allWeeks].sort((a, b) => b.week_number - a.week_number);
+        const publishedWeeks = sorted.filter((week) => week.published_at);
+        const draftWeeks = sorted.filter((week) => !week.published_at);
+        const latestPublished = publishedWeeks[0] ?? null;
+        const latestDraft = draftWeeks[0] ?? null;
+
+        if (latestDraft && (!latestPublished || latestDraft.week_number > latestPublished.week_number)) {
+          setCurrentWeekNumber(latestPublished?.week_number ?? null);
+          setWeekNumber(String(latestDraft.week_number));
+          setEditingWeekPublishedAt(latestDraft.published_at ?? null);
+          setResponseDeadline(latestDraft.response_deadline ?? "");
+          setCuratorMessage(latestDraft.curator_message ?? "");
+          setContemporary({
+            title: latestDraft.contemporary_title ?? "",
+            artist: latestDraft.contemporary_artist ?? "",
+            year: latestDraft.contemporary_year ?? "",
+            spotifyUrl: latestDraft.contemporary_spotify_url ?? "",
+            albumArtUrl: latestDraft.contemporary_album_art_url ?? "",
+          });
+          setClassic({
+            title: latestDraft.classic_title ?? "",
+            artist: latestDraft.classic_artist ?? "",
+            year: latestDraft.classic_year ?? "",
+            spotifyUrl: latestDraft.classic_spotify_url ?? "",
+            albumArtUrl: latestDraft.classic_album_art_url ?? "",
+            rollingStoneRank: latestDraft.rs_rank ? String(latestDraft.rs_rank) : "",
+          });
+          return;
+        }
+
+        if (latestPublished) {
+          const nextWeekNumber = latestPublished.week_number ? latestPublished.week_number + 1 : 1;
+          setCurrentWeekNumber(latestPublished.week_number ?? null);
+          setWeekNumber(String(nextWeekNumber));
+          setEditingWeekPublishedAt(null);
+          setResponseDeadline(latestPublished.response_deadline ?? "");
+          setContemporary({
+            title: latestPublished.contemporary_title ?? "",
+            artist: latestPublished.contemporary_artist ?? "",
+            year: latestPublished.contemporary_year ?? "",
+            spotifyUrl: latestPublished.contemporary_spotify_url ?? "",
+            albumArtUrl: latestPublished.contemporary_album_art_url ?? "",
+          });
+          setClassic({
+            title: latestPublished.classic_title ?? "",
+            artist: latestPublished.classic_artist ?? "",
+            year: latestPublished.classic_year ?? "",
+            spotifyUrl: latestPublished.classic_spotify_url ?? "",
+            albumArtUrl: latestPublished.classic_album_art_url ?? "",
+            rollingStoneRank: latestPublished.rs_rank ? String(latestPublished.rs_rank) : "",
+          });
         }
       } catch (error) {
         console.error(error);
       }
     };
 
-    fetchLatestWeek();
+    fetchWeekState();
 
     return () => {
       cancelled = true;
@@ -510,6 +542,8 @@ export default function AdminPage() {
       if (result.failed > 0) {
         toast.error(`${result.failed} email(s) failed to send`);
       }
+      setCurrentWeekNumber(parsedWeekNumber);
+      setEditingWeekPublishedAt(new Date().toISOString());
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to send emails"
@@ -629,7 +663,6 @@ export default function AdminPage() {
       }
 
       toast.success("Week saved successfully!");
-      setCurrentWeekNumber(parsedWeekNumber);
     } catch (error) {
       toast.error(
         error instanceof Error
@@ -857,7 +890,23 @@ export default function AdminPage() {
 
           {/* Week setup */}
           <div className="mb-6 space-y-3">
-            <h2 className="text-lg font-semibold">This Week&apos;s Setup (Week {weekNumber})</h2>
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="text-lg font-semibold">This Week&apos;s Setup (Week {weekNumber})</h2>
+              <span
+                className={`rounded-full px-2 py-1 text-xs font-medium ${
+                  editingWeekPublishedAt
+                    ? "bg-emerald-100 text-emerald-800"
+                    : "bg-amber-100 text-amber-800"
+                }`}
+              >
+                {editingWeekPublishedAt ? "Published" : "Draft"}
+              </span>
+              {currentWeekNumber && (
+                <span className="text-xs text-gray-500">
+                  Current week: {currentWeekNumber}
+                </span>
+              )}
+            </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-900">
@@ -1301,10 +1350,25 @@ export default function AdminPage() {
                   >
                     <div className="mb-3 flex items-start justify-between">
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900">Week {week.week_number}</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-lg font-semibold text-gray-900">Week {week.week_number}</h3>
+                          <span
+                            className={`rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-wide ${
+                              week.published_at
+                                ? "bg-emerald-100 text-emerald-700"
+                                : "bg-amber-100 text-amber-700"
+                            }`}
+                          >
+                            {week.published_at ? "Published" : "Draft"}
+                          </span>
+                        </div>
                         {week.response_deadline && (
                           <p className="text-xs text-gray-600">
-                            Deadline: {new Date(week.response_deadline).toLocaleDateString()}
+                            Deadline: {formatDateOnlyEastern(week.response_deadline, {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })}
                           </p>
                         )}
                       </div>
@@ -1314,6 +1378,8 @@ export default function AdminPage() {
                             // Load this week's data into the form
                             setWeekNumber(String(week.week_number));
                             setResponseDeadline(week.response_deadline || "");
+                            setCuratorMessage(week.curator_message || "");
+                            setEditingWeekPublishedAt(week.published_at ?? null);
                             setContemporary({
                               title: week.contemporary_title || "",
                               artist: week.contemporary_artist || "",

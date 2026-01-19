@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { createAuthClient } from "@/lib/auth/supabaseAuthClientBrowser";
+import { formatDateOnlyEastern } from "@/lib/utils/dates";
 
 type Week = {
   week_number: number;
@@ -15,6 +16,21 @@ type Week = {
   classic_year?: number;
   classic_album_art_url?: string;
   response_deadline?: string;
+};
+
+type ReviewSubmissionPayload = {
+  week_number: number;
+  participant_email: string;
+  contemporary?: {
+    rating: number;
+    favorite_track?: string;
+    review_text?: string;
+  };
+  classic?: {
+    rating: number;
+    favorite_track?: string;
+    review_text?: string;
+  };
 };
 
 export default function SubmitPage() {
@@ -80,11 +96,6 @@ export default function SubmitPage() {
     fetchLatestWeek();
   }, []);
 
-  // Check if deadline has passed
-  const isPastDeadline = weekData?.response_deadline
-    ? new Date(weekData.response_deadline) < new Date()
-    : false;
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -109,7 +120,7 @@ export default function SubmitPage() {
     setIsSubmitting(true);
 
     try {
-      const payload: any = {
+      const payload: ReviewSubmissionPayload = {
         week_number: weekNumber,
         participant_email: email.trim(),
       };
@@ -204,39 +215,14 @@ export default function SubmitPage() {
               </h2>
               {weekData.response_deadline && (
                 <p className="text-sm text-gray-500">
-                  Deadline: {new Date(weekData.response_deadline).toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit'
+                  Deadline: {formatDateOnlyEastern(weekData.response_deadline, {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
                   })}
                 </p>
               )}
             </div>
-
-            {isPastDeadline && (
-              <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-900">
-                <div className="flex items-start gap-3">
-                  <span className="text-amber-600 text-xl">⚠️</span>
-                  <div>
-                    <p className="font-medium">
-                      This week&apos;s deadline has passed, but submissions are still open.
-                    </p>
-                    <p className="text-amber-800 text-sm mt-1">
-                      You can still submit your review. Want to read others?{" "}
-                      <a
-                        href="/reviews"
-                        className="font-medium underline underline-offset-2 hover:text-amber-900"
-                      >
-                        Browse reviews
-                      </a>
-                      .
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Contemporary Album */}

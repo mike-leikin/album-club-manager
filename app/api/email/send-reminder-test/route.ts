@@ -38,12 +38,13 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    const adminClient = createAdminClient() as any;
+    const adminClient = createAdminClient();
 
     const { data: currentWeek, error: currentWeekError } = await adminClient
       .from("weeks")
       .select("*")
-      .order("week_number", { ascending: false })
+      .not("published_at", "is", null)
+      .order("published_at", { ascending: false })
       .limit(1)
       .single();
 

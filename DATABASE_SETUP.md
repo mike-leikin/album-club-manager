@@ -24,6 +24,7 @@ Stores weekly album selections.
 - classic_year: TEXT (nullable)
 - classic_spotify_url: TEXT (nullable)
 - rs_rank: INTEGER (nullable)
+- published_at: TIMESTAMPTZ (nullable)
 - created_at: TIMESTAMPTZ
 ```
 

@@ -8,6 +8,17 @@ import type { ReviewStats } from "@/lib/email/emailBuilder";
 import * as Sentry from "@sentry/nextjs";
 import { createServerClient as createAuthClient } from "@supabase/ssr";
 import { getFirstName } from "@/lib/utils/names";
+import type { Database } from "@/lib/types/database";
+
+type ParticipantRow = Database["public"]["Tables"]["participants"]["Row"];
+type ReviewRow = Database["public"]["Tables"]["reviews"]["Row"];
+type ReviewWithParticipant = ReviewRow & {
+  participant?: { name?: string | null } | null;
+  contemporary_rating?: number | null;
+  classic_rating?: number | null;
+  contemporary_comments?: string | null;
+  classic_comments?: string | null;
+};
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -33,8 +44,7 @@ export async function POST(request: NextRequest) {
 
     logger.info("Sending emails for week", { weekNumber, requestId });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const supabase = createServerClient() as any;
+    const supabase = createServerClient();
 
     // Fetch week data
     const { data: week, error: weekError } = await supabase
@@ -49,6 +59,25 @@ export async function POST(request: NextRequest) {
         { error: "Week not found" },
         { status: 404 }
       );
+    }
+
+    if (!week.published_at) {
+      const publishedAt = new Date().toISOString();
+      const { error: publishError } = await supabase
+        .from("weeks")
+        .update({ published_at: publishedAt })
+        .eq("week_number", weekNumber)
+        .is("published_at", null);
+
+      if (publishError) {
+        logger.warn("Failed to mark week as published", {
+          weekNumber,
+          requestId,
+          error: publishError.message,
+        });
+      } else {
+        week.published_at = publishedAt;
+      }
     }
 
     // Fetch all active, subscribed participants
@@ -108,7 +137,8 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      if (stats && stats.length > 0) {
+      const statsRows = (stats || []) as ReviewWithParticipant[];
+      if (statsRows.length > 0) {
         let prevWeekLabel = `Week ${prevWeek}`;
         const { data: prevWeekData, error: prevWeekError } = await supabase
           .from("weeks")
@@ -127,7 +157,7 @@ export async function POST(request: NextRequest) {
         const contempReviews: Array<{ name: string; reviewText: string }> = [];
         const classicReviews: Array<{ name: string; reviewText: string }> = [];
 
-        const addRating = (target: number[], value: any) => {
+        const addRating = (target: number[], value: number | string | null | undefined) => {
           const parsed = Number(value);
           if (Number.isFinite(parsed)) {
             target.push(parsed);
@@ -136,7 +166,7 @@ export async function POST(request: NextRequest) {
 
         const addReviewText = (
           target: Array<{ name: string; reviewText: string }>,
-          text: any,
+          text: string | null | undefined,
           name: string | null | undefined
         ) => {
           if (typeof text !== "string") return;
@@ -145,7 +175,7 @@ export async function POST(request: NextRequest) {
           target.push({ reviewText: trimmed, name: getFirstName(name) });
         };
 
-        stats.forEach((review: any) => {
+        statsRows.forEach((review) => {
           const participantName = review.participant?.name ?? "Unknown";
           if (review.album_type === "contemporary") {
             addRating(contempRatings, review.rating);
@@ -214,7 +244,7 @@ export async function POST(request: NextRequest) {
     }
 
     let curatorId: string | null = null;
-    const hasCookieStore = typeof (request as any).cookies?.get === "function";
+    const hasCookieStore = typeof request.cookies?.get === "function";
     if (
       hasCookieStore &&
       process.env.NEXT_PUBLIC_SUPABASE_URL &&
@@ -336,7 +366,7 @@ export async function POST(request: NextRequest) {
     const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
     // Send individual emails
-    const sendEmail = async (participant: any) => {
+    const sendEmail = async (participant: ParticipantRow) => {
       const personalized = renderEmailTemplate(emailTemplate, {
         id: participant.id,
         email: participant.email,
@@ -374,7 +404,7 @@ export async function POST(request: NextRequest) {
 
     const results: PromiseSettledResult<unknown>[] = [];
     for (let i = 0; i < participants.length; i += 2) {
-      const batch = participants.slice(i, i + 2).map((participant: any) => sendEmail(participant));
+      const batch = participants.slice(i, i + 2).map((participant) => sendEmail(participant));
       const batchResults = await Promise.allSettled(batch);
       results.push(...batchResults);
 

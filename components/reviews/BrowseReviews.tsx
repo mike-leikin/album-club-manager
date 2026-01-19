@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { getFirstName } from "@/lib/utils/names";
 import type { Week, Review, Participant } from "@/lib/types/database";
+import { formatDateOnlyEastern, isDateOnOrAfterTodayEastern } from "@/lib/utils/dates";
 
 type ReviewWithParticipant = Review & {
   participant: Participant;
@@ -155,7 +156,7 @@ export default function BrowseReviews({
   function isWeekLocked(week: Week): boolean {
     if (lockMode === "none") return false;
     if (!week.response_deadline) return false;
-    return new Date(week.response_deadline) > new Date();
+    return isDateOnOrAfterTodayEastern(week.response_deadline);
   }
 
   if (!enabled && !hasLoaded) {
@@ -292,7 +293,7 @@ function WeekSection({ week, isLocked, isExpanded, onToggle }: WeekSectionProps)
             {week.response_deadline && (
               <p className="text-sm text-gray-500 mt-1">
                 {isLocked ? "Deadline: " : "Ended: "}
-                {new Date(week.response_deadline).toLocaleDateString("en-US", {
+                {formatDateOnlyEastern(week.response_deadline, {
                   month: "long",
                   day: "numeric",
                   year: "numeric",

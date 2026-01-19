@@ -36,6 +36,7 @@ export async function GET(request: NextRequest) {
     const supabase = createServerClient();
     const { searchParams } = new URL(request.url);
     const all = searchParams.get('all') === 'true';
+    const includeDrafts = searchParams.get('include_drafts') === 'true';
     const weekNumber = searchParams.get('week_number');
 
     if (weekNumber) {
@@ -56,20 +57,27 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ data });
     } else if (all) {
       // Return all weeks
-      const { data, error } = await supabase
+      let query = supabase
         .from("weeks")
         .select("*")
         .order("week_number", { ascending: false });
+
+      if (!includeDrafts) {
+        query = query.not("published_at", "is", null);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
       return NextResponse.json({ data: data || [] });
     } else {
-      // Return only the latest week (existing behavior)
+      // Return only the latest published week (existing behavior, draft-safe)
       const { data, error } = await supabase
         .from("weeks")
         .select("*")
-        .order("week_number", { ascending: false })
+        .not("published_at", "is", null)
+        .order("published_at", { ascending: false })
         .limit(1)
         .single();
 
