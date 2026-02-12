@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 type EmailSend = {
@@ -84,6 +84,7 @@ export default function EmailHistoryTab() {
   );
   const [searchTerm, setSearchTerm] = useState("");
   const [isResending, setIsResending] = useState(false);
+  const detailPanelRef = useRef<HTMLDivElement>(null);
 
   const fetchSendHistory = async () => {
     setIsLoading(true);
@@ -142,6 +143,10 @@ export default function EmailHistoryTab() {
     if (participants.length === 0) {
       fetchParticipants();
     }
+    // Scroll to detail panel after a brief delay to allow render
+    setTimeout(() => {
+      detailPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
   }, [selectedSendId]);
 
   const groupedByWeek = useMemo(() => {
@@ -363,7 +368,7 @@ export default function EmailHistoryTab() {
       )}
 
       {selectedSendId && (
-        <div className="mt-8 grid gap-6 lg:grid-cols-2">
+        <div ref={detailPanelRef} className="mt-8 grid gap-6 lg:grid-cols-2">
           <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5">
             <div className="mb-4">
               <h3 className="text-lg font-semibold text-white">Email Content</h3>

@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.13.16] - 2026-02-11
+
+### Email History Tab
+
+- Fixed detail panel not visible when clicking on email history rows (now auto-scrolls into view)
+
+---
+
 ## [2.13.15] - 2026-01-18
 
 ### Email Reliability
