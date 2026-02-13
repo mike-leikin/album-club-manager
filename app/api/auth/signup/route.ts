@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createServerClient } from "@/lib/supabaseClient";
+import { sendSignupAdminNotification } from "@/lib/email/adminNotifications";
 
 type SignupPayload = {
   name?: string;
@@ -218,6 +219,15 @@ export async function POST(request: NextRequest) {
         // This will be implemented in Phase 5 (Email Templates)
       }
     }
+
+    // Send admin notification for new signup (fire-and-forget)
+    sendSignupAdminNotification(adminClient, {
+      participantName: name,
+      participantEmail: email,
+      referrerName: invitation?.referrer?.name ?? null,
+    }).catch((err) => {
+      console.error("Failed to send signup admin notification:", err);
+    });
 
     const authClient = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,

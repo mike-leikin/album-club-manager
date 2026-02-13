@@ -8,6 +8,7 @@ import {
   type ReviewConfirmationReview,
   type WeekData,
 } from "@/lib/email/emailBuilder";
+import { sendReviewAdminNotification } from "@/lib/email/adminNotifications";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -465,6 +466,21 @@ export async function POST(request: Request) {
       participant_id: participantId,
       week_number: body.week_number,
       inserted_count: reviewsToInsert.length,
+    });
+
+    // Send admin notification (fire-and-forget)
+    sendReviewAdminNotification(supabase, {
+      participantName,
+      participantEmail: normalizedEmail,
+      participantId,
+      weekNumber: body.week_number,
+      reviews: confirmationReviews.map((r) => ({
+        albumType: r.albumType,
+        rating: r.rating,
+        reviewText: r.reviewText ?? null,
+      })),
+    }).catch((err) => {
+      logger.warn("review_submit.admin_notification_failed", { request_id: requestId }, err);
     });
 
     return respond({
