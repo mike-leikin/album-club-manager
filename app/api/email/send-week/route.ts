@@ -159,8 +159,8 @@ export async function POST(request: NextRequest) {
         // Calculate stats (supports current and legacy review schemas)
         const contempRatings: number[] = [];
         const classicRatings: number[] = [];
-        const contempReviews: Array<{ name: string; reviewText: string }> = [];
-        const classicReviews: Array<{ name: string; reviewText: string }> = [];
+        const contempReviews: Array<{ name: string; rating: number; favoriteTrack?: string | null; reviewText: string }> = [];
+        const classicReviews: Array<{ name: string; rating: number; favoriteTrack?: string | null; reviewText: string }> = [];
 
         const addRating = (target: number[], value: number | string | null | undefined) => {
           const parsed = Number(value);
@@ -169,45 +169,57 @@ export async function POST(request: NextRequest) {
           }
         };
 
-        const addReviewText = (
-          target: Array<{ name: string; reviewText: string }>,
+        const addReview = (
+          target: Array<{ name: string; rating: number; favoriteTrack?: string | null; reviewText: string }>,
           text: string | null | undefined,
-          name: string | null | undefined
+          name: string | null | undefined,
+          rating: number | string | null | undefined,
+          favoriteTrack: string | null | undefined
         ) => {
           if (typeof text !== "string") return;
           const trimmed = text.trim();
           if (!trimmed) return;
-          target.push({ reviewText: trimmed, name: getFirstName(name) });
+          const parsedRating = Number(rating);
+          target.push({
+            reviewText: trimmed,
+            name: getFirstName(name),
+            rating: Number.isFinite(parsedRating) ? parsedRating : 0,
+            favoriteTrack: favoriteTrack?.trim() || null,
+          });
         };
 
         statsRows.forEach((review) => {
           const participantName = review.participant?.name ?? "Unknown";
           if (review.album_type === "contemporary") {
             addRating(contempRatings, review.rating);
-            addReviewText(contempReviews, review.review_text, participantName);
+            addReview(contempReviews, review.review_text, participantName, review.rating, review.favorite_track);
             return;
           }
           if (review.album_type === "classic") {
             addRating(classicRatings, review.rating);
-            addReviewText(classicReviews, review.review_text, participantName);
+            addReview(classicReviews, review.review_text, participantName, review.rating, review.favorite_track);
             return;
           }
 
           // Legacy combined review rows (pre album_type)
           if (review.contemporary_rating !== null && review.contemporary_rating !== undefined) {
             addRating(contempRatings, review.contemporary_rating);
-            addReviewText(
+            addReview(
               contempReviews,
               review.contemporary_comments ?? review.review_text,
-              participantName
+              participantName,
+              review.contemporary_rating,
+              null
             );
           }
           if (review.classic_rating !== null && review.classic_rating !== undefined) {
             addRating(classicRatings, review.classic_rating);
-            addReviewText(
+            addReview(
               classicReviews,
               review.classic_comments ?? review.review_text,
-              participantName
+              participantName,
+              review.classic_rating,
+              null
             );
           }
         });
@@ -217,6 +229,16 @@ export async function POST(request: NextRequest) {
           const safeTitle = title?.trim();
           if (safeArtist && safeTitle) return `${safeArtist} - ${safeTitle}`;
           return safeArtist || safeTitle || "Album";
+        };
+
+        // Shuffle reviews so order isn't based on submission time
+        const shuffle = <T>(arr: T[]): T[] => {
+          const s = [...arr];
+          for (let i = s.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [s[i], s[j]] = [s[j], s[i]];
+          }
+          return s;
         };
 
         reviewStats = {
@@ -231,7 +253,7 @@ export async function POST(request: NextRequest) {
               prevWeekData?.contemporary_artist,
               prevWeekData?.contemporary_title
             ),
-            reviews: contempReviews,
+            reviews: shuffle(contempReviews),
           },
           classic: {
             avgRating: classicRatings.length > 0
@@ -242,7 +264,7 @@ export async function POST(request: NextRequest) {
               prevWeekData?.classic_artist,
               prevWeekData?.classic_title
             ),
-            reviews: classicReviews,
+            reviews: shuffle(classicReviews),
           },
         };
       }

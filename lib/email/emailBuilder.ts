@@ -31,13 +31,13 @@ export interface ReviewStats {
     avgRating: string | null;
     count: number;
     albumLabel: string;
-    reviews: Array<{ name: string; reviewText: string }>;
+    reviews: Array<{ name: string; rating: number; favoriteTrack?: string | null; reviewText: string }>;
   };
   classic: {
     avgRating: string | null;
     count: number;
     albumLabel: string;
-    reviews: Array<{ name: string; reviewText: string }>;
+    reviews: Array<{ name: string; rating: number; favoriteTrack?: string | null; reviewText: string }>;
   };
 }
 
@@ -129,7 +129,7 @@ const buildEmailContentFromParams = (
   const weekLabel = formatWeekLabel(week.created_at, week.week_number);
 
   const buildReviewListHtml = (
-    reviews: Array<{ name: string; reviewText: string }>
+    reviews: Array<{ name: string; rating: number; favoriteTrack?: string | null; reviewText: string }>
   ) => {
     if (reviews.length === 0) {
       return `
@@ -141,10 +141,12 @@ const buildEmailContentFromParams = (
       .map((review) => {
         const safeText = escapeHtml(review.reviewText);
         const safeName = escapeHtml(review.name);
+        const safeFavoriteTrack = review.favoriteTrack ? escapeHtml(review.favoriteTrack) : null;
         return `
                 <div style="margin-top: 12px; padding-left: 12px; border-left: 2px solid #1f1f1f;">
+                  <p style="margin: 0 0 4px; color: #e5e5e5; font-size: 13px; font-weight: 600;">${safeName} – <span style="color: #10b981;">${review.rating.toFixed(1)}/10</span></p>${safeFavoriteTrack ? `
+                  <p style="margin: 0 0 4px; color: #a1a1a1; font-size: 12px;">Fav: ${safeFavoriteTrack}</p>` : ''}
                   <p style="margin: 0; color: #e5e5e5; font-size: 14px; line-height: 1.5; white-space: pre-wrap;">${safeText}</p>
-                  <p style="margin: 6px 0 0; color: #737373; font-size: 12px;">– ${safeName}</p>
                 </div>
 `;
       })
@@ -455,7 +457,8 @@ ${buildReviewListHtml(reviewStats.classic.reviews)}
       textBody += `${reviewStats.contemporary.albumLabel}: ${reviewStats.contemporary.avgRating || "N/A"}/10 (${reviewStats.contemporary.count} ${reviewStats.contemporary.count === 1 ? "review" : "reviews"})\n`;
       if (reviewStats.contemporary.reviews.length > 0) {
         reviewStats.contemporary.reviews.forEach((review) => {
-          textBody += `- "${review.reviewText}" — ${review.name}\n`;
+          const favPart = review.favoriteTrack ? `  Fav: ${review.favoriteTrack}\n` : '';
+          textBody += `- ${review.name} – ${review.rating.toFixed(1)}/10\n${favPart}  "${review.reviewText}"\n`;
         });
       } else {
         textBody += `- No written reviews yet.\n`;
@@ -467,7 +470,8 @@ ${buildReviewListHtml(reviewStats.classic.reviews)}
       textBody += `${reviewStats.classic.albumLabel}: ${reviewStats.classic.avgRating || "N/A"}/10 (${reviewStats.classic.count} ${reviewStats.classic.count === 1 ? "review" : "reviews"})\n`;
       if (reviewStats.classic.reviews.length > 0) {
         reviewStats.classic.reviews.forEach((review) => {
-          textBody += `- "${review.reviewText}" — ${review.name}\n`;
+          const favPart = review.favoriteTrack ? `  Fav: ${review.favoriteTrack}\n` : '';
+          textBody += `- ${review.name} – ${review.rating.toFixed(1)}/10\n${favPart}  "${review.reviewText}"\n`;
         });
       } else {
         textBody += `- No written reviews yet.\n`;
