@@ -75,7 +75,7 @@ export default function RS500Picker({
     setSearch("");
   };
 
-  const uncoveredCount = albums.filter((a) => !a.already_covered).length;
+  const uncoveredCount = albums.filter((a) => !a.already_covered && a.times_used === 0).length;
 
   return (
     <div className="space-y-2">

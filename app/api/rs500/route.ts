@@ -15,9 +15,9 @@ export async function GET(request: NextRequest) {
     .order("already_covered", { ascending: true }) // Uncovered albums first
     .order("rank", { ascending: true }); // Then by rank
 
-  // Filter by already_covered if requested
+  // Filter out albums that have been covered or used in the club
   if (showOnlyUncovered) {
-    query = query.eq("already_covered", false);
+    query = query.eq("already_covered", false).eq("times_used", 0);
   }
 
   // Search by artist or album name
