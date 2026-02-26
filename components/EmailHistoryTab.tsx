@@ -312,7 +312,46 @@ export default function EmailHistoryTab() {
               <h3 className="mb-3 text-sm font-semibold text-zinc-300">
                 Week {weekNumber}
               </h3>
-              <div className="overflow-hidden rounded-xl border border-zinc-800">
+
+              {/* Mobile card view */}
+              <div className="space-y-2 sm:hidden">
+                {sends.map((send) => (
+                  <button
+                    key={send.id}
+                    className={`w-full rounded-xl border p-4 text-left transition ${
+                      selectedSendId === send.id
+                        ? "border-zinc-600 bg-zinc-900/60"
+                        : "border-zinc-800 hover:bg-zinc-900/40"
+                    }`}
+                    onClick={() => setSelectedSendId(send.id)}
+                  >
+                    <div className="mb-1 flex items-center gap-2">
+                      <span className="text-sm font-medium text-zinc-200">
+                        {formatEmailType(send.email_type)}
+                      </span>
+                      {send.source_send_id && (
+                        <span className="rounded-full bg-blue-900/40 px-2 py-0.5 text-xs text-blue-300">
+                          Resend
+                        </span>
+                      )}
+                    </div>
+                    <div className="mb-2 text-xs text-zinc-400 line-clamp-1">{send.subject}</div>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-zinc-500">{formatDate(send.created_at)}</span>
+                      <span>
+                        <span className="text-emerald-400">{send.sent_count ?? 0} sent</span>
+                        {send.failed_count > 0 && (
+                          <span className="text-red-400"> · {send.failed_count} failed</span>
+                        )}
+                        <span className="ml-1 text-zinc-500">/ {send.recipient_count ?? 0}</span>
+                      </span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {/* Desktop table view */}
+              <div className="hidden overflow-hidden rounded-xl border border-zinc-800 sm:block">
                 <table className="w-full text-sm">
                   <thead className="bg-zinc-900/80 text-xs text-zinc-400">
                     <tr className="text-left">
@@ -368,7 +407,7 @@ export default function EmailHistoryTab() {
       )}
 
       {selectedSendId && (
-        <div ref={detailPanelRef} className="mt-8 grid gap-6 lg:grid-cols-2">
+        <div ref={detailPanelRef} className="mt-6 grid gap-6 lg:grid-cols-2">
           <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5">
             <div className="mb-4">
               <h3 className="text-lg font-semibold text-white">Email Content</h3>

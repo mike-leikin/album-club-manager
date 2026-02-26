@@ -230,7 +230,7 @@ export default function AdminReviewsTab() {
       <h2 className="mb-6 text-2xl font-bold text-white">Review Moderation</h2>
 
       {/* Summary Cards */}
-      <div className="mb-6 grid grid-cols-4 gap-4">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4">
           <div className="text-2xl font-bold text-white">{stats.total}</div>
           <div className="text-sm text-zinc-400">Total Reviews</div>
@@ -277,12 +277,12 @@ export default function AdminReviewsTab() {
 
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-zinc-400">Status</label>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {(['all', 'pending', 'approved', 'hidden'] as const).map((status) => (
               <button
                 key={status}
                 onClick={() => setFilterStatus(status)}
-                className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+                className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
                   filterStatus === status
                     ? 'bg-emerald-600 text-white'
                     : 'border border-zinc-700 bg-zinc-900 text-zinc-400 hover:bg-zinc-800'
@@ -310,40 +310,40 @@ export default function AdminReviewsTab() {
 
       {/* Bulk Actions Bar */}
       {selectedReviews.size > 0 && (
-        <div className="mb-4 flex items-center justify-between rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4">
+        <div className="mb-4 flex flex-col gap-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-sm font-medium text-emerald-400">
             {selectedReviews.size} review(s) selected
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => handleBulkAction('approve')}
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+              className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
             >
-              Approve Selected
+              Approve
             </button>
             <button
               onClick={() => handleBulkAction('hide')}
-              className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+              className="rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
             >
-              Hide Selected
+              Hide
             </button>
             <button
               onClick={() => handleBulkAction('delete')}
-              className="rounded-lg border border-red-500 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/20"
+              className="rounded-lg border border-red-500 bg-red-500/10 px-3 py-2 text-sm font-medium text-red-400 hover:bg-red-500/20"
             >
-              Delete Selected
+              Delete
             </button>
             <button
               onClick={() => setSelectedReviews(new Set())}
-              className="rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-300 hover:bg-zinc-800"
+              className="rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm font-medium text-zinc-300 hover:bg-zinc-800"
             >
-              Clear Selection
+              Clear
             </button>
           </div>
         </div>
       )}
 
-      {/* Reviews Table */}
+      {/* Reviews List */}
       {isLoading ? (
         <div className="py-12 text-center text-zinc-400">Loading reviews...</div>
       ) : reviews.length === 0 ? (
@@ -351,106 +351,180 @@ export default function AdminReviewsTab() {
           No reviews found. {filterWeek || filterStatus !== 'all' || filterAlbumType !== 'all' ? 'Try clearing filters.' : ''}
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-zinc-900/50">
-              <tr>
-                <th className="px-4 py-3 text-left">
-                  <input
-                    type="checkbox"
-                    checked={selectedReviews.size === reviews.length && reviews.length > 0}
-                    onChange={handleSelectAll}
-                    className="cursor-pointer"
-                  />
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-zinc-400">Week</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-zinc-400">Participant</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-zinc-400">Album</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-zinc-400">Rating</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-zinc-400">Review Preview</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-zinc-400">Status</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-zinc-400">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-800">
-              {reviews.map((review) => (
-                <tr key={review.id} className="hover:bg-zinc-900/30">
-                  <td className="px-4 py-3">
+        <>
+          {/* Mobile card view */}
+          <div className="space-y-3 sm:hidden">
+            {reviews.map((review) => (
+              <div key={review.id} className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
+                <div className="mb-2 flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2">
                     <input
                       type="checkbox"
                       checked={selectedReviews.has(review.id)}
                       onChange={() => handleToggleSelect(review.id)}
                       className="cursor-pointer"
                     />
-                  </td>
-                  <td className="px-4 py-3 text-sm text-zinc-300">#{review.week_number}</td>
-                  <td className="px-4 py-3">
-                    <div className="text-sm font-medium text-white">{review.participant.name}</div>
-                    <div className="text-xs text-zinc-500">{review.participant.email}</div>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-zinc-300">
-                    {review.album_type === 'contemporary' ? '🔊 Contemporary' : '💿 Classic'}
-                  </td>
-                  <td className="px-4 py-3 text-sm font-medium text-white">{review.rating.toFixed(1)}/10</td>
-                  <td className="px-4 py-3">
-                    <div className="max-w-md">
-                      {review.favorite_track && (
-                        <div className="mb-1 text-xs text-zinc-500">♪ {review.favorite_track}</div>
-                      )}
-                      {review.review_text && (
-                        <div className="truncate text-sm text-zinc-400">{review.review_text}</div>
-                      )}
-                      {!review.favorite_track && !review.review_text && (
-                        <div className="text-xs italic text-zinc-600">No text review</div>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">{getStatusBadge(review.moderation_status)}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-end gap-2">
-                      {review.moderation_status === 'pending' && (
+                    {getStatusBadge(review.moderation_status)}
+                  </div>
+                  <span className="text-xs text-zinc-500">
+                    Wk #{review.week_number} · {review.album_type === 'contemporary' ? '🔊' : '💿'}
+                  </span>
+                </div>
+                <div className="mb-1">
+                  <div className="text-sm font-medium text-white">{review.participant.name}</div>
+                  <div className="text-xs text-zinc-500">{review.participant.email}</div>
+                </div>
+                <div className="mb-2 text-sm font-semibold text-white">{review.rating.toFixed(1)}/10</div>
+                {review.favorite_track && (
+                  <div className="mb-1 text-xs text-zinc-500">♪ {review.favorite_track}</div>
+                )}
+                {review.review_text && (
+                  <div className="mb-3 line-clamp-2 text-sm text-zinc-400">{review.review_text}</div>
+                )}
+                <div className="flex flex-wrap gap-2">
+                  {review.moderation_status === 'pending' && (
+                    <button
+                      onClick={() => handleApprove(review.id)}
+                      className="rounded px-3 py-1.5 text-xs font-medium text-emerald-400 hover:bg-emerald-500/20"
+                    >
+                      Approve
+                    </button>
+                  )}
+                  {review.moderation_status === 'approved' && (
+                    <button
+                      onClick={() => handleHide(review.id)}
+                      className="rounded px-3 py-1.5 text-xs font-medium text-red-400 hover:bg-red-500/20"
+                    >
+                      Hide
+                    </button>
+                  )}
+                  {review.moderation_status === 'hidden' && (
+                    <button
+                      onClick={() => handleUnhide(review.id)}
+                      className="rounded px-3 py-1.5 text-xs font-medium text-emerald-400 hover:bg-emerald-500/20"
+                    >
+                      Unhide
+                    </button>
+                  )}
+                  <button
+                    onClick={() => setEditingReview(review)}
+                    className="rounded px-3 py-1.5 text-xs font-medium text-blue-400 hover:bg-blue-500/20"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(review.id)}
+                    className="rounded px-3 py-1.5 text-xs font-medium text-red-400 hover:bg-red-500/20"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop table view */}
+          <div className="hidden overflow-x-auto sm:block">
+            <table className="w-full">
+              <thead className="bg-zinc-900/50">
+                <tr>
+                  <th className="px-4 py-3 text-left">
+                    <input
+                      type="checkbox"
+                      checked={selectedReviews.size === reviews.length && reviews.length > 0}
+                      onChange={handleSelectAll}
+                      className="cursor-pointer"
+                    />
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-zinc-400">Week</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-zinc-400">Participant</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-zinc-400">Album</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-zinc-400">Rating</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-zinc-400">Review Preview</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase text-zinc-400">Status</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase text-zinc-400">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-800">
+                {reviews.map((review) => (
+                  <tr key={review.id} className="hover:bg-zinc-900/30">
+                    <td className="px-4 py-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedReviews.has(review.id)}
+                        onChange={() => handleToggleSelect(review.id)}
+                        className="cursor-pointer"
+                      />
+                    </td>
+                    <td className="px-4 py-3 text-sm text-zinc-300">#{review.week_number}</td>
+                    <td className="px-4 py-3">
+                      <div className="text-sm font-medium text-white">{review.participant.name}</div>
+                      <div className="text-xs text-zinc-500">{review.participant.email}</div>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-zinc-300">
+                      {review.album_type === 'contemporary' ? '🔊 Contemporary' : '💿 Classic'}
+                    </td>
+                    <td className="px-4 py-3 text-sm font-medium text-white">{review.rating.toFixed(1)}/10</td>
+                    <td className="px-4 py-3">
+                      <div className="max-w-md">
+                        {review.favorite_track && (
+                          <div className="mb-1 text-xs text-zinc-500">♪ {review.favorite_track}</div>
+                        )}
+                        {review.review_text && (
+                          <div className="truncate text-sm text-zinc-400">{review.review_text}</div>
+                        )}
+                        {!review.favorite_track && !review.review_text && (
+                          <div className="text-xs italic text-zinc-600">No text review</div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">{getStatusBadge(review.moderation_status)}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex justify-end gap-2">
+                        {review.moderation_status === 'pending' && (
+                          <button
+                            onClick={() => handleApprove(review.id)}
+                            className="rounded px-2 py-1 text-xs font-medium text-emerald-400 hover:bg-emerald-500/20"
+                          >
+                            Approve
+                          </button>
+                        )}
+                        {review.moderation_status === 'approved' && (
+                          <button
+                            onClick={() => handleHide(review.id)}
+                            className="rounded px-2 py-1 text-xs font-medium text-red-400 hover:bg-red-500/20"
+                          >
+                            Hide
+                          </button>
+                        )}
+                        {review.moderation_status === 'hidden' && (
+                          <button
+                            onClick={() => handleUnhide(review.id)}
+                            className="rounded px-2 py-1 text-xs font-medium text-emerald-400 hover:bg-emerald-500/20"
+                          >
+                            Unhide
+                          </button>
+                        )}
                         <button
-                          onClick={() => handleApprove(review.id)}
-                          className="rounded px-2 py-1 text-xs font-medium text-emerald-400 hover:bg-emerald-500/20"
+                          onClick={() => setEditingReview(review)}
+                          className="rounded px-2 py-1 text-xs font-medium text-blue-400 hover:bg-blue-500/20"
                         >
-                          Approve
+                          Edit
                         </button>
-                      )}
-                      {review.moderation_status === 'approved' && (
                         <button
-                          onClick={() => handleHide(review.id)}
+                          onClick={() => handleDelete(review.id)}
                           className="rounded px-2 py-1 text-xs font-medium text-red-400 hover:bg-red-500/20"
                         >
-                          Hide
+                          Delete
                         </button>
-                      )}
-                      {review.moderation_status === 'hidden' && (
-                        <button
-                          onClick={() => handleUnhide(review.id)}
-                          className="rounded px-2 py-1 text-xs font-medium text-emerald-400 hover:bg-emerald-500/20"
-                        >
-                          Unhide
-                        </button>
-                      )}
-                      <button
-                        onClick={() => setEditingReview(review)}
-                        className="rounded px-2 py-1 text-xs font-medium text-blue-400 hover:bg-blue-500/20"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(review.id)}
-                        className="rounded px-2 py-1 text-xs font-medium text-red-400 hover:bg-red-500/20"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
       {/* Edit Modal */}
