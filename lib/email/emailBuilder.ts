@@ -133,7 +133,7 @@ const buildEmailContentFromParams = (
   ) => {
     if (reviews.length === 0) {
       return `
-                <p style="margin: 8px 0 0; color: #737373; font-size: 13px;">No written reviews yet.</p>
+                <p style="margin: 8px 0 0; color: #737373; font-size: 15px;">No written reviews yet.</p>
 `;
     }
 
@@ -144,9 +144,9 @@ const buildEmailContentFromParams = (
         const safeFavoriteTrack = review.favoriteTrack ? escapeHtml(review.favoriteTrack) : null;
         return `
                 <div style="margin-top: 12px; padding-left: 12px; border-left: 2px solid #1f1f1f;">
-                  <p style="margin: 0 0 4px; color: #e5e5e5; font-size: 13px; font-weight: 600;">${safeName} – <span style="color: #10b981;">${review.rating.toFixed(1)}/10</span></p>${safeFavoriteTrack ? `
-                  <p style="margin: 0 0 4px; color: #a1a1a1; font-size: 12px;">Fav: ${safeFavoriteTrack}</p>` : ''}
-                  <p style="margin: 0; color: #e5e5e5; font-size: 14px; line-height: 1.5; white-space: pre-wrap;">${safeText}</p>
+                  <p style="margin: 0 0 4px; color: #e5e5e5; font-size: 15px; font-weight: 600;">${safeName} – <span style="color: #10b981;">${review.rating.toFixed(1)}/10</span></p>${safeFavoriteTrack ? `
+                  <p style="margin: 0 0 4px; color: #a1a1a1; font-size: 14px;">Fav: ${safeFavoriteTrack}</p>` : ''}
+                  <p style="margin: 0; color: #e5e5e5; font-size: 16px; line-height: 1.5; white-space: pre-wrap;">${safeText}</p>
                 </div>
 `;
       })
@@ -169,7 +169,7 @@ const buildEmailContentFromParams = (
   <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #000000;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background-color: #0a0a0a; border: 1px solid #1f1f1f; border-radius: 16px; overflow: hidden;">
+        <table width="700" cellpadding="0" cellspacing="0" style="max-width: 700px; background-color: #0a0a0a; border: 1px solid #1f1f1f; border-radius: 16px; overflow: hidden;">
 ${isTest ? `
           <!-- Test Email Banner -->
           <tr>
@@ -346,15 +346,15 @@ ${isTest ? `
           <tr>
             <td style="padding: 0 32px 32px;">
               <div style="background-color: #111111; border: 1px solid #1f1f1f; border-radius: 12px; padding: 20px;">
-                <h2 style="margin: 0 0 16px; color: #10b981; font-size: 18px; font-weight: 600;">Last week's albums</h2>
+                <h2 style="margin: 0 0 16px; color: #10b981; font-size: 20px; font-weight: 600;">Last week's albums</h2>
 `;
 
     if (reviewStats.contemporary.count > 0) {
       htmlBody += `
                 <div style="margin-bottom: 16px;">
-                  <p style="margin: 0 0 8px; color: #ffffff; font-size: 15px; font-weight: 600;">${buildAlbumLabel(reviewStats.contemporary.albumLabel)}</p>
-                  <p style="margin: 0 0 4px; color: #a1a1a1; font-size: 14px;">Average: <span style="color: #10b981; font-weight: 600;">${reviewStats.contemporary.avgRating || "N/A"}/10</span> (${reviewStats.contemporary.count} ${reviewStats.contemporary.count === 1 ? "review" : "reviews"})</p>
-                  <p style="margin: 8px 0 0; color: #d4d4d4; font-size: 13px; font-weight: 500;">Reviews:</p>
+                  <p style="margin: 0 0 8px; color: #ffffff; font-size: 17px; font-weight: 600;">${buildAlbumLabel(reviewStats.contemporary.albumLabel)}</p>
+                  <p style="margin: 0 0 4px; color: #a1a1a1; font-size: 16px;">Average: <span style="color: #10b981; font-weight: 600;">${reviewStats.contemporary.avgRating || "N/A"}/10</span> (${reviewStats.contemporary.count} ${reviewStats.contemporary.count === 1 ? "review" : "reviews"})</p>
+                  <p style="margin: 8px 0 0; color: #d4d4d4; font-size: 15px; font-weight: 500;">Reviews:</p>
 ${buildReviewListHtml(reviewStats.contemporary.reviews)}
                 </div>
 `;
@@ -363,9 +363,9 @@ ${buildReviewListHtml(reviewStats.contemporary.reviews)}
     if (reviewStats.classic.count > 0) {
       htmlBody += `
                 <div>
-                  <p style="margin: 0 0 8px; color: #ffffff; font-size: 15px; font-weight: 600;">${buildAlbumLabel(reviewStats.classic.albumLabel)}</p>
-                  <p style="margin: 0 0 4px; color: #a1a1a1; font-size: 14px;">Average: <span style="color: #10b981; font-weight: 600;">${reviewStats.classic.avgRating || "N/A"}/10</span> (${reviewStats.classic.count} ${reviewStats.classic.count === 1 ? "review" : "reviews"})</p>
-                  <p style="margin: 8px 0 0; color: #d4d4d4; font-size: 13px; font-weight: 500;">Reviews:</p>
+                  <p style="margin: 0 0 8px; color: #ffffff; font-size: 17px; font-weight: 600;">${buildAlbumLabel(reviewStats.classic.albumLabel)}</p>
+                  <p style="margin: 0 0 4px; color: #a1a1a1; font-size: 16px;">Average: <span style="color: #10b981; font-weight: 600;">${reviewStats.classic.avgRating || "N/A"}/10</span> (${reviewStats.classic.count} ${reviewStats.classic.count === 1 ? "review" : "reviews"})</p>
+                  <p style="margin: 8px 0 0; color: #d4d4d4; font-size: 15px; font-weight: 500;">Reviews:</p>
 ${buildReviewListHtml(reviewStats.classic.reviews)}
                 </div>
 `;
