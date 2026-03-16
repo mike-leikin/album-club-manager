@@ -70,7 +70,7 @@ export function buildReviewNotificationEmail(
   data: ReviewNotificationData
 ): EmailContent {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-  const moderationUrl = `${appUrl}/admin/reviews`;
+  const moderationUrl = `${appUrl}/admin?tab=reviews`;
   const safeName = escapeHtml(data.participantName);
   const safeEmail = escapeHtml(data.participantEmail);
 

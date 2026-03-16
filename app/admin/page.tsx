@@ -48,8 +48,17 @@ type ReviewStats = {
 };
 
 export default function AdminPage() {
-  // Tab state
+  // Tab state — initialize from ?tab= query param if valid
   const [activeTab, setActiveTab] = useState<Tab>("week");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const t = params.get("tab");
+    const valid: Tab[] = ["week", "participants", "reviews", "history", "email-history", "export", "invitations"];
+    if (valid.includes(t as Tab)) {
+      setActiveTab(t as Tab);
+    }
+  }, []);
 
   // Basic setup
   const [weekNumber, setWeekNumber] = useState("1");
