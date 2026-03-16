@@ -8,6 +8,7 @@ import RS500Picker from "@/components/RS500Picker";
 import EmailHistoryTab from "@/components/EmailHistoryTab";
 import AdminReviewsTab from "@/components/AdminReviewsTab";
 import InvitationsManager from "@/components/InvitationsManager";
+import AlbumDiscovery from "@/components/AlbumDiscovery";
 import type { Database } from "@/lib/types/database";
 import { formatDateOnlyEastern } from "@/lib/utils/dates";
 
@@ -20,7 +21,7 @@ type Album = {
   rollingStoneRank?: string;
 };
 
-type Tab = "week" | "participants" | "reviews" | "history" | "email-history" | "export" | "invitations";
+type Tab = "week" | "participants" | "reviews" | "history" | "email-history" | "export" | "invitations" | "discover";
 
 type ReviewStats = {
   contemporary: {
@@ -811,6 +812,16 @@ export default function AdminPage() {
               }`}
             >
               Data Export
+            </button>
+            <button
+              onClick={() => setActiveTab("discover")}
+              className={`px-4 py-2 text-sm font-medium transition ${
+                activeTab === "discover"
+                  ? "border-b-2 border-blue-500 text-blue-600"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              Discover
             </button>
           </div>
         </div>
@@ -1616,6 +1627,21 @@ export default function AdminPage() {
               </ul>
             </div>
           </div>
+        )}
+        {/* Discover Tab */}
+        {activeTab === "discover" && (
+          <AlbumDiscovery
+            onSelect={(album) => {
+              setContemporary({
+                title: album.title,
+                artist: album.artist,
+                year: album.year,
+                spotifyUrl: album.spotifyUrl,
+                albumArtUrl: album.albumArtUrl,
+              });
+              setActiveTab("week");
+            }}
+          />
         )}
       </div>
     </main>

@@ -198,6 +198,18 @@ class SpotifyClient {
   }
 
   /**
+   * Get new album releases from Spotify's browse endpoint
+   * @param limit - Number of results to return (default: 20, max: 50)
+   */
+  async getNewReleases(limit: number = 20): Promise<SpotifyAlbumSimplified[]> {
+    const response = await this.makeRequest<{ albums: { items: SpotifyAlbumSimplified[] } }>(
+      '/browse/new-releases',
+      { limit: Math.min(limit, 50).toString() }
+    );
+    return response.albums.items;
+  }
+
+  /**
    * Extract year from Spotify release_date
    * Spotify returns dates in various formats: YYYY, YYYY-MM, YYYY-MM-DD
    */

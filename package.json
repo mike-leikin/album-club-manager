@@ -25,6 +25,7 @@
     "refetch:spotify": "tsx scripts/refetch-all-spotify.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.36.0",
     "@sentry/nextjs": "^10.32.1",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.81.1",
