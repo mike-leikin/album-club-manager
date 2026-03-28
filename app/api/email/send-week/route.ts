@@ -402,6 +402,8 @@ export async function POST(request: NextRequest) {
       });
 
       try {
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+        const unsubscribeUrl = `${appUrl}/unsubscribe?token=${participant.unsubscribe_token}`;
         const result = await resend.emails.send({
           from: process.env.RESEND_FROM_EMAIL || "Album Club <onboarding@resend.dev>",
           replyTo: process.env.RESEND_REPLY_TO_EMAIL,
@@ -409,6 +411,10 @@ export async function POST(request: NextRequest) {
           subject: personalized.subject,
           html: personalized.htmlBody,
           text: personalized.textBody,
+          headers: {
+            'List-Unsubscribe': `<${unsubscribeUrl}>`,
+            'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+          },
         });
 
         await logEmailAttempt(participant.id, participant.email, 'sent', result.data?.id);
