@@ -485,9 +485,11 @@ ${buildReviewListHtml(reviewStats.classic.reviews)}
   textBody += `---\n`;
   textBody += `Unsubscribe: ${unsubscribeUrl}`;
 
-  const subject = isTest
-    ? `[TEST] This week's album picks, ${firstName}`
-    : `This week's album picks, ${firstName}`;
+  const artists = [week.contemporary_artist, week.classic_artist]
+    .filter(Boolean)
+    .join(' + ');
+  const subjectBase = artists ? `This week: ${artists}` : `This week's album picks`;
+  const subject = isTest ? `[TEST] ${subjectBase}` : subjectBase;
 
   return {
     htmlBody,
