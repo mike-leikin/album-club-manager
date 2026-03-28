@@ -1,4 +1,10 @@
 {
   "buildCommand": "npm run build",
-  "installCommand": "npm ci"
+  "installCommand": "npm ci",
+  "crons": [
+    {
+      "path": "/api/cron/engagement-summary",
+      "schedule": "0 10 * * *"
+    }
+  ]
 }

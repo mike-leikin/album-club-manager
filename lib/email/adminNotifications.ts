@@ -26,6 +26,23 @@ export interface SignupNotificationData {
   referrerName: string | null;
 }
 
+export interface EngagementSummaryRecipient {
+  name: string;
+  email: string;
+  opened: boolean;
+  clicked: boolean;
+}
+
+export interface EngagementSummaryData {
+  weekNumber: number;
+  subject: string;
+  sentAt: string;
+  sentCount: number;
+  openedCount: number;
+  clickedCount: number;
+  recipients: EngagementSummaryRecipient[];
+}
+
 interface Curator {
   id: string;
   email: string;
@@ -250,6 +267,131 @@ export function buildSignupNotificationEmail(
     htmlBody,
     textBody: textLines.join("\n"),
     subject: `New member signed up - ${data.participantName}`,
+  };
+}
+
+export function buildEngagementSummaryEmail(
+  data: EngagementSummaryData
+): EmailContent {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const historyUrl = `${appUrl}/admin?tab=email-history`;
+
+  const openRate = data.sentCount > 0
+    ? Math.round((data.openedCount / data.sentCount) * 100)
+    : 0;
+  const clickRate = data.sentCount > 0
+    ? Math.round((data.clickedCount / data.sentCount) * 100)
+    : 0;
+
+  const sentDate = new Date(data.sentAt).toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+
+  const recipientRows = data.recipients
+    .map((r) => {
+      const safeName = escapeHtml(r.name);
+      const badges = [
+        r.opened ? `<span style="background:#1e3a5f;color:#60a5fa;padding:2px 8px;border-radius:999px;font-size:11px;margin-left:6px;">opened</span>` : "",
+        r.clicked ? `<span style="background:#2e1065;color:#c084fc;padding:2px 8px;border-radius:999px;font-size:11px;margin-left:4px;">clicked</span>` : "",
+      ].join("");
+      return `
+        <tr>
+          <td style="padding:8px 0;border-bottom:1px solid #1f1f1f;color:${r.opened ? "#ffffff" : "#737373"};font-size:14px;">
+            ${safeName}${badges}
+          </td>
+        </tr>`;
+    })
+    .join("");
+
+  const htmlBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0;padding:0;background-color:#000000;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#000000;">
+    <tr>
+      <td align="center" style="padding:40px 20px;">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background-color:#0a0a0a;border:1px solid #1f1f1f;border-radius:16px;overflow:hidden;">
+          <tr>
+            <td style="padding:24px 32px;background:linear-gradient(135deg,#1a1a1a 0%,#0a0a0a 100%);border-bottom:1px solid #1f1f1f;">
+              <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">Week ${data.weekNumber} Engagement</h1>
+              <p style="margin:8px 0 0;color:#a1a1a1;font-size:14px;">Sent ${sentDate}</p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:24px 32px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+                <tr>
+                  <td style="text-align:center;padding:16px;background:#0f172a;border-radius:12px;width:33%;">
+                    <div style="font-size:28px;font-weight:700;color:#ffffff;">${data.sentCount}</div>
+                    <div style="font-size:12px;color:#a1a1a1;margin-top:4px;">Sent</div>
+                  </td>
+                  <td style="width:4%;"></td>
+                  <td style="text-align:center;padding:16px;background:#0f1f2e;border-radius:12px;width:33%;">
+                    <div style="font-size:28px;font-weight:700;color:#60a5fa;">${openRate}%</div>
+                    <div style="font-size:12px;color:#a1a1a1;margin-top:4px;">${data.openedCount} opened</div>
+                  </td>
+                  <td style="width:4%;"></td>
+                  <td style="text-align:center;padding:16px;background:#1a0f2e;border-radius:12px;width:33%;">
+                    <div style="font-size:28px;font-weight:700;color:#c084fc;">${clickRate}%</div>
+                    <div style="font-size:12px;color:#a1a1a1;margin-top:4px;">${data.clickedCount} clicked</div>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0 0 12px;color:#a1a1a1;font-size:12px;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;">Recipients</p>
+              <table width="100%" cellpadding="0" cellspacing="0">
+                ${recipientRows}
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:0 32px 24px;">
+              <a href="${historyUrl}" style="display:inline-block;background-color:#3f3f46;color:#ffffff;text-decoration:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;">View full history</a>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:16px 32px;border-top:1px solid #1f1f1f;">
+              <p style="margin:0;color:#525252;font-size:11px;">You're receiving this because you're a curator.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+  const textLines = [
+    `Week ${data.weekNumber} Engagement Summary`,
+    `Sent: ${sentDate}`,
+    "",
+    `Sent:    ${data.sentCount}`,
+    `Opened:  ${data.openedCount} (${openRate}%)`,
+    `Clicked: ${data.clickedCount} (${clickRate}%)`,
+    "",
+    "Recipients:",
+  ];
+  data.recipients.forEach((r) => {
+    const tags = [r.opened ? "opened" : "", r.clicked ? "clicked" : ""]
+      .filter(Boolean)
+      .join(", ");
+    textLines.push(`  ${r.name}${tags ? ` – ${tags}` : ""}`);
+  });
+  textLines.push("", `Full history: ${historyUrl}`, "", "---", "You're receiving this because you're a curator.");
+
+  return {
+    htmlBody,
+    textBody: textLines.join("\n"),
+    subject: `Week ${data.weekNumber} email: ${openRate}% opened, ${clickRate}% clicked`,
   };
 }
 
