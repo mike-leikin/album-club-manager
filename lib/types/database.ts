@@ -816,3 +816,4 @@ export type Review = Tables<"reviews">
 export type Week = Tables<"weeks">
 export type Participant = Tables<"participants">
 export type ParticipantInsert = TablesInsert<"participants">
+export type RS500Album = Tables<"rs_500_albums">
