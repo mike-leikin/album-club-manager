@@ -95,6 +95,7 @@ export default function AdminPage() {
   });
 
   // Classic album
+  const [classicSource, setClassicSource] = useState<'rs500' | 'spotify'>('rs500');
   const [classic, setClassic] = useState<Album>({
     title: "",
     artist: "",
@@ -1053,23 +1054,62 @@ export default function AdminPage() {
 
           {/* Classic album */}
           <div className="space-y-3">
-            <h2 className="text-lg font-semibold">
-              Classic Album <span className="text-xs text-gray-500">(RS 500)</span>
-            </h2>
+            <h2 className="text-lg font-semibold">Classic Album</h2>
 
-            <RS500Picker
-              onSelectAlbum={(album) => {
-                setClassic({
-                  title: album.title,
-                  artist: album.artist,
-                  year: album.year,
-                  spotifyUrl: album.spotifyUrl,
-                  albumArtUrl: album.albumArtUrl,
-                  rollingStoneRank: album.rollingStoneRank?.toString() || "",
-                });
-              }}
-              placeholder="Search Rolling Stone 500..."
-            />
+            <div className="flex rounded-lg bg-gray-100 p-1">
+              <button
+                type="button"
+                onClick={() => setClassicSource('rs500')}
+                className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                  classicSource === 'rs500'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Rolling Stone 500
+              </button>
+              <button
+                type="button"
+                onClick={() => setClassicSource('spotify')}
+                className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                  classicSource === 'spotify'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Spotify Search
+              </button>
+            </div>
+
+            {classicSource === 'rs500' ? (
+              <RS500Picker
+                onSelectAlbum={(album) => {
+                  setClassic({
+                    title: album.title,
+                    artist: album.artist,
+                    year: album.year,
+                    spotifyUrl: album.spotifyUrl,
+                    albumArtUrl: album.albumArtUrl,
+                    rollingStoneRank: album.rollingStoneRank?.toString() || "",
+                  });
+                }}
+                placeholder="Search Rolling Stone 500..."
+              />
+            ) : (
+              <SpotifySearch
+                onSelectAlbum={(album) => {
+                  setClassic({
+                    title: album.title,
+                    artist: album.artist,
+                    year: album.year,
+                    spotifyUrl: album.spotifyUrl,
+                    albumArtUrl: album.albumArtUrl,
+                    rollingStoneRank: "",
+                  });
+                }}
+                placeholder="Search Spotify for a classic album..."
+              />
+            )}
 
             {classic.albumArtUrl && (
               <div className="flex justify-center">
