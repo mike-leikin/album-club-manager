@@ -2,7 +2,7 @@ import { createMockWeek } from '../factories/weekFactory'
 
 export const mockWeeks = [
   createMockWeek({
-    id: 'week-1',
+    id: 1,
     week_number: 1,
     response_deadline: new Date('2024-12-31T23:59:59Z').toISOString(),
     contemporary_title: 'The Now Sound',

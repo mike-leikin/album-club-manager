@@ -262,7 +262,7 @@ export async function POST(request: NextRequest) {
         id: participant.id,
         email: participant.email,
         name: participant.name,
-        reminder_unsubscribe_token: participant.reminder_unsubscribe_token,
+        reminder_unsubscribe_token: participant.reminder_unsubscribe_token ?? '',
       });
 
       try {
