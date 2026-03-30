@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     const sendIds = sends.map((send: { id: string }) => send.id);
     const { data: recipients, error: recipientsError } = await supabase
       .from("email_send_recipients")
-      .select("send_id, status")
+      .select("send_id, status, opened_at, clicked_at")
       .in("send_id", sendIds);
 
     if (recipientsError) {
@@ -44,29 +44,30 @@ export async function GET(request: NextRequest) {
 
     const counts = new Map<
       string,
-      { total: number; sent: number; failed: number }
+      { total: number; sent: number; failed: number; opened: number; clicked: number }
     >();
 
-    (recipients || []).forEach((recipient: { send_id: string; status: string }) => {
+    (recipients || []).forEach((recipient: { send_id: string; status: string; opened_at: string | null; clicked_at: string | null }) => {
       if (!counts.has(recipient.send_id)) {
-        counts.set(recipient.send_id, { total: 0, sent: 0, failed: 0 });
+        counts.set(recipient.send_id, { total: 0, sent: 0, failed: 0, opened: 0, clicked: 0 });
       }
       const counter = counts.get(recipient.send_id)!;
       counter.total += 1;
-      if (recipient.status === "sent") {
-        counter.sent += 1;
-      } else if (recipient.status === "failed") {
-        counter.failed += 1;
-      }
+      if (recipient.status === "sent") counter.sent += 1;
+      else if (recipient.status === "failed") counter.failed += 1;
+      if (recipient.opened_at) counter.opened += 1;
+      if (recipient.clicked_at) counter.clicked += 1;
     });
 
     const sendsWithCounts = sends.map((send: any) => {
-      const count = counts.get(send.id) || { total: 0, sent: 0, failed: 0 };
+      const count = counts.get(send.id) || { total: 0, sent: 0, failed: 0, opened: 0, clicked: 0 };
       return {
         ...send,
         recipient_count: count.total,
         sent_count: count.sent,
         failed_count: count.failed,
+        opened_count: count.opened,
+        clicked_count: count.clicked,
       };
     });
 

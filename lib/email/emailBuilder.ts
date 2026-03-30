@@ -485,9 +485,11 @@ ${buildReviewListHtml(reviewStats.classic.reviews)}
   textBody += `---\n`;
   textBody += `Unsubscribe: ${unsubscribeUrl}`;
 
-  const subject = isTest
-    ? `[TEST] Album Club – ${weekLabel}`
-    : `Album Club – ${weekLabel}`;
+  const artists = [week.contemporary_artist, week.classic_artist]
+    .filter(Boolean)
+    .join(' + ');
+  const subjectBase = artists ? `This week: ${artists}` : `This week's album picks`;
+  const subject = isTest ? `[TEST] ${subjectBase}` : subjectBase;
 
   return {
     htmlBody,
@@ -702,8 +704,8 @@ export function buildReminderEmailTemplate(week: WeekData): EmailContent {
     ? formatDeadline(week.response_deadline)
     : null;
   const subject = deadlineLabel
-    ? `Reminder: Album Club - Reviews due by ${deadlineLabel}`
-    : "Reminder: Album Club - Reviews due soon";
+    ? `${EMAIL_TEMPLATE_PLACEHOLDERS.firstName}, your reviews are due by ${deadlineLabel}`
+    : `${EMAIL_TEMPLATE_PLACEHOLDERS.firstName}, your album reviews are due soon`;
 
   const buildAlbumLabel = (
     artist?: string | null,
@@ -927,7 +929,7 @@ export function renderEmailTemplate(
   };
 
   return {
-    subject: template.subject,
+    subject: applyReplacements(template.subject, replacements),
     htmlBody: applyReplacements(template.htmlBody, replacements),
     textBody: applyReplacements(template.textBody, replacements),
   };
@@ -948,7 +950,7 @@ export function renderReminderEmailTemplate(
   };
 
   return {
-    subject: template.subject,
+    subject: applyReplacements(template.subject, replacements),
     htmlBody: applyReplacements(template.htmlBody, replacements),
     textBody: applyReplacements(template.textBody, replacements),
   };

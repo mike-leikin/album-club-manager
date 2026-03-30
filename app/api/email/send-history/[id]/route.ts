@@ -34,6 +34,8 @@ export async function GET(
         sent_at,
         resend_id,
         error_message,
+        opened_at,
+        clicked_at,
         participant:participants(id, name, email, unsubscribe_token, reminder_unsubscribe_token)
       `)
       .eq("send_id", id)
@@ -83,6 +85,8 @@ export async function GET(
       sent_at: recipient.sent_at,
       resend_id: recipient.resend_id,
       error_message: recipient.error_message,
+      opened_at: recipient.opened_at,
+      clicked_at: recipient.clicked_at,
       participant: recipient.participant
         ? {
             id: recipient.participant.id,

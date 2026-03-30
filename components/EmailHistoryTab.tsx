@@ -13,6 +13,8 @@ type EmailSend = {
   recipient_count: number;
   sent_count: number;
   failed_count: number;
+  opened_count: number;
+  clicked_count: number;
 };
 
 type EmailSendRecipient = {
@@ -23,6 +25,8 @@ type EmailSendRecipient = {
   sent_at: string | null;
   resend_id: string | null;
   error_message: string | null;
+  opened_at: string | null;
+  clicked_at: string | null;
   participant?: {
     id: string;
     name: string;
@@ -167,9 +171,11 @@ export default function EmailHistoryTab() {
         acc.sends += 1;
         acc.recipients += send.recipient_count || 0;
         acc.failed += send.failed_count || 0;
+        acc.opened += send.opened_count || 0;
+        acc.clicked += send.clicked_count || 0;
         return acc;
       },
-      { sends: 0, recipients: 0, failed: 0 }
+      { sends: 0, recipients: 0, failed: 0, opened: 0, clicked: 0 }
     );
   }, [sendHistory]);
 
@@ -283,7 +289,7 @@ export default function EmailHistoryTab() {
       </div>
 
       {sendHistory.length > 0 && (
-        <div className="mb-6 grid gap-4 md:grid-cols-3">
+        <div className="mb-6 grid gap-4 md:grid-cols-5">
           <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4">
             <div className="text-2xl font-bold text-white">{totals.sends}</div>
             <div className="text-sm text-zinc-400">Send Instances</div>
@@ -295,6 +301,22 @@ export default function EmailHistoryTab() {
           <div className="rounded-xl border border-red-900/50 bg-red-950/30 p-4">
             <div className="text-2xl font-bold text-red-400">{totals.failed}</div>
             <div className="text-sm text-zinc-400">Failed Sends</div>
+          </div>
+          <div className="rounded-xl border border-blue-900/50 bg-blue-950/30 p-4">
+            <div className="text-2xl font-bold text-blue-400">
+              {totals.recipients > 0
+                ? `${Math.round((totals.opened / totals.recipients) * 100)}%`
+                : "—"}
+            </div>
+            <div className="text-sm text-zinc-400">Open Rate</div>
+          </div>
+          <div className="rounded-xl border border-purple-900/50 bg-purple-950/30 p-4">
+            <div className="text-2xl font-bold text-purple-400">
+              {totals.recipients > 0
+                ? `${Math.round((totals.clicked / totals.recipients) * 100)}%`
+                : "—"}
+            </div>
+            <div className="text-sm text-zinc-400">Click Rate</div>
           </div>
         </div>
       )}
@@ -320,7 +342,9 @@ export default function EmailHistoryTab() {
                       <th className="px-4 py-3">Subject</th>
                       <th className="px-4 py-3">Sent At</th>
                       <th className="px-4 py-3">Recipients</th>
-                      <th className="px-4 py-3">Status</th>
+                      <th className="px-4 py-3">Delivery</th>
+                      <th className="px-4 py-3">Opens</th>
+                      <th className="px-4 py-3">Clicks</th>
                     </tr>
                   </thead>
                   <tbody className="text-zinc-200">
@@ -356,6 +380,16 @@ export default function EmailHistoryTab() {
                           {send.failed_count > 0 && (
                             <span className="text-red-400"> • {send.failed_count} failed</span>
                           )}
+                        </td>
+                        <td className="px-4 py-3 text-xs text-blue-400">
+                          {send.sent_count > 0
+                            ? `${Math.round(((send.opened_count ?? 0) / send.sent_count) * 100)}%`
+                            : "—"}
+                        </td>
+                        <td className="px-4 py-3 text-xs text-purple-400">
+                          {send.sent_count > 0
+                            ? `${Math.round(((send.clicked_count ?? 0) / send.sent_count) * 100)}%`
+                            : "—"}
                         </td>
                       </tr>
                     ))}
@@ -427,17 +461,29 @@ export default function EmailHistoryTab() {
                             <div>{recipient.participant?.name || "Unknown"}</div>
                             <div className="text-zinc-500">{recipient.participant_email}</div>
                           </div>
-                          <span
-                            className={`rounded-full px-2 py-0.5 text-xs ${
-                              recipient.status === "sent"
-                                ? "bg-emerald-900/40 text-emerald-300"
-                                : recipient.status === "failed"
-                                ? "bg-red-900/40 text-red-300"
-                                : "bg-yellow-900/40 text-yellow-300"
-                            }`}
-                          >
-                            {recipient.status}
-                          </span>
+                          <div className="flex items-center gap-1">
+                            {recipient.opened_at && (
+                              <span className="rounded-full bg-blue-900/40 px-2 py-0.5 text-xs text-blue-300">
+                                opened
+                              </span>
+                            )}
+                            {recipient.clicked_at && (
+                              <span className="rounded-full bg-purple-900/40 px-2 py-0.5 text-xs text-purple-300">
+                                clicked
+                              </span>
+                            )}
+                            <span
+                              className={`rounded-full px-2 py-0.5 text-xs ${
+                                recipient.status === "sent"
+                                  ? "bg-emerald-900/40 text-emerald-300"
+                                  : recipient.status === "failed"
+                                  ? "bg-red-900/40 text-red-300"
+                                  : "bg-yellow-900/40 text-yellow-300"
+                              }`}
+                            >
+                              {recipient.status}
+                            </span>
+                          </div>
                         </div>
                       ))
                     )}

@@ -21,13 +21,14 @@ Add these to your `.env.local` file:
 
 ```bash
 RESEND_API_KEY=re_your_api_key_here
-RESEND_FROM_EMAIL="Album Club <weekly@yourdomain.com>"
-RESEND_REPLY_TO_EMAIL="Your Name <your.personal.email@gmail.com>"
+RESEND_FROM_EMAIL="Mike <weekly@yourdomain.com>"
+RESEND_REPLY_TO_EMAIL="Mike <your.personal.email@gmail.com>"
 NEXT_PUBLIC_APP_URL=https://yourdomain.com
 ```
 
 **Note**:
 - Replace `yourdomain.com` with your actual domain. Use the root domain (not a subdomain) for email sending.
+- **Use your real first name** (not "Album Club") as the display name in `RESEND_FROM_EMAIL`. Gmail's Promotions filter heavily weighs sender display names — a personal name like `"Mike <weekly@yourdomain.com>"` is far more likely to land in Primary than `"Album Club <weekly@yourdomain.com>"`.
 - The `RESEND_REPLY_TO_EMAIL` configures where participant replies will be sent. When someone replies to a weekly email, it will go to this address instead of `weekly@yourdomain.com`.
 
 ### 4. Verify Your Domain (Optional but Recommended)
@@ -48,12 +49,13 @@ NEXT_PUBLIC_APP_URL=https://yourdomain.com
 Once domain is verified, update `.env.local`:
 
 ```bash
-RESEND_FROM_EMAIL="Album Club <weekly@yourdomain.com>"
-RESEND_REPLY_TO_EMAIL="Your Name <your.personal.email@gmail.com>"
+RESEND_FROM_EMAIL="Mike <weekly@yourdomain.com>"
+RESEND_REPLY_TO_EMAIL="Mike <your.personal.email@gmail.com>"
 ```
 
 **Important**:
 - Use your root domain (e.g., `albumclub.club`), not a subdomain (e.g., `send.albumclub.club`). Only the root domain needs to be verified in Resend.
+- Use your **first name** as the display name (not "Album Club") to improve inbox placement — see note above.
 - Set `RESEND_REPLY_TO_EMAIL` to your personal email address to receive replies from participants.
 
 ## Reply Handling
@@ -106,7 +108,7 @@ Reminders only go to participants who:
 ### What Participants Receive
 
 Each participant gets a personalized email with:
-- Subject: `Album Club – Week X`
+- Subject: `This week's album picks, [First Name]`
 - Previous week's results (if available)
 - This week's album details with Spotify links
 - **Personalized review link** with their email pre-filled
@@ -115,7 +117,7 @@ Each participant gets a personalized email with:
 ### Reminder Emails
 
 Reminder emails are short nudges sent manually during the current week. They include:
-- Subject: `Reminder: Album Club - Reviews due by [due date]`
+- Subject: `[First Name], your reviews are due by [due date]`
 - A personalized review submission link
 - The response deadline (if set)
 - The current week's album artist + title details
@@ -129,7 +131,7 @@ Review submission confirmation emails are sent to anyone who submits, regardless
 ### Example Email
 
 ```
-Subject: Album Club – Week 5
+Subject: This week's album picks, John
 
 Hi John,
 
@@ -180,11 +182,15 @@ For a typical album club with 20 participants:
 
 ## Troubleshooting
 
-### Emails Going to Spam
+### Emails Going to Spam or Promotions
 
 **Solution**: Verify your domain in Resend
 - Without verification, emails from `onboarding@resend.dev` often go to spam
 - With verification, deliverability is excellent
+
+**Solution**: Use your real name as the sender display name
+- Change `RESEND_FROM_EMAIL` from `"Album Club <weekly@...>"` to `"Mike <weekly@...>"`
+- Gmail routes brand-style sender names (like "Album Club") to Promotions; personal names go to Primary
 
 ### Error: "RESEND_API_KEY is not defined"
 
