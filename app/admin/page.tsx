@@ -936,7 +936,7 @@ export default function AdminPage() {
                 type="date"
                 value={responseDeadline}
                 onChange={(e) => setResponseDeadline(e.target.value)}
-                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none [color-scheme:dark]"
+                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none [color-scheme:light]"
                 min={new Date().toISOString().split("T")[0]}
               />
             </div>

@@ -101,10 +101,8 @@ export type Database = {
       }
       email_send_recipients: {
         Row: {
-          clicked_at: string | null
           error_message: string | null
           id: string
-          opened_at: string | null
           participant_email: string
           participant_id: string | null
           resend_id: string | null
@@ -113,10 +111,8 @@ export type Database = {
           status: string
         }
         Insert: {
-          clicked_at?: string | null
           error_message?: string | null
           id?: string
-          opened_at?: string | null
           participant_email: string
           participant_id?: string | null
           resend_id?: string | null
@@ -125,10 +121,8 @@ export type Database = {
           status: string
         }
         Update: {
-          clicked_at?: string | null
           error_message?: string | null
           id?: string
-          opened_at?: string | null
           participant_email?: string
           participant_id?: string | null
           resend_id?: string | null
@@ -811,25 +805,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-
-// Convenience type aliases
-export type Week = Database['public']['Tables']['weeks']['Row']
-export type WeekInsert = Database['public']['Tables']['weeks']['Insert']
-export type WeekUpdate = Database['public']['Tables']['weeks']['Update']
-
-export type Participant = Database['public']['Tables']['participants']['Row']
-export type ParticipantInsert = Database['public']['Tables']['participants']['Insert']
-export type ParticipantUpdate = Database['public']['Tables']['participants']['Update']
-
-export type Review = Database['public']['Tables']['reviews']['Row']
-export type ReviewInsert = Database['public']['Tables']['reviews']['Insert']
-export type ReviewUpdate = Database['public']['Tables']['reviews']['Update']
-
-export type RS500Album = Database['public']['Tables']['rs_500_albums']['Row']
-export type RS500AlbumInsert = Database['public']['Tables']['rs_500_albums']['Insert']
-export type RS500AlbumUpdate = Database['public']['Tables']['rs_500_albums']['Update']
-
-export type ReviewWithParticipant = Review & { participants: Participant }
-export type ReviewWithModeration = Review & { participants: Pick<Participant, 'name' | 'email'> }
-export type WeekWithReviews = Week & { reviews: ReviewWithParticipant[] }
-export type WeekStats = Week & { review_count: number; avg_rating: number | null }
