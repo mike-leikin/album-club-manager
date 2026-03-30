@@ -168,7 +168,7 @@ export default function RS500Picker({
                           Already Covered
                         </span>
                       )}
-                      {album.times_used > 0 && (
+                      {(album.times_used ?? 0) > 0 && (
                         <span className="text-xs bg-blue-900/50 text-blue-400 px-2 py-0.5 rounded">
                           Used {album.times_used}x
                         </span>

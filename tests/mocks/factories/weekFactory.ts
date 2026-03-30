@@ -5,7 +5,7 @@ let weekIdCounter = 0
 export function createMockWeek(overrides?: Partial<Week>): Week {
   weekIdCounter++
   return {
-    id: `week-${weekIdCounter}`,
+    id: weekIdCounter,
     week_number: weekIdCounter,
     response_deadline: new Date(
       Date.now() + 7 * 24 * 60 * 60 * 1000

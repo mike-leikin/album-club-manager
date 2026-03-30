@@ -398,7 +398,7 @@ export async function POST(request: NextRequest) {
         id: participant.id,
         email: participant.email,
         name: participant.name,
-        unsubscribe_token: participant.unsubscribe_token,
+        unsubscribe_token: participant.unsubscribe_token ?? '',
       });
 
       try {

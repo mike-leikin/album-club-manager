@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
       id: curator.id,
       email: curator.email,
       name: curator.name,
-      reminder_unsubscribe_token: curator.reminder_unsubscribe_token,
+      reminder_unsubscribe_token: curator.reminder_unsubscribe_token ?? '',
     });
 
     const result = await resend.emails.send({
