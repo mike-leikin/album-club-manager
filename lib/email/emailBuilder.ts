@@ -488,7 +488,7 @@ ${buildReviewListHtml(reviewStats.classic.reviews)}
   const artists = [week.contemporary_artist, week.classic_artist]
     .filter(Boolean)
     .join(' + ');
-  const subjectBase = artists ? `This week: ${artists}` : `This week's album picks`;
+  const subjectBase = artists ? `Album Club This Week: ${artists}` : `Album Club This Week's album picks`;
   const subject = isTest ? `[TEST] ${subjectBase}` : subjectBase;
 
   return {
