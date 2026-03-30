@@ -101,8 +101,10 @@ export type Database = {
       }
       email_send_recipients: {
         Row: {
+          clicked_at: string | null
           error_message: string | null
           id: string
+          opened_at: string | null
           participant_email: string
           participant_id: string | null
           resend_id: string | null
@@ -111,8 +113,10 @@ export type Database = {
           status: string
         }
         Insert: {
+          clicked_at?: string | null
           error_message?: string | null
           id?: string
+          opened_at?: string | null
           participant_email: string
           participant_id?: string | null
           resend_id?: string | null
@@ -121,8 +125,10 @@ export type Database = {
           status: string
         }
         Update: {
+          clicked_at?: string | null
           error_message?: string | null
           id?: string
+          opened_at?: string | null
           participant_email?: string
           participant_id?: string | null
           resend_id?: string | null
@@ -805,3 +811,8 @@ export const Constants = {
     Enums: {},
   },
 } as const
+
+export type Review = Tables<"reviews">
+export type Week = Tables<"weeks">
+export type Participant = Tables<"participants">
+export type ParticipantInsert = TablesInsert<"participants">
