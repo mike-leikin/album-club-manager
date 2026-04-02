@@ -267,6 +267,7 @@ export interface Database {
           created_by: string | null
           source_send_id: string | null
           created_at: string
+          engagement_summary_sent_at: string | null
         }
         Insert: {
           id?: string
@@ -278,6 +279,7 @@ export interface Database {
           created_by?: string | null
           source_send_id?: string | null
           created_at?: string
+          engagement_summary_sent_at?: string | null
         }
         Update: {
           id?: string
@@ -289,6 +291,7 @@ export interface Database {
           created_by?: string | null
           source_send_id?: string | null
           created_at?: string
+          engagement_summary_sent_at?: string | null
         }
         Relationships: []
       }
@@ -302,6 +305,8 @@ export interface Database {
           sent_at: string | null
           resend_id: string | null
           error_message: string | null
+          opened_at: string | null
+          clicked_at: string | null
         }
         Insert: {
           id?: string
@@ -312,6 +317,8 @@ export interface Database {
           sent_at?: string | null
           resend_id?: string | null
           error_message?: string | null
+          opened_at?: string | null
+          clicked_at?: string | null
         }
         Update: {
           id?: string
@@ -322,6 +329,8 @@ export interface Database {
           sent_at?: string | null
           resend_id?: string | null
           error_message?: string | null
+          opened_at?: string | null
+          clicked_at?: string | null
         }
         Relationships: []
       }
