@@ -80,6 +80,15 @@ export default function AdminPage() {
   // Review stats for previous week
   const [reviewStats, setReviewStats] = useState<ReviewStats | null>(null);
 
+  // Playlist state for previous week
+  const [isGeneratingPlaylist, setIsGeneratingPlaylist] = useState(false);
+  const [isLoadingPlaylist, setIsLoadingPlaylist] = useState(false);
+  const [currentWeekPlaylist, setCurrentWeekPlaylist] = useState<{
+    playlistUrl: string;
+    trackCount: number;
+    tracksNotFound: string[];
+  } | null>(null);
+
   // Week history
   const [weekHistory, setWeekHistory] = useState<Database['public']['Tables']['weeks']['Row'][]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
@@ -141,6 +150,36 @@ export default function AdminPage() {
     };
 
     fetchReviewStats();
+  }, [weekNumber]);
+
+  // Fetch existing playlist for previous week when weekNumber changes
+  useEffect(() => {
+    const fetchPlaylist = async () => {
+      const prevWeek = Number(weekNumber) - 1;
+      if (prevWeek < 1) {
+        setCurrentWeekPlaylist(null);
+        return;
+      }
+      setIsLoadingPlaylist(true);
+      try {
+        const response = await fetch(`/api/playlists?week_number=${prevWeek}`);
+        const result = await response.json();
+        if (response.ok && result.data) {
+          setCurrentWeekPlaylist({
+            playlistUrl: result.data.spotify_playlist_url,
+            trackCount: result.data.track_count,
+            tracksNotFound: result.data.tracks_not_found ?? [],
+          });
+        } else {
+          setCurrentWeekPlaylist(null);
+        }
+      } catch {
+        setCurrentWeekPlaylist(null);
+      } finally {
+        setIsLoadingPlaylist(false);
+      }
+    };
+    fetchPlaylist();
   }, [weekNumber]);
 
   // Fetch week history when history tab is opened
@@ -685,6 +724,35 @@ export default function AdminPage() {
     setIsSaving(false);
   };
 
+  const handleGeneratePlaylist = async () => {
+    const prevWeek = Number(weekNumber) - 1;
+    if (prevWeek < 1) return;
+    setIsGeneratingPlaylist(true);
+    try {
+      const res = await fetch("/api/playlists/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ week_number: prevWeek }),
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Failed to generate playlist");
+      setCurrentWeekPlaylist({
+        playlistUrl: result.playlistUrl,
+        trackCount: result.trackCount,
+        tracksNotFound: result.tracksNotFound ?? [],
+      });
+      if (result.alreadyExisted) {
+        toast.success("Playlist already exists — loaded existing playlist.");
+      } else {
+        toast.success(`Playlist created with ${result.trackCount} track(s)!`);
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to generate playlist");
+    } finally {
+      setIsGeneratingPlaylist(false);
+    }
+  };
+
   const handleDeleteWeek = async (weekNumber: number) => {
     if (!confirm(`Are you sure you want to delete Week ${weekNumber}? This will also delete all associated reviews and cannot be undone.`)) {
       return;
@@ -905,6 +973,21 @@ export default function AdminPage() {
                 {isSendingReminder
                   ? "Sending..."
                   : `🔔 Send Reminder${currentWeekNumber ? ` (Week ${currentWeekNumber})` : ""}`}
+              </button>
+              <button
+                type="button"
+                onClick={handleGeneratePlaylist}
+                disabled={isGeneratingPlaylist || Number(weekNumber) <= 1}
+                className={actionButtonClass}
+                title={
+                  Number(weekNumber) <= 1
+                    ? "No previous week available"
+                    : `Generate Spotify playlist of favorite tracks for Week ${Number(weekNumber) - 1}`
+                }
+              >
+                {isGeneratingPlaylist
+                  ? "Generating..."
+                  : `🎵 Generate Playlist (Week ${Number(weekNumber) - 1})`}
               </button>
             </div>
           </div>
@@ -1322,6 +1405,54 @@ export default function AdminPage() {
             )}
           </div>
         </section>
+
+          {/* Playlist status panel */}
+          {Number(weekNumber) > 1 && (
+            <section className="w-full rounded-2xl border border-gray-200 bg-white p-6 shadow-lg">
+              <h2 className="text-xl font-semibold mb-4">
+                Week {Number(weekNumber) - 1} Playlist
+              </h2>
+              {isLoadingPlaylist ? (
+                <p className="text-sm text-gray-500">Checking for existing playlist...</p>
+              ) : currentWeekPlaylist ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-800">
+                      Playlist exists
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {currentWeekPlaylist.trackCount} track(s)
+                    </span>
+                  </div>
+                  <a
+                    href={currentWeekPlaylist.playlistUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 underline hover:text-blue-800"
+                  >
+                    🎵 Open on Spotify
+                  </a>
+                  {currentWeekPlaylist.tracksNotFound.length > 0 && (
+                    <div className="rounded-md border border-amber-200 bg-amber-50 p-3">
+                      <p className="text-xs font-medium text-amber-900 mb-1">
+                        Tracks not found on Spotify ({currentWeekPlaylist.tracksNotFound.length}):
+                      </p>
+                      <ul className="list-disc list-inside space-y-0.5">
+                        {currentWeekPlaylist.tracksNotFound.map((t) => (
+                          <li key={t} className="text-xs text-amber-800">{t}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">
+                  No playlist generated yet for Week {Number(weekNumber) - 1}. Use the{" "}
+                  <strong>Generate Playlist</strong> button above after reviews close.
+                </p>
+              )}
+            </section>
+          )}
           </div>
         )}
 

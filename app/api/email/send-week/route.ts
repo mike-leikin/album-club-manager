@@ -267,6 +267,16 @@ export async function POST(request: NextRequest) {
             reviews: shuffle(classicReviews),
           },
         };
+
+        // Attach playlist URL if one has been generated for the previous week
+        const { data: playlist } = await supabase
+          .from("playlists")
+          .select("spotify_playlist_url")
+          .eq("week_number", prevWeek)
+          .maybeSingle();
+        if (playlist) {
+          reviewStats.playlistUrl = playlist.spotify_playlist_url;
+        }
       }
     }
 
