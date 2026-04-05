@@ -729,101 +729,45 @@ export default function AdminPage() {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      <div className="mx-auto max-w-7xl px-4 py-8">
+      <div className="mx-auto max-w-7xl px-4 py-4 sm:py-8">
         {/* Header with tabs */}
         <div className="mb-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-gray-900">Curator Dashboard</h1>
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h1 className="text-2xl font-bold text-gray-900 sm:text-3xl">Curator Dashboard</h1>
             <a
               href="/dashboard"
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex-shrink-0 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
               My Reviews
             </a>
           </div>
 
-          {/* Tab Navigation */}
-          <div className="flex gap-2 border-b border-gray-200">
-            <button
-              onClick={() => setActiveTab("week")}
-              className={`px-4 py-2 text-sm font-medium transition ${
-                activeTab === "week"
-                  ? "border-b-2 border-blue-500 text-blue-600"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              Week Management
-            </button>
-            <button
-              onClick={() => setActiveTab("participants")}
-              className={`px-4 py-2 text-sm font-medium transition ${
-                activeTab === "participants"
-                  ? "border-b-2 border-blue-500 text-blue-600"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              Participants
-            </button>
-            <button
-              onClick={() => setActiveTab("reviews")}
-              className={`px-4 py-2 text-sm font-medium transition ${
-                activeTab === "reviews"
-                  ? "border-b-2 border-blue-500 text-blue-600"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              Reviews
-            </button>
-            <button
-              onClick={() => setActiveTab("history")}
-              className={`px-4 py-2 text-sm font-medium transition ${
-                activeTab === "history"
-                  ? "border-b-2 border-blue-500 text-blue-600"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              Week History
-            </button>
-            <button
-              onClick={() => setActiveTab("email-history")}
-              className={`px-4 py-2 text-sm font-medium transition ${
-                activeTab === "email-history"
-                  ? "border-b-2 border-blue-500 text-blue-600"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              Email History
-            </button>
-            <button
-              onClick={() => setActiveTab("invitations")}
-              className={`px-4 py-2 text-sm font-medium transition ${
-                activeTab === "invitations"
-                  ? "border-b-2 border-blue-500 text-blue-600"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              Invitations
-            </button>
-            <button
-              onClick={() => setActiveTab("export")}
-              className={`px-4 py-2 text-sm font-medium transition ${
-                activeTab === "export"
-                  ? "border-b-2 border-blue-500 text-blue-600"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              Data Export
-            </button>
-            <button
-              onClick={() => setActiveTab("discover")}
-              className={`px-4 py-2 text-sm font-medium transition ${
-                activeTab === "discover"
-                  ? "border-b-2 border-blue-500 text-blue-600"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
-            >
-              Discover
-            </button>
+          {/* Tab Navigation — horizontally scrollable on mobile */}
+          <div className="-mb-px flex gap-1 overflow-x-auto border-b border-gray-200 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {(
+              [
+                { id: "week", label: "Week" },
+                { id: "participants", label: "Participants" },
+                { id: "reviews", label: "Reviews" },
+                { id: "history", label: "History" },
+                { id: "email-history", label: "Emails" },
+                { id: "invitations", label: "Invitations" },
+                { id: "export", label: "Export" },
+                { id: "discover", label: "Discover" },
+              ] as { id: Tab; label: string }[]
+            ).map(({ id, label }) => (
+              <button
+                key={id}
+                onClick={() => setActiveTab(id)}
+                className={`flex-shrink-0 whitespace-nowrap px-3 py-2.5 text-sm font-medium transition sm:px-4 ${
+                  activeTab === id
+                    ? "border-b-2 border-blue-500 text-blue-600"
+                    : "text-gray-600 hover:text-gray-900"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -832,9 +776,9 @@ export default function AdminPage() {
           <div className="flex flex-col gap-6 md:flex-row">
             {/* Left: Curator form */}
             <section className="w-full rounded-2xl border border-gray-200 bg-white p-6 shadow-lg md:w-1/2">
-              <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="mb-4 flex flex-col gap-2">
                 <h2 className="text-xl font-semibold">This Week&apos;s Albums</h2>
-            <div className="flex flex-col gap-2 text-sm sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="flex flex-wrap gap-2 text-sm">
               <button
                 type="button"
                 onClick={handleCopyFromPreviousWeek}

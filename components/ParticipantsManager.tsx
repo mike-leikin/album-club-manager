@@ -266,13 +266,13 @@ export default function ParticipantsManager() {
 
   return (
     <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-6">
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-xl font-semibold">Club Participants</h2>
         {!showAddForm && !showImportForm && (
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setShowDeleted(!showDeleted)}
-              className={`rounded-md border px-4 py-2 text-sm font-medium transition ${
+              className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
                 showDeleted
                   ? "border-amber-500 bg-amber-500/10 text-amber-400 hover:bg-amber-500/20"
                   : "border-zinc-600 text-zinc-400 hover:bg-zinc-800"
@@ -282,13 +282,13 @@ export default function ParticipantsManager() {
             </button>
             <button
               onClick={() => setShowImportForm(true)}
-              className="rounded-md border border-blue-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-500"
+              className="rounded-md border border-blue-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-blue-500"
             >
               Import CSV
             </button>
             <button
               onClick={() => setShowAddForm(true)}
-              className="rounded-md border border-emerald-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-emerald-500"
+              className="rounded-md border border-emerald-500 px-3 py-2 text-sm font-medium text-white transition hover:bg-emerald-500"
             >
               + Add Participant
             </button>
@@ -402,45 +402,35 @@ export default function ParticipantsManager() {
           No participants yet. Add your first club member above!
         </p>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-zinc-800">
-          <table className="w-full">
-            <thead className="bg-zinc-900/50">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-400">
-                  Name
-                </th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-400">
-                  Email
-                </th>
-                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-400">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-800">
-              {participants.map((participant) => {
-                const isDeleted = participant.deleted_at != null;
-                return (
-                  <tr
-                    key={participant.id}
-                    className={`hover:bg-zinc-900/30 ${isDeleted ? "opacity-50" : ""}`}
-                  >
-                    <td className="px-4 py-3 text-sm">
-                      <span className={isDeleted ? "text-zinc-500 line-through" : "text-zinc-100"}>
-                        {participant.name}
-                      </span>
-                      {isDeleted && (
-                        <span className="ml-2 rounded-full bg-red-900/30 px-2 py-0.5 text-xs text-red-400">
-                          Deleted
+        <>
+          {/* Mobile card view */}
+          <div className="space-y-2 sm:hidden">
+            {participants.map((participant) => {
+              const isDeleted = participant.deleted_at != null;
+              return (
+                <div
+                  key={participant.id}
+                  className={`rounded-lg border border-zinc-800 bg-zinc-900/50 p-3 ${isDeleted ? "opacity-50" : ""}`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className={`text-sm font-medium ${isDeleted ? "text-zinc-500 line-through" : "text-zinc-100"}`}>
+                          {participant.name}
                         </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-zinc-400">{participant.email}</td>
-                    <td className="px-4 py-3 text-right text-sm">
+                        {isDeleted && (
+                          <span className="rounded-full bg-red-900/30 px-2 py-0.5 text-xs text-red-400">
+                            Deleted
+                          </span>
+                        )}
+                      </div>
+                      <div className="truncate text-xs text-zinc-500">{participant.email}</div>
+                    </div>
+                    <div className="flex flex-shrink-0 gap-2 text-sm">
                       {isDeleted ? (
                         <button
                           onClick={() => handleRestore(participant.id, participant.name)}
-                          className="text-emerald-400 hover:text-emerald-300"
+                          className="rounded px-2 py-1 text-xs font-medium text-emerald-400 hover:bg-emerald-500/20"
                         >
                           Restore
                         </button>
@@ -448,25 +438,92 @@ export default function ParticipantsManager() {
                         <>
                           <button
                             onClick={() => handleEditClick(participant)}
-                            className="mr-2 text-emerald-400 hover:text-emerald-300"
+                            className="rounded px-2 py-1 text-xs font-medium text-emerald-400 hover:bg-emerald-500/20"
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => handleDelete(participant.id, participant.name)}
-                            className="text-red-400 hover:text-red-300"
+                            className="rounded px-2 py-1 text-xs font-medium text-red-400 hover:bg-red-500/20"
                           >
                             Delete
                           </button>
                         </>
                       )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop table view */}
+          <div className="hidden overflow-hidden rounded-lg border border-zinc-800 sm:block">
+            <table className="w-full">
+              <thead className="bg-zinc-900/50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-400">
+                    Name
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-zinc-400">
+                    Email
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-zinc-400">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-800">
+                {participants.map((participant) => {
+                  const isDeleted = participant.deleted_at != null;
+                  return (
+                    <tr
+                      key={participant.id}
+                      className={`hover:bg-zinc-900/30 ${isDeleted ? "opacity-50" : ""}`}
+                    >
+                      <td className="px-4 py-3 text-sm">
+                        <span className={isDeleted ? "text-zinc-500 line-through" : "text-zinc-100"}>
+                          {participant.name}
+                        </span>
+                        {isDeleted && (
+                          <span className="ml-2 rounded-full bg-red-900/30 px-2 py-0.5 text-xs text-red-400">
+                            Deleted
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-zinc-400">{participant.email}</td>
+                      <td className="px-4 py-3 text-right text-sm">
+                        {isDeleted ? (
+                          <button
+                            onClick={() => handleRestore(participant.id, participant.name)}
+                            className="text-emerald-400 hover:text-emerald-300"
+                          >
+                            Restore
+                          </button>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => handleEditClick(participant)}
+                              className="mr-2 text-emerald-400 hover:text-emerald-300"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDelete(participant.id, participant.name)}
+                              className="text-red-400 hover:text-red-300"
+                            >
+                              Delete
+                            </button>
+                          </>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
       <p className="mt-4 text-xs text-zinc-500">
