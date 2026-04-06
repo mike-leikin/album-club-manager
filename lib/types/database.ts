@@ -322,6 +322,54 @@ export type Database = {
           },
         ]
       }
+      playlists: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          spotify_playlist_id: string
+          spotify_playlist_url: string
+          track_count: number
+          tracks_not_found: string[]
+          week_number: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          spotify_playlist_id: string
+          spotify_playlist_url: string
+          track_count?: number
+          tracks_not_found?: string[]
+          week_number: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          spotify_playlist_id?: string
+          spotify_playlist_url?: string
+          track_count?: number
+          tracks_not_found?: string[]
+          week_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playlists_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "playlists_week_number_fkey"
+            columns: ["week_number"]
+            isOneToOne: true
+            referencedRelation: "weeks"
+            referencedColumns: ["week_number"]
+          },
+        ]
+      }
       participants: {
         Row: {
           auth_user_id: string | null
