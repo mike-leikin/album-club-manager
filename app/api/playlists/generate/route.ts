@@ -166,8 +166,14 @@ export async function POST(request: NextRequest) {
       alreadyExisted: false,
     });
   } catch (error) {
+    // Supabase errors are plain objects (not instanceof Error) but have a message property
     const message =
-      error instanceof Error ? error.message : "Failed to generate playlist";
+      error instanceof Error
+        ? error.message
+        : (error as Record<string, unknown>)?.message
+          ? String((error as Record<string, unknown>).message)
+          : "Failed to generate playlist";
+    console.error("playlist_generate_failed", error);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
