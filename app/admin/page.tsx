@@ -1352,50 +1352,33 @@ export default function AdminPage() {
 
           {/* Playlist status panel */}
           {Number(weekNumber) > 1 && (
-            <section className="w-full rounded-2xl border border-gray-200 bg-white p-6 shadow-lg">
-              <h2 className="text-xl font-semibold mb-4">
-                Week {Number(weekNumber) - 1} Playlist
-              </h2>
+            <div className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm flex flex-wrap items-center gap-3">
+              <span className="text-sm font-medium text-gray-700 shrink-0">
+                Week {Number(weekNumber) - 1} Playlist:
+              </span>
               {isLoadingPlaylist ? (
-                <p className="text-sm text-gray-500">Checking for existing playlist...</p>
+                <span className="text-sm text-gray-400">Loading...</span>
               ) : currentWeekPlaylist ? (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-800">
-                      Playlist exists
-                    </span>
-                    <span className="text-xs text-gray-500">
-                      {currentWeekPlaylist.trackCount} track(s)
-                    </span>
-                  </div>
+                <>
                   <a
                     href={currentWeekPlaylist.playlistUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 underline hover:text-blue-800"
+                    className="text-sm font-medium text-blue-600 underline hover:text-blue-800 shrink-0"
                   >
                     🎵 Open on Spotify
                   </a>
+                  <span className="text-xs text-gray-400">{currentWeekPlaylist.trackCount} track(s)</span>
                   {currentWeekPlaylist.tracksNotFound.length > 0 && (
-                    <div className="rounded-md border border-amber-200 bg-amber-50 p-3">
-                      <p className="text-xs font-medium text-amber-900 mb-1">
-                        Tracks not found on Spotify ({currentWeekPlaylist.tracksNotFound.length}):
-                      </p>
-                      <ul className="list-disc list-inside space-y-0.5">
-                        {currentWeekPlaylist.tracksNotFound.map((t) => (
-                          <li key={t} className="text-xs text-amber-800">{t}</li>
-                        ))}
-                      </ul>
-                    </div>
+                    <span className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-0.5">
+                      {currentWeekPlaylist.tracksNotFound.length} track(s) not found on Spotify
+                    </span>
                   )}
-                </div>
+                </>
               ) : (
-                <p className="text-sm text-gray-500">
-                  No playlist generated yet for Week {Number(weekNumber) - 1}. Use the{" "}
-                  <strong>Generate Playlist</strong> button above after reviews close.
-                </p>
+                <span className="text-sm text-gray-400">No playlist yet — click Generate Playlist after reviews close.</span>
               )}
-            </section>
+            </div>
           )}
           </div>
         )}
