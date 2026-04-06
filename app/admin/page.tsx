@@ -1287,6 +1287,37 @@ export default function AdminPage() {
               Group.
             </p>
 
+            {/* Playlist status */}
+            {Number(weekNumber) > 1 && (
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <label className="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">
+                  Week {Number(weekNumber) - 1} Playlist
+                </label>
+                {isLoadingPlaylist ? (
+                  <p className="text-xs text-gray-400">Loading...</p>
+                ) : currentWeekPlaylist ? (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <a
+                      href={currentWeekPlaylist.playlistUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs font-medium text-blue-600 underline hover:text-blue-800"
+                    >
+                      🎵 Open on Spotify
+                    </a>
+                    <span className="text-xs text-gray-400">{currentWeekPlaylist.trackCount} track(s)</span>
+                    {currentWeekPlaylist.tracksNotFound.length > 0 && (
+                      <span className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-0.5">
+                        {currentWeekPlaylist.tracksNotFound.length} not found
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-400">No playlist yet — generate one after reviews close.</p>
+                )}
+              </div>
+            )}
+
             {/* Visual Preview with Album Art */}
             {(contemporary.albumArtUrl || classic.albumArtUrl) && (
               <div className="mt-6 pt-6 border-t border-gray-200">
@@ -1350,36 +1381,6 @@ export default function AdminPage() {
           </div>
         </section>
 
-          {/* Playlist status panel */}
-          {Number(weekNumber) > 1 && (
-            <div className="inline-flex flex-wrap items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
-              <span className="text-sm font-medium text-gray-700 shrink-0">
-                Week {Number(weekNumber) - 1} Playlist:
-              </span>
-              {isLoadingPlaylist ? (
-                <span className="text-sm text-gray-400">Loading...</span>
-              ) : currentWeekPlaylist ? (
-                <>
-                  <a
-                    href={currentWeekPlaylist.playlistUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm font-medium text-blue-600 underline hover:text-blue-800 shrink-0"
-                  >
-                    🎵 Open on Spotify
-                  </a>
-                  <span className="text-xs text-gray-400">{currentWeekPlaylist.trackCount} track(s)</span>
-                  {currentWeekPlaylist.tracksNotFound.length > 0 && (
-                    <span className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-0.5">
-                      {currentWeekPlaylist.tracksNotFound.length} track(s) not found on Spotify
-                    </span>
-                  )}
-                </>
-              ) : (
-                <span className="text-sm text-gray-400">No playlist yet — click Generate Playlist after reviews close.</span>
-              )}
-            </div>
-          )}
           </div>
         )}
 
