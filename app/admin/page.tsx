@@ -1352,7 +1352,7 @@ export default function AdminPage() {
 
           {/* Playlist status panel */}
           {Number(weekNumber) > 1 && (
-            <div className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm flex flex-wrap items-center gap-3">
+            <div className="inline-flex flex-wrap items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
               <span className="text-sm font-medium text-gray-700 shrink-0">
                 Week {Number(weekNumber) - 1} Playlist:
               </span>
