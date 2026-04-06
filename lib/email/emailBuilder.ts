@@ -39,6 +39,7 @@ export interface ReviewStats {
     albumLabel: string;
     reviews: Array<{ name: string; rating: number; favoriteTrack?: string | null; reviewText: string }>;
   };
+  playlistUrl?: string | null;
 }
 
 export interface Participant {
@@ -375,6 +376,10 @@ ${buildReviewListHtml(reviewStats.classic.reviews)}
                 <div style="margin-top: 16px; text-align: center;">
                   <a href="${dashboardUrl}" style="color: #10b981; text-decoration: underline; font-size: 13px;">See past reviews on the dashboard</a>
                 </div>
+${reviewStats.playlistUrl ? `
+                <div style="margin-top: 16px; text-align: center;">
+                  <a href="${reviewStats.playlistUrl}" style="display: inline-block; padding: 10px 20px; background: #1db954; color: white; text-decoration: none; border-radius: 6px; font-size: 14px; font-weight: 600;">🎵 Listen to last week&apos;s playlist</a>
+                </div>` : ''}
               </div>
             </td>
           </tr>
@@ -479,7 +484,11 @@ ${buildReviewListHtml(reviewStats.classic.reviews)}
       textBody += `\n`;
     }
 
-    textBody += `See past reviews: ${dashboardUrl}\n\n`;
+    textBody += `See past reviews: ${dashboardUrl}\n`;
+    if (reviewStats.playlistUrl) {
+      textBody += `🎵 Last week's playlist: ${reviewStats.playlistUrl}\n`;
+    }
+    textBody += `\n`;
   }
 
   textBody += `---\n`;

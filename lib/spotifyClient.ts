@@ -237,6 +237,134 @@ class SpotifyClient {
     // Return the smallest image, or medium if available
     return images[images.length - 1]?.url || images[1]?.url || images[0]?.url || null;
   }
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Playlist creation (requires user-level OAuth)
+  // ──────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Exchange the stored refresh token for a short-lived user access token.
+   * Requires SPOTIFY_USER_REFRESH_TOKEN to be set in the environment.
+   */
+  async getUserAccessToken(): Promise<string> {
+    const refreshToken = process.env.SPOTIFY_USER_REFRESH_TOKEN;
+    if (!refreshToken) {
+      throw new Error('SPOTIFY_USER_REFRESH_TOKEN environment variable is not set');
+    }
+
+    const response = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Basic ${Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64')}`,
+      },
+      body: new URLSearchParams({
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+      }).toString(),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Spotify user token refresh failed: ${response.status} ${error}`);
+    }
+
+    const data = await response.json();
+    return data.access_token as string;
+  }
+
+  /**
+   * Search for a track by name, optionally constrained to a specific album/artist.
+   * Uses the app-level token (no user auth needed for search).
+   * Returns the Spotify track URI or null if no match found.
+   */
+  async searchTrack(
+    trackName: string,
+    albumTitle?: string,
+    artistName?: string
+  ): Promise<string | null> {
+    if (!trackName.trim()) return null;
+
+    const parts = [`track:${trackName.trim()}`];
+    if (albumTitle?.trim()) parts.push(`album:${albumTitle.trim()}`);
+    if (artistName?.trim()) parts.push(`artist:${artistName.trim()}`);
+
+    const response = await this.makeRequest<{
+      tracks: { items: Array<{ uri: string }> };
+    }>('/search', {
+      q: parts.join(' '),
+      type: 'track',
+      limit: '1',
+    });
+
+    return response.tracks.items[0]?.uri ?? null;
+  }
+
+  /**
+   * Create a new public playlist on a user's account.
+   * Requires a user-level access token (from getUserAccessToken).
+   * Returns the playlist ID and its public Spotify URL.
+   */
+  async createPlaylist(
+    name: string,
+    description: string,
+    userAccessToken: string,
+    spotifyUserId: string
+  ): Promise<{ id: string; url: string }> {
+    const response = await fetch(
+      `https://api.spotify.com/v1/users/${encodeURIComponent(spotifyUserId)}/playlists`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${userAccessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, description, public: true }),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Failed to create Spotify playlist: ${response.status} ${error}`);
+    }
+
+    const data = await response.json();
+    return {
+      id: data.id as string,
+      url: data.external_urls.spotify as string,
+    };
+  }
+
+  /**
+   * Add tracks to an existing playlist.
+   * Handles Spotify's 100-URI-per-request limit automatically.
+   * Requires a user-level access token.
+   */
+  async addTracksToPlaylist(
+    playlistId: string,
+    trackUris: string[],
+    userAccessToken: string
+  ): Promise<void> {
+    for (let i = 0; i < trackUris.length; i += 100) {
+      const chunk = trackUris.slice(i, i + 100);
+      const response = await fetch(
+        `https://api.spotify.com/v1/playlists/${encodeURIComponent(playlistId)}/tracks`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${userAccessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ uris: chunk }),
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Failed to add tracks to playlist: ${response.status} ${error}`);
+      }
+    }
+  }
 }
 
 // Export a singleton instance
