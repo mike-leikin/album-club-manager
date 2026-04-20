@@ -413,7 +413,7 @@ ${reviewStats.playlistUrl ? `
 </html>`;
 
   // Build plain text fallback
-  let textBody = `Hi ${firstName},\n\n`;
+  let textBody = `Hi ${firstName},\n${weekLabel}\n\n`;
 
   if (isTest) {
     textBody += `🧪 TEST EMAIL - This is how your email will look to participants\n\n`;
@@ -424,7 +424,7 @@ ${reviewStats.playlistUrl ? `
     textBody += `${week.curator_message}\n\n`;
   }
 
-  textBody += `Here are the picks for this week:\n\n`;
+  textBody += `This Week's Albums\n\n`;
 
   if (week.contemporary_title) {
     textBody += `🔊 Contemporary: ${week.contemporary_title}`;
@@ -449,10 +449,10 @@ ${reviewStats.playlistUrl ? `
     textBody += `\n`;
   }
 
-  textBody += `Submit your review here:\n${submitUrl}\n\n`;
+  textBody += `Ready to share your thoughts?\nSubmit your review here:\n${submitUrl}\n\n`;
 
   if (week.response_deadline) {
-    textBody += `Responses by: ${formatDeadline(week.response_deadline)}\n\n`;
+    textBody += `Deadline: ${formatDeadline(week.response_deadline)}\n\n`;
   }
 
   if (reviewStats) {
@@ -491,6 +491,7 @@ ${reviewStats.playlistUrl ? `
     textBody += `\n`;
   }
 
+  textBody += `Love Album Club? Invite a friend:\n${inviteUrl}\n\n`;
   textBody += `---\n`;
   textBody += `Unsubscribe: ${unsubscribeUrl}`;
 
