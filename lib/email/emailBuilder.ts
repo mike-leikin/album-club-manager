@@ -494,7 +494,7 @@ ${reviewStats.playlistUrl ? `
   textBody += `---\n`;
   textBody += `Unsubscribe: ${unsubscribeUrl}`;
 
-  const artists = [week.contemporary_artist, week.classic_artist]
+  const artists = [week.classic_artist, week.contemporary_artist]
     .filter(Boolean)
     .join(' + ');
   const subjectBase = artists ? `Album Club This Week: ${artists}` : `Album Club This Week's album picks`;
