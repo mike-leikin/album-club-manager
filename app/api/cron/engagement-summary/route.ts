@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Send to all curators
-    await Promise.allSettled(
+    const sendResults = await Promise.allSettled(
       curators.map((curator) =>
         resend.emails.send({
           from: process.env.RESEND_FROM_EMAIL || "Album Club <onboarding@resend.dev>",
@@ -98,7 +98,13 @@ export async function GET(request: NextRequest) {
       )
     );
 
-    // Mark summary as sent
+    const anySucceeded = sendResults.some((r) => r.status === "fulfilled");
+    if (!anySucceeded) {
+      console.error(`[engagement-summary] All curator sends failed for send ${send.id}`);
+      continue;
+    }
+
+    // Mark summary as sent only after at least one curator email was delivered
     await supabase
       .from("email_sends")
       .update({ engagement_summary_sent_at: new Date().toISOString() })
