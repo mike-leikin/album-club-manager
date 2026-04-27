@@ -26,6 +26,7 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const weekNumber = searchParams.get("week_number");
+    const includeAll = searchParams.get("all") === "true";
 
     if (!weekNumber) {
       return NextResponse.json(
@@ -37,8 +38,9 @@ export async function GET(request: Request) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = createServerClient() as any;
 
-    // Fetch reviews with participant info (only approved reviews for public)
-    const { data: reviews, error: reviewsError } = await supabase
+    // Fetch reviews with participant info
+    // includeAll=true skips the moderation filter (used by admin email preview)
+    let query = supabase
       .from("reviews")
       .select(
         `
@@ -47,8 +49,13 @@ export async function GET(request: Request) {
       `
       )
       .eq("week_number", parseInt(weekNumber))
-      .eq("moderation_status", "approved")
       .order("created_at", { ascending: false });
+
+    if (!includeAll) {
+      query = query.eq("moderation_status", "approved");
+    }
+
+    const { data: reviews, error: reviewsError } = await query;
 
     if (reviewsError) {
       console.error("reviews_api.fetch_failed", {

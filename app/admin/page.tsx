@@ -135,7 +135,7 @@ export default function AdminPage() {
       }
 
       try {
-        const response = await fetch(`/api/reviews?week_number=${prevWeek}`);
+        const response = await fetch(`/api/reviews?week_number=${prevWeek}&all=true`);
         const result = await response.json();
 
         if (response.ok && result.data) {
@@ -212,7 +212,8 @@ export default function AdminPage() {
   }, [activeTab]);
 
   // ---- Derived email content ----
-  const subject = `Album Club – Week ${weekNumber || ""}`.trim();
+  const emailArtists = [contemporary.artist, classic.artist].filter(Boolean).join(" + ");
+  const subject = emailArtists ? `Album Club This Week: ${emailArtists}` : `Album Club – Week ${weekNumber || ""}`.trim();
 
   const bodyLines: string[] = [];
 
@@ -276,9 +277,6 @@ export default function AdminPage() {
     if (contemporary.artist) pieces.push("– " + contemporary.artist);
     if (contemporary.year) pieces.push(`(${contemporary.year})`);
     bodyLines.push(pieces.join(" "));
-    if (contemporary.albumArtUrl) {
-      bodyLines.push(`Cover: ${contemporary.albumArtUrl}`);
-    }
     if (contemporary.spotifyUrl) {
       bodyLines.push(`Listen: ${contemporary.spotifyUrl}`);
     }
@@ -296,20 +294,16 @@ export default function AdminPage() {
       pieces.push(`[Rank #${classic.rollingStoneRank}]`);
     }
     bodyLines.push(pieces.join(" "));
-    if (classic.albumArtUrl) {
-      bodyLines.push(`Cover: ${classic.albumArtUrl}`);
-    }
     if (classic.spotifyUrl) {
       bodyLines.push(`Listen: ${classic.spotifyUrl}`);
     }
     bodyLines.push("");
   }
 
-  bodyLines.push(
-    "Please rate each album on a 1.0–10.0 scale and share any quick thoughts.",
-  );
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+  bodyLines.push(`Submit your review here:\n${appUrl}/submit`);
   if (formattedDeadline) {
-    bodyLines.push(`Responses by: ${formattedDeadline}`);
+    bodyLines.push(`Deadline: ${formattedDeadline}`);
   }
   bodyLines.push("");
 
