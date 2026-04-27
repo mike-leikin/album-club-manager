@@ -226,47 +226,8 @@ export default function AdminPage() {
     bodyLines.push("");
   }
 
-  // Add previous week's results if available
-  if (reviewStats && reviewStats.contemporary.reviewCount > 0 || reviewStats && reviewStats.classic.reviewCount > 0) {
-    const prevWeek = Number(weekNumber) - 1;
-    bodyLines.push(`=== Week ${prevWeek} Results ===`);
-    bodyLines.push("");
-
-    if (reviewStats.contemporary.reviewCount > 0) {
-      bodyLines.push(`🔊 Contemporary: ${reviewStats.contemporary.avgRating?.toFixed(1) || "N/A"}/10 (${reviewStats.contemporary.reviewCount} ${reviewStats.contemporary.reviewCount === 1 ? "review" : "reviews"})`);
-
-      // Add favorite tracks if any
-      const favTracks = reviewStats.contemporary.reviews
-        .filter(r => r.favorite_track)
-        .map(r => `   • ${r.favorite_track} – ${r.participant.name}`)
-        .slice(0, 3); // Show max 3
-      if (favTracks.length > 0) {
-        bodyLines.push("   Favorite tracks:");
-        bodyLines.push(...favTracks);
-      }
-      bodyLines.push("");
-    }
-
-    if (reviewStats.classic.reviewCount > 0) {
-      bodyLines.push(`💿 Classic: ${reviewStats.classic.avgRating?.toFixed(1) || "N/A"}/10 (${reviewStats.classic.reviewCount} ${reviewStats.classic.reviewCount === 1 ? "review" : "reviews"})`);
-
-      // Add favorite tracks if any
-      const favTracks = reviewStats.classic.reviews
-        .filter(r => r.favorite_track)
-        .map(r => `   • ${r.favorite_track} – ${r.participant.name}`)
-        .slice(0, 3);
-      if (favTracks.length > 0) {
-        bodyLines.push("   Favorite tracks:");
-        bodyLines.push(...favTracks);
-      }
-      bodyLines.push("");
-    }
-
-    bodyLines.push("---");
-    bodyLines.push("");
-  }
-
-  bodyLines.push("Here are the picks for this week:");
+  // This week's picks
+  bodyLines.push("This Week's Albums");
   bodyLines.push("");
 
   // Contemporary line
@@ -300,47 +261,48 @@ export default function AdminPage() {
     bodyLines.push("");
   }
 
+  // Submit CTA
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "";
-  bodyLines.push(`Submit your review here:\n${appUrl}/submit`);
+  bodyLines.push(`Ready to share your thoughts?\nSubmit your review here:\n${appUrl}/submit`);
   if (formattedDeadline) {
     bodyLines.push(`Deadline: ${formattedDeadline}`);
   }
   bodyLines.push("");
 
-  // Add full reviews section if available
+  // Previous week's reviews (if available) — matches HTML email structure
   if (reviewStats && (reviewStats.contemporary.reviewCount > 0 || reviewStats.classic.reviewCount > 0)) {
-    const prevWeek = Number(weekNumber) - 1;
-    bodyLines.push("---");
-    bodyLines.push("");
-    bodyLines.push(`=== Week ${prevWeek} Full Reviews ===`);
+    bodyLines.push("Last week's albums");
     bodyLines.push("");
 
-    // Contemporary reviews with text
-    const contemporaryWithText = reviewStats.contemporary.reviews.filter(r => r.review_text);
-    if (contemporaryWithText.length > 0) {
-      bodyLines.push("🔊 Contemporary:");
+    const buildReviewBlock = (
+      label: string,
+      avg: number | null,
+      count: number,
+      reviews: ReviewStats["contemporary"]["reviews"]
+    ) => {
+      bodyLines.push(`${label}: ${avg?.toFixed(1) ?? "N/A"}/10 (${count} ${count === 1 ? "review" : "reviews"})`);
+      if (reviews.length === 0) {
+        bodyLines.push("- No written reviews yet.");
+      } else {
+        reviews.forEach(review => {
+          const firstName = review.participant.name.split(" ")[0];
+          bodyLines.push(`- ${firstName} – ${Number(review.rating).toFixed(1)}/10`);
+          if (review.favorite_track) {
+            bodyLines.push(`  Fav: ${review.favorite_track}`);
+          }
+          if (review.review_text) {
+            bodyLines.push(`  "${review.review_text}"`);
+          }
+        });
+      }
       bodyLines.push("");
-      contemporaryWithText.forEach(review => {
-        bodyLines.push(`${review.participant.name} (${review.rating}/10):`);
-        if (review.review_text) {
-          bodyLines.push(`"${review.review_text}"`);
-        }
-        bodyLines.push("");
-      });
+    };
+
+    if (reviewStats.contemporary.reviewCount > 0) {
+      buildReviewBlock("🔊 Contemporary", reviewStats.contemporary.avgRating, reviewStats.contemporary.reviewCount, reviewStats.contemporary.reviews);
     }
-
-    // Classic reviews with text
-    const classicWithText = reviewStats.classic.reviews.filter(r => r.review_text);
-    if (classicWithText.length > 0) {
-      bodyLines.push("💿 Classic:");
-      bodyLines.push("");
-      classicWithText.forEach(review => {
-        bodyLines.push(`${review.participant.name} (${review.rating}/10):`);
-        if (review.review_text) {
-          bodyLines.push(`"${review.review_text}"`);
-        }
-        bodyLines.push("");
-      });
+    if (reviewStats.classic.reviewCount > 0) {
+      buildReviewBlock("💿 Classic", reviewStats.classic.avgRating, reviewStats.classic.reviewCount, reviewStats.classic.reviews);
     }
   }
 
