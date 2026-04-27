@@ -68,12 +68,11 @@ export default function AdminPage() {
   );
   const [curatorMessage, setCuratorMessage] = useState("");
   const [isSaving, setIsSaving] = useState(false);
-  const [isLoadingPreviousWeek, setIsLoadingPreviousWeek] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
   const [isSendingTestEmail, setIsSendingTestEmail] = useState(false);
   const [isSendingReminder, setIsSendingReminder] = useState(false);
   const [isSendingReminderTest, setIsSendingReminderTest] = useState(false);
-  const [showEmailPreview, setShowEmailPreview] = useState(false);
+  const [isOpeningReviews, setIsOpeningReviews] = useState(false);
   const [currentWeekNumber, setCurrentWeekNumber] = useState<number | null>(null);
   const [editingWeekPublishedAt, setEditingWeekPublishedAt] = useState<string | null>(null);
 
@@ -406,57 +405,6 @@ export default function AdminPage() {
     };
   }, []);
 
-  const handleCopyFromPreviousWeek = async () => {
-    const currentWeekNum = Number(weekNumber);
-    const previousWeekNum = currentWeekNum - 1;
-
-    if (previousWeekNum < 1) {
-      toast.error("No previous week to copy from");
-      return;
-    }
-
-    setIsLoadingPreviousWeek(true);
-
-    try {
-      const response = await fetch(`/api/weeks?week_number=${previousWeekNum}`);
-      const result = await response.json();
-
-      if (!response.ok || !result.data) {
-        throw new Error("Previous week not found");
-      }
-
-      const prevWeek = result.data;
-
-      // Copy all album data from previous week
-      setContemporary({
-        title: prevWeek.contemporary_title ?? "",
-        artist: prevWeek.contemporary_artist ?? "",
-        year: prevWeek.contemporary_year ?? "",
-        spotifyUrl: prevWeek.contemporary_spotify_url ?? "",
-        albumArtUrl: prevWeek.contemporary_album_art_url ?? "",
-      });
-
-      setClassic({
-        title: prevWeek.classic_title ?? "",
-        artist: prevWeek.classic_artist ?? "",
-        year: prevWeek.classic_year ?? "",
-        spotifyUrl: prevWeek.classic_spotify_url ?? "",
-        albumArtUrl: prevWeek.classic_album_art_url ?? "",
-        rollingStoneRank: prevWeek.rs_rank ? String(prevWeek.rs_rank) : "",
-      });
-
-      setCuratorMessage(prevWeek.curator_message ?? "");
-
-      toast.success(`Copied album data from Week ${previousWeekNum}`);
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to copy previous week"
-      );
-    } finally {
-      setIsLoadingPreviousWeek(false);
-    }
-  };
-
   const handleSendTestEmail = async () => {
     const parsedWeekNumber = Number(weekNumber);
     if (!Number.isFinite(parsedWeekNumber) || parsedWeekNumber <= 0) {
@@ -515,6 +463,44 @@ export default function AdminPage() {
       );
     } finally {
       setIsSendingReminderTest(false);
+    }
+  };
+
+  const handleOpenNewReviews = async () => {
+    const parsedWeekNumber = Number(weekNumber);
+    if (!Number.isFinite(parsedWeekNumber) || parsedWeekNumber <= 0) {
+      toast.error("Please save the week before opening reviews.");
+      return;
+    }
+
+    if (!confirm(`Open reviews for Week ${parsedWeekNumber}? This will close out the previous week.`)) {
+      return;
+    }
+
+    setIsOpeningReviews(true);
+
+    try {
+      const response = await fetch("/api/weeks/advance", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ weekNumber: parsedWeekNumber }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to open reviews");
+      }
+
+      toast.success(`Reviews opened for Week ${parsedWeekNumber}!`);
+      setCurrentWeekNumber(parsedWeekNumber);
+      setEditingWeekPublishedAt(result.published_at);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to open reviews"
+      );
+    } finally {
+      setIsOpeningReviews(false);
     }
   };
 
@@ -805,15 +791,6 @@ export default function AdminPage() {
             <div className="flex flex-wrap gap-2 text-sm">
               <button
                 type="button"
-                onClick={handleCopyFromPreviousWeek}
-                disabled={isLoadingPreviousWeek || Number(weekNumber) <= 1}
-                className={actionButtonClass}
-                title={Number(weekNumber) <= 1 ? "No previous week available" : "Copy album data from previous week"}
-              >
-                {isLoadingPreviousWeek ? "Copying..." : "Copy from Previous Week"}
-              </button>
-              <button
-                type="button"
                 onClick={handleSave}
                 disabled={isSaving}
                 className={actionButtonClass}
@@ -822,10 +799,12 @@ export default function AdminPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setShowEmailPreview(true)}
+                onClick={handleOpenNewReviews}
+                disabled={isOpeningReviews || !!editingWeekPublishedAt}
                 className={actionButtonClass}
+                title={editingWeekPublishedAt ? "Reviews are already open for this week" : `Open reviews for Week ${weekNumber}`}
               >
-                Preview Email
+                {isOpeningReviews ? "Opening..." : "Open New Reviews"}
               </button>
               <button
                 type="button"
@@ -1347,65 +1326,6 @@ export default function AdminPage() {
 
         {/* Reviews Tab */}
         {activeTab === "reviews" && <AdminReviewsTab />}
-
-        {/* Email Preview Modal */}
-        {showEmailPreview && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-2xl rounded-2xl border border-gray-200 bg-white p-6 shadow-2xl">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-gray-900">Email Preview</h2>
-                <button
-                  onClick={() => setShowEmailPreview(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <div className="text-sm font-medium text-gray-700">Subject:</div>
-                  <div className="text-gray-900">Album Club – Week {weekNumber}</div>
-                </div>
-
-                <div className="rounded-lg border border-yellow-300 bg-yellow-50 p-4 mb-4">
-                  <p className="text-sm text-yellow-900">
-                    ℹ️ <strong>Preview Note:</strong> This shows the plain text content. Actual emails will be sent with beautiful HTML formatting including album artwork, Spotify links, and previous week results.
-                  </p>
-                </div>
-
-                <div>
-                  <div className="text-sm font-medium text-gray-700 mb-2">Content:</div>
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 font-mono text-sm text-gray-900 whitespace-pre-wrap max-h-96 overflow-y-auto">
-                    {`Hi [Participant Name],\n\n${body}`}
-                  </div>
-                </div>
-
-                <div className="text-xs text-gray-600">
-                  Each participant will receive a personalized email with their name and a unique review link.
-                </div>
-
-                <div className="flex justify-end gap-2">
-                  <button
-                    onClick={() => setShowEmailPreview(false)}
-                    className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-                  >
-                    Close
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowEmailPreview(false);
-                      handleSendEmail();
-                    }}
-                    className="rounded-md bg-purple-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-purple-600"
-                  >
-                    Send Now
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Week History Tab */}
         {activeTab === "history" && (
