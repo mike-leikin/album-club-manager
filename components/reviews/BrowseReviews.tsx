@@ -455,10 +455,16 @@ function ReviewCard({ review }: ReviewCardProps) {
       <div className="flex items-start justify-between mb-2">
         <div>
           <span className="font-semibold text-gray-900">{firstName}</span>
-          <span className="ml-3 text-2xl font-bold text-blue-600">
-            {review.rating.toFixed(1)}
-          </span>
-          <span className="text-gray-500">/10</span>
+          {review.rating !== null ? (
+            <>
+              <span className="ml-3 text-2xl font-bold text-blue-600">
+                {review.rating.toFixed(1)}
+              </span>
+              <span className="text-gray-500">/10</span>
+            </>
+          ) : (
+            <span className="ml-3 text-2xl font-bold text-gray-400">N/A</span>
+          )}
         </div>
         <span className="text-xs text-gray-400">
           {new Date(review.created_at).toLocaleDateString()}

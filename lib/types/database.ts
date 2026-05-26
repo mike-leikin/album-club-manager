@@ -505,7 +505,7 @@ export type Database = {
           moderation_notes: string | null
           moderation_status: string
           participant_id: string
-          rating: number
+          rating: number | null
           review_text: string | null
           updated_at: string
           week_number: number
@@ -521,7 +521,7 @@ export type Database = {
           moderation_notes?: string | null
           moderation_status?: string
           participant_id: string
-          rating: number
+          rating?: number | null
           review_text?: string | null
           updated_at?: string
           week_number: number
@@ -537,7 +537,7 @@ export type Database = {
           moderation_notes?: string | null
           moderation_status?: string
           participant_id?: string
-          rating?: number
+          rating?: number | null
           review_text?: string | null
           updated_at?: string
           week_number?: number

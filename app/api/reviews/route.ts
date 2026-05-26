@@ -89,9 +89,10 @@ export async function GET(request: Request) {
     );
 
     const calcAvg = (reviewList: ReviewWithParticipant[]) => {
-      if (reviewList.length === 0) return null;
-      const sum = reviewList.reduce((acc, r) => acc + Number(r.rating), 0);
-      return Math.round((sum / reviewList.length) * 10) / 10; // Round to 1 decimal
+      const withRatings = reviewList.filter((r) => r.rating !== null);
+      if (withRatings.length === 0) return null;
+      const sum = withRatings.reduce((acc, r) => acc + Number(r.rating), 0);
+      return Math.round((sum / withRatings.length) * 10) / 10;
     };
 
     const uniqueParticipants = new Set(

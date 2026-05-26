@@ -15,7 +15,7 @@ export interface ReviewNotificationData {
   weekNumber: number;
   reviews: Array<{
     albumType: "contemporary" | "classic";
-    rating: number;
+    rating: number | null;
     reviewText: string | null;
   }>;
 }
@@ -104,7 +104,7 @@ export function buildReviewNotificationEmail(
                 <tr>
                   <td style="padding: 12px 0; border-bottom: 1px solid #1f1f1f;">
                     <p style="margin: 0 0 4px; color: #10b981; font-size: 12px; font-weight: 600; text-transform: uppercase;">${albumLabel}</p>
-                    <p style="margin: 0 0 4px; color: #ffffff; font-size: 15px;">Rating: <strong>${review.rating}/10</strong></p>
+                    <p style="margin: 0 0 4px; color: #ffffff; font-size: 15px;">Rating: <strong>${review.rating !== null ? `${review.rating}/10` : "N/A"}</strong></p>
                     <p style="margin: 0; color: #a1a1a1; font-size: 13px; line-height: 1.4;">"${safeSnippet}"</p>
                   </td>
                 </tr>`;
@@ -174,7 +174,7 @@ export function buildReviewNotificationEmail(
     const snippet = review.reviewText
       ? truncateText(review.reviewText, 100)
       : "No review text";
-    textLines.push(`${albumLabel}: ${review.rating}/10`);
+    textLines.push(`${albumLabel}: ${review.rating !== null ? `${review.rating}/10` : "N/A"}`);
     textLines.push(`"${snippet}"`);
     textLines.push("");
   });

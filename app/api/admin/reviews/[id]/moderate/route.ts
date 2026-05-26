@@ -7,7 +7,7 @@ type ModerationPayload = {
   action: 'approve' | 'hide' | 'unhide';
   notes?: string;
   // Optional: allow curator to edit review content
-  rating?: number;
+  rating?: number | null;
   favorite_track?: string;
   review_text?: string;
 };

@@ -22,12 +22,12 @@ type ReviewSubmissionPayload = {
   week_number: number;
   participant_email: string;
   contemporary?: {
-    rating: number;
+    rating: number | null;
     favorite_track?: string;
     review_text?: string;
   };
   classic?: {
-    rating: number;
+    rating: number | null;
     favorite_track?: string;
     review_text?: string;
   };
@@ -112,8 +112,17 @@ export default function SubmitPage() {
     const contempRatingNum = contempRating ? parseFloat(contempRating) : null;
     const classicRatingNum = classicRating ? parseFloat(classicRating) : null;
 
-    if (!contempRatingNum && !classicRatingNum) {
-      toast.error("Please rate at least one album");
+    const hasContemp =
+      contempRatingNum !== null ||
+      contempTrack.trim() !== "" ||
+      contempReview.trim() !== "";
+    const hasClassic =
+      classicRatingNum !== null ||
+      classicTrack.trim() !== "" ||
+      classicReview.trim() !== "";
+
+    if (!hasContemp && !hasClassic) {
+      toast.error("Please fill in at least one album review");
       return;
     }
 
@@ -125,7 +134,7 @@ export default function SubmitPage() {
         participant_email: email.trim(),
       };
 
-      if (contempRatingNum !== null) {
+      if (hasContemp) {
         payload.contemporary = {
           rating: contempRatingNum,
           favorite_track: contempTrack.trim() || undefined,
@@ -133,7 +142,7 @@ export default function SubmitPage() {
         };
       }
 
-      if (classicRatingNum !== null) {
+      if (hasClassic) {
         payload.classic = {
           rating: classicRatingNum,
           favorite_track: classicTrack.trim() || undefined,
@@ -345,7 +354,7 @@ export default function SubmitPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Rating (0.0 - 10.0)
+                  Rating (0.0 – 10.0, optional)
                 </label>
                 <input
                   type="number"
@@ -415,7 +424,7 @@ export default function SubmitPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Rating (0.0 - 10.0)
+                  Rating (0.0 – 10.0, optional)
                 </label>
                 <input
                   type="number"
@@ -467,8 +476,8 @@ export default function SubmitPage() {
           </button>
 
           <p className="text-xs text-zinc-500 text-center">
-            You can submit reviews for one or both albums. All fields except
-            email and at least one rating are optional.
+            You can submit reviews for one or both albums. Rating is optional —
+            leave it blank to submit without a score.
           </p>
         </form>
       </div>

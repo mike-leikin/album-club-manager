@@ -374,7 +374,7 @@ export default function AdminReviewsTab() {
                   <div className="text-sm font-medium text-white">{review.participant.name}</div>
                   <div className="text-xs text-zinc-500">{review.participant.email}</div>
                 </div>
-                <div className="mb-2 text-sm font-semibold text-white">{review.rating.toFixed(1)}/10</div>
+                <div className="mb-2 text-sm font-semibold text-white">{review.rating !== null ? `${review.rating.toFixed(1)}/10` : "N/A"}</div>
                 {review.favorite_track && (
                   <div className="mb-1 text-xs text-zinc-500">♪ {review.favorite_track}</div>
                 )}
@@ -464,7 +464,7 @@ export default function AdminReviewsTab() {
                     <td className="px-4 py-3 text-sm text-zinc-300">
                       {review.album_type === 'contemporary' ? '🔊 Contemporary' : '💿 Classic'}
                     </td>
-                    <td className="px-4 py-3 text-sm font-medium text-white">{review.rating.toFixed(1)}/10</td>
+                    <td className="px-4 py-3 text-sm font-medium text-white">{review.rating !== null ? `${review.rating.toFixed(1)}/10` : "N/A"}</td>
                     <td className="px-4 py-3">
                       <div className="max-w-md">
                         {review.favorite_track && (

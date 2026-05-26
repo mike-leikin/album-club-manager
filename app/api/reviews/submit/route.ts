@@ -16,12 +16,12 @@ type ReviewSubmission = {
   week_number: number;
   participant_email: string;
   contemporary?: {
-    rating: number;
+    rating?: number | null;
     favorite_track?: string;
     review_text?: string;
   };
   classic?: {
-    rating: number;
+    rating?: number | null;
     favorite_track?: string;
     review_text?: string;
   };
@@ -273,16 +273,19 @@ export async function POST(request: Request) {
       week_number: number;
       participant_id: string;
       album_type: "contemporary" | "classic";
-      rating: number;
+      rating: number | null;
       favorite_track: string | null;
       review_text: string | null;
       moderation_status: string;
     }> = [];
 
     // Prepare contemporary review
-    if (body.contemporary?.rating) {
-      if (body.contemporary.rating < 0 || body.contemporary.rating > 10) {
-        return respondValidationError("Contemporary rating must be between 0 and 10");
+    if (body.contemporary) {
+      const contempRating = body.contemporary.rating ?? null;
+      if (contempRating !== null) {
+        if (contempRating < 0 || contempRating > 10) {
+          return respondValidationError("Contemporary rating must be between 0 and 10");
+        }
       }
 
       const contemporaryReviewText = body.contemporary.review_text?.trim();
@@ -307,7 +310,7 @@ export async function POST(request: Request) {
         week_number: body.week_number,
         participant_id: participantId,
         album_type: "contemporary",
-        rating: body.contemporary.rating,
+        rating: contempRating,
         favorite_track: body.contemporary.favorite_track?.trim() || null,
         review_text: contemporaryReviewText || null,
         moderation_status: "pending",
@@ -315,9 +318,12 @@ export async function POST(request: Request) {
     }
 
     // Prepare classic review
-    if (body.classic?.rating) {
-      if (body.classic.rating < 0 || body.classic.rating > 10) {
-        return respondValidationError("Classic rating must be between 0 and 10");
+    if (body.classic) {
+      const classicRating = body.classic.rating ?? null;
+      if (classicRating !== null) {
+        if (classicRating < 0 || classicRating > 10) {
+          return respondValidationError("Classic rating must be between 0 and 10");
+        }
       }
 
       const classicReviewText = body.classic.review_text?.trim();
@@ -339,7 +345,7 @@ export async function POST(request: Request) {
         week_number: body.week_number,
         participant_id: participantId,
         album_type: "classic",
-        rating: body.classic.rating,
+        rating: classicRating,
         favorite_track: body.classic.favorite_track?.trim() || null,
         review_text: classicReviewText || null,
         moderation_status: "pending",
@@ -400,7 +406,7 @@ export async function POST(request: Request) {
     const confirmationReviews: ReviewConfirmationReview[] = (
       (data || reviewsToInsert) as Array<{
         album_type: "contemporary" | "classic";
-        rating: number;
+        rating: number | null;
         favorite_track: string | null;
         review_text: string | null;
         moderation_status?: string | null;

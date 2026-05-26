@@ -5,7 +5,7 @@ import { toast } from "sonner";
 
 type Review = {
   id: string;
-  rating: number;
+  rating: number | null;
   favorite_track: string | null;
   review_text: string | null;
   moderation_notes: string | null;
@@ -24,7 +24,7 @@ type ReviewEditModalProps = {
 };
 
 export default function ReviewEditModal({ review, onSave, onClose }: ReviewEditModalProps) {
-  const [rating, setRating] = useState(review.rating.toString());
+  const [rating, setRating] = useState(review.rating !== null ? review.rating.toString() : "");
   const [favoriteTrack, setFavoriteTrack] = useState(review.favorite_track || '');
   const [reviewText, setReviewText] = useState(review.review_text || '');
   const [notes, setNotes] = useState(review.moderation_notes || '');
@@ -33,8 +33,8 @@ export default function ReviewEditModal({ review, onSave, onClose }: ReviewEditM
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const ratingNum = parseFloat(rating);
-      if (isNaN(ratingNum) || ratingNum < 0 || ratingNum > 10) {
+      const ratingNum = rating.trim() ? parseFloat(rating) : null;
+      if (ratingNum !== null && (isNaN(ratingNum) || ratingNum < 0 || ratingNum > 10)) {
         toast.error("Rating must be between 0 and 10");
         setIsSaving(false);
         return;

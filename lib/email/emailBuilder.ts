@@ -31,13 +31,13 @@ export interface ReviewStats {
     avgRating: string | null;
     count: number;
     albumLabel: string;
-    reviews: Array<{ name: string; rating: number; favoriteTrack?: string | null; reviewText: string }>;
+    reviews: Array<{ name: string; rating: number | null; favoriteTrack?: string | null; reviewText: string }>;
   };
   classic: {
     avgRating: string | null;
     count: number;
     albumLabel: string;
-    reviews: Array<{ name: string; rating: number; favoriteTrack?: string | null; reviewText: string }>;
+    reviews: Array<{ name: string; rating: number | null; favoriteTrack?: string | null; reviewText: string }>;
   };
   playlistUrl?: string | null;
 }
@@ -63,7 +63,7 @@ export interface ReviewConfirmationRecipient {
 
 export interface ReviewConfirmationReview {
   albumType: "contemporary" | "classic";
-  rating: number;
+  rating: number | null;
   favoriteTrack?: string | null;
   reviewText?: string | null;
   moderationStatus?: string | null;
@@ -130,7 +130,7 @@ const buildEmailContentFromParams = (
   const weekLabel = formatWeekLabel(week.created_at, week.week_number);
 
   const buildReviewListHtml = (
-    reviews: Array<{ name: string; rating: number; favoriteTrack?: string | null; reviewText: string }>
+    reviews: Array<{ name: string; rating: number | null; favoriteTrack?: string | null; reviewText: string }>
   ) => {
     if (reviews.length === 0) {
       return `
@@ -145,7 +145,7 @@ const buildEmailContentFromParams = (
         const safeFavoriteTrack = review.favoriteTrack ? escapeHtml(review.favoriteTrack) : null;
         return `
                 <div style="margin-top: 12px; padding-left: 12px; border-left: 2px solid #1f1f1f;">
-                  <p style="margin: 0 0 4px; color: #e5e5e5; font-size: 15px; font-weight: 600;">${safeName} – <span style="color: #10b981;">${review.rating.toFixed(1)}/10</span></p>${safeFavoriteTrack ? `
+                  <p style="margin: 0 0 4px; color: #e5e5e5; font-size: 15px; font-weight: 600;">${safeName} – <span style="color: #10b981;">${review.rating !== null ? `${review.rating.toFixed(1)}/10` : "N/A"}</span></p>${safeFavoriteTrack ? `
                   <p style="margin: 0 0 4px; color: #a1a1a1; font-size: 14px;">Fav: ${safeFavoriteTrack}</p>` : ''}
                   <p style="margin: 0; color: #e5e5e5; font-size: 16px; line-height: 1.5; white-space: pre-wrap;">${safeText}</p>
                 </div>
@@ -463,7 +463,7 @@ ${reviewStats.playlistUrl ? `
       if (reviewStats.contemporary.reviews.length > 0) {
         reviewStats.contemporary.reviews.forEach((review) => {
           const favPart = review.favoriteTrack ? `  Fav: ${review.favoriteTrack}\n` : '';
-          textBody += `- ${review.name} – ${review.rating.toFixed(1)}/10\n${favPart}  "${review.reviewText}"\n`;
+          textBody += `- ${review.name} – ${review.rating !== null ? `${review.rating.toFixed(1)}/10` : "N/A"}\n${favPart}  "${review.reviewText}"\n`;
         });
       } else {
         textBody += `- No written reviews yet.\n`;
@@ -476,7 +476,7 @@ ${reviewStats.playlistUrl ? `
       if (reviewStats.classic.reviews.length > 0) {
         reviewStats.classic.reviews.forEach((review) => {
           const favPart = review.favoriteTrack ? `  Fav: ${review.favoriteTrack}\n` : '';
-          textBody += `- ${review.name} – ${review.rating.toFixed(1)}/10\n${favPart}  "${review.reviewText}"\n`;
+          textBody += `- ${review.name} – ${review.rating !== null ? `${review.rating.toFixed(1)}/10` : "N/A"}\n${favPart}  "${review.reviewText}"\n`;
         });
       } else {
         textBody += `- No written reviews yet.\n`;
@@ -622,7 +622,7 @@ export function buildReviewConfirmationEmail(
               <div style="background-color: #111111; border: 1px solid #1f1f1f; border-radius: 12px; padding: 16px;">
                 <h3 style="margin: 0 0 8px; color: #ffffff; font-size: 18px; font-weight: 600;">${albumLabel}</h3>
                 <p style="margin: 0 0 8px; color: #d4d4d4; font-size: 14px;"><strong>${safeAlbumDetails}</strong></p>
-                <p style="margin: 0 0 6px; color: #a1a1a1; font-size: 14px;">Rating: <span style="color: #10b981; font-weight: 600;">${review.rating}/10</span></p>
+                <p style="margin: 0 0 6px; color: #a1a1a1; font-size: 14px;">Rating: <span style="color: #10b981; font-weight: 600;">${review.rating !== null ? `${review.rating}/10` : "N/A"}</span></p>
                 ${
                   safeFavoriteTrack
                     ? `<p style="margin: 0 0 6px; color: #a1a1a1; font-size: 14px;">Favorite track: ${safeFavoriteTrack}</p>`
@@ -688,7 +688,7 @@ export function buildReviewConfirmationEmail(
 
     textLines.push(albumLabel);
     textLines.push(`Album: ${albumDetails}`);
-    textLines.push(`Rating: ${review.rating}/10`);
+    textLines.push(`Rating: ${review.rating !== null ? `${review.rating}/10` : "N/A"}`);
     if (favoriteTrack) {
       textLines.push(`Favorite track: ${favoriteTrack}`);
     }
