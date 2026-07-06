@@ -313,6 +313,12 @@ export default function DashboardPage() {
                   Admin Panel
                 </Link>
               )}
+              <a
+                href="/api/my-reviews/export"
+                className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors inline-block text-center"
+              >
+                Export CSV
+              </a>
               <Link
                 href="/settings"
                 className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors inline-block text-center"
