@@ -27,7 +27,7 @@ type ReviewSubmission = {
   };
 };
 
-const MAX_REVIEW_TEXT_LENGTH = 2000;
+const MAX_REVIEW_TEXT_LENGTH = 3000;
 
 const getTrimmedLength = (value?: string | null): number | null => {
   if (value === null || value === undefined) {
