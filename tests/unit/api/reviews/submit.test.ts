@@ -609,7 +609,7 @@ describe('POST /api/reviews/submit', () => {
           participant_email: 'test@example.com',
           contemporary: {
             rating: 8.0,
-            review_text: 'a'.repeat(2001),
+            review_text: 'a'.repeat(3001),
           },
         }),
       })
@@ -619,7 +619,7 @@ describe('POST /api/reviews/submit', () => {
 
       expect(response.status).toBe(400)
       expect(data.error).toBe(
-        'Contemporary review text must be 2000 characters or fewer'
+        'Contemporary review text must be 3000 characters or fewer'
       )
     })
   })

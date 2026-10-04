@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.13.17] - 2026-10-04
+
+### Reviews
+
+- Increased review text limit from 2000 to 3000 characters (contemporary and classic)
+
+---
+
 ## [2.13.16] - 2026-02-11
 
 ### Email History Tab
