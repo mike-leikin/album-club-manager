@@ -67,6 +67,7 @@ describe('POST /api/email/send-week', () => {
     is: ReturnType<typeof vi.fn>
     order: ReturnType<typeof vi.fn>
     single: ReturnType<typeof vi.fn>
+    maybeSingle: ReturnType<typeof vi.fn>
     insert: ReturnType<typeof vi.fn>
     update: ReturnType<typeof vi.fn>
   }
@@ -116,6 +117,8 @@ describe('POST /api/email/send-week', () => {
       is: vi.fn().mockReturnThis(),
       order: vi.fn().mockReturnThis(),
       single: vi.fn(),
+      // Previous-week playlist lookup; no playlist by default
+      maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
       insert: vi.fn().mockReturnThis(),
       update: vi.fn().mockReturnThis(),
     }

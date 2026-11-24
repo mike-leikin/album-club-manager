@@ -70,7 +70,7 @@ export class ErrorBoundary extends Component<Props, State> {
               Something went wrong
             </h3>
             <p className="mt-2 text-sm text-gray-500 text-center">
-              We've been notified and are working to fix the issue.
+              We&apos;ve been notified and are working to fix the issue.
             </p>
             {process.env.NODE_ENV === "development" && this.state.error && (
               <div className="mt-4 p-3 bg-red-50 rounded border border-red-200">

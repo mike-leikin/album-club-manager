@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
+import Link from 'next/link';
 
 function InviteFriendContent() {
   const router = useRouter();
@@ -129,12 +130,12 @@ Hope to see you in the club!
             <div className="mb-4 text-5xl">❌</div>
             <h1 className="text-2xl font-bold text-white mb-4">Invalid Link</h1>
             <p className="text-zinc-400 mb-6">{error}</p>
-            <a
+            <Link
               href="/"
               className="inline-block rounded-lg bg-emerald-500 px-6 py-2 text-sm font-medium text-white transition hover:bg-emerald-600"
             >
               Go to Homepage
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -167,11 +168,11 @@ Hope to see you in the club!
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-emerald-400">•</span>
-                <span>One classic from Rolling Stone's 500 Greatest Albums</span>
+                <span>One classic from Rolling Stone&apos;s 500 Greatest Albums</span>
               </li>
             </ul>
             <p className="text-sm text-zinc-400">
-              Then we share quick reviews and favorite tracks. It's a fun way to discover new music and revisit classics.
+              Then we share quick reviews and favorite tracks. It&apos;s a fun way to discover new music and revisit classics.
             </p>
           </div>
 

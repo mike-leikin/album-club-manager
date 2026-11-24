@@ -376,18 +376,17 @@ open coverage/index.html
 
 ## Continuous Integration
 
-Tests run automatically on every push and pull request via GitHub Actions.
+Tests run automatically via GitHub Actions on pull requests to `main`/`develop` and on pushes to those branches.
 
 ### CI Pipeline
 
 1. **Checkout code**
-2. **Setup Node.js** (18.x and 20.x)
+2. **Setup Node.js** (20.x)
 3. **Install dependencies**
 4. **Run linter**
 5. **Run type check**
-6. **Run tests with coverage**
-7. **Upload coverage to Codecov**
-8. **Comment coverage on PR**
+6. **Run tests with coverage** (fails if coverage drops below the thresholds in `vitest.config.ts`)
+7. **Comment coverage on PR** (informational; never fails the build)
 
 ### Workflow File
 

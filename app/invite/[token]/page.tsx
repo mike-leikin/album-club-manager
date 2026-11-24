@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { createAuthClient } from '@/lib/auth/supabaseAuthClientBrowser';
+import Link from 'next/link';
 
 export default function InviteTokenPage() {
   const router = useRouter();
@@ -106,12 +107,12 @@ export default function InviteTokenPage() {
             <div className="mb-4 text-5xl">❌</div>
             <h1 className="text-2xl font-bold text-white mb-4">Invalid Invitation</h1>
             <p className="text-zinc-400 mb-6">{error}</p>
-            <a
+            <Link
               href="/"
               className="inline-block rounded-lg bg-emerald-500 px-6 py-2 text-sm font-medium text-white transition hover:bg-emerald-600"
             >
               Go to Homepage
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -125,7 +126,7 @@ export default function InviteTokenPage() {
           <div className="mb-6 text-center">
             <div className="mb-3 text-5xl">🎵</div>
             <h1 className="text-3xl font-bold text-white mb-2">
-              You're Invited!
+              You&apos;re Invited!
             </h1>
             <p className="text-zinc-400">
               <span className="font-semibold text-emerald-400">{invitation.referrer_name}</span> invited you to join Album Club
@@ -200,7 +201,7 @@ export default function InviteTokenPage() {
           </form>
 
           <p className="mt-6 text-center text-xs text-zinc-500">
-            You'll receive a magic link email to complete signup
+            You&apos;ll receive a magic link email to complete signup
           </p>
         </div>
       </div>
