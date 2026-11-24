@@ -113,7 +113,7 @@ function UnsubscribeContent() {
               <div className="space-y-3 border-t border-zinc-800 pt-4">
                 <p className="text-zinc-300 text-sm">What this means:</p>
                 <ul className="space-y-2 text-zinc-400 text-sm list-disc list-inside">
-                  <li>You won't receive {emailLabel}</li>
+                  <li>You won&apos;t receive {emailLabel}</li>
                   <li>You can still log in and submit reviews</li>
                   <li>Your account remains active</li>
                   <li>You can resubscribe anytime</li>

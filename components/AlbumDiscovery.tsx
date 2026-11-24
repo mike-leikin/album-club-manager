@@ -73,9 +73,16 @@ export default function AlbumDiscovery({ onSelect }: AlbumDiscoveryProps) {
   const [weeks, setWeeks] = useState<WeeksOption>(2);
   const [sourceFilter, setSourceFilter] = useState<SourceFilter>("all");
 
-  useEffect(() => {
+  // Reset loading/error when the filter changes rather than inside the
+  // effect, to avoid a synchronous setState cascade on every fetch.
+  const changeWeeks = (w: WeeksOption) => {
+    if (w === weeks) return;
     setLoading(true);
     setError(null);
+    setWeeks(w);
+  };
+
+  useEffect(() => {
     fetch(`/api/albums/discover?weeks=${weeks}`)
       .then(async (res) => {
         if (!res.ok) {
@@ -119,7 +126,7 @@ export default function AlbumDiscovery({ onSelect }: AlbumDiscoveryProps) {
             {([1, 2, 4] as WeeksOption[]).map((w) => (
               <button
                 key={w}
-                onClick={() => setWeeks(w)}
+                onClick={() => changeWeeks(w)}
                 className={`px-3 py-1.5 transition first:rounded-l-lg last:rounded-r-lg ${
                   weeks === w
                     ? "bg-blue-500 text-white"

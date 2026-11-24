@@ -180,7 +180,7 @@ export async function POST(request: NextRequest) {
       const firstName = participant.name.split(' ')[0];
 
       // Build HTML email body (simplified - copy from send-week if needed)
-      let htmlBody = `
+      const htmlBody = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -195,7 +195,7 @@ export async function POST(request: NextRequest) {
 </body>
 </html>`;
 
-      let textBody = `Hi ${firstName},\n\nThis is a retry of the email for ${weekLabel}.\n\nSubmit your review here:\n${submitUrl}\n\n- Mike`;
+      const textBody = `Hi ${firstName},\n\nThis is a retry of the email for ${weekLabel}.\n\nSubmit your review here:\n${submitUrl}\n\n- Mike`;
 
       try {
         const result = await resend.emails.send({

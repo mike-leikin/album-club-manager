@@ -359,7 +359,7 @@ export default function SettingsPage() {
             <div>
               <h3 className="text-sm font-semibold text-gray-900 mb-2">Send Invite via Email</h3>
               <p className="text-sm text-gray-500 mb-3">
-                Enter a friend's email to send them an invitation to join Album Club.
+                Enter a friend&apos;s email to send them an invitation to join Album Club.
                 A curator will review before they can sign up.
               </p>
               <div className="space-y-3">
@@ -393,13 +393,13 @@ export default function SettingsPage() {
         <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-6">
           <h2 className="mb-4 text-xl font-semibold text-gray-900">Your Invitations</h2>
           <p className="text-sm text-gray-500 mb-4">
-            Track friends you've invited. You can also forward your weekly album emails -
+            Track friends you&apos;ve invited. You can also forward your weekly album emails -
             they include a referral link in the footer.
           </p>
 
           {invitations.length === 0 ? (
             <div className="text-center py-8 text-zinc-500">
-              You haven't invited anyone yet.
+              You haven&apos;t invited anyone yet.
             </div>
           ) : (
             <div className="space-y-3">
