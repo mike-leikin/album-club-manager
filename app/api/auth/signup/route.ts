@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { createServerClient } from "@/lib/supabaseClient";
 import { sendSignupAdminNotification } from "@/lib/email/adminNotifications";
+import { isDisposableEmail } from "@/lib/auth/disposableEmail";
 
 type SignupPayload = {
   name?: string;
@@ -125,6 +126,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: "Account already exists. Please log in instead." },
         { status: 409 }
+      );
+    }
+
+    // Block throwaway inboxes for brand-new, uninvited signups only. Existing
+    // participants and curator-approved invitations are let through so a
+    // blocklist false positive can never lock out a real member.
+    if (!existingParticipant && !invitation && isDisposableEmail(email)) {
+      console.warn("signup.blocked_disposable_email", {
+        domain: email.split("@")[1],
+      });
+      return NextResponse.json(
+        {
+          error:
+            "Temporary or disposable email addresses aren't accepted. Please use a permanent email address.",
+        },
+        { status: 400 }
       );
     }
 
