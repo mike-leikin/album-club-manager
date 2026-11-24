@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireCuratorApi } from "@/lib/auth/apiAuth";
 import { spotifyClient } from "@/lib/spotifyClient";
 
 export async function GET(request: NextRequest) {
+  const authError = await requireCuratorApi(request);
+  if (authError) return authError;
+
   try {
     const searchParams = request.nextUrl.searchParams;
     const query = searchParams.get("q");

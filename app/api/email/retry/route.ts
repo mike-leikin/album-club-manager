@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireCuratorApi } from "@/lib/auth/apiAuth";
 import { Resend } from "resend";
 import { createServerClient } from "@/lib/supabaseClient";
 import { formatDateOnlyEastern } from "@/lib/utils/dates";
@@ -6,6 +7,9 @@ import { formatDateOnlyEastern } from "@/lib/utils/dates";
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: NextRequest) {
+  const authError = await requireCuratorApi(request);
+  if (authError) return authError;
+
   try {
     const { weekNumber, participantIds } = await request.json();
 

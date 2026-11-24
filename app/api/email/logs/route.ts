@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireCuratorApi } from "@/lib/auth/apiAuth";
 import { createServerClient } from "@/lib/supabaseClient";
 
 export async function GET(request: NextRequest) {
+  const authError = await requireCuratorApi(request);
+  if (authError) return authError;
+
   try {
     const { searchParams } = new URL(request.url);
     const weekNumber = searchParams.get('week_number');
