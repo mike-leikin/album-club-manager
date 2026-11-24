@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react'
 import { createAuthClient } from '@/lib/auth/supabaseAuthClientBrowser'
 import { toast } from 'sonner'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 
 function LoginContent() {
   const [email, setEmail] = useState('')
@@ -173,17 +174,17 @@ function LoginContent() {
           </form>
 
           <p className="text-xs text-center text-zinc-500">
-            We'll send you a secure sign-in link via email.
+            We&apos;ll send you a secure sign-in link via email.
           </p>
         </div>
 
         <div className="text-center">
-          <a
+          <Link
             href="/"
             className="text-sm text-gray-500 hover:text-gray-700 underline"
           >
             Back to home
-          </a>
+          </Link>
           <span className="mx-2 text-zinc-600">•</span>
           <a
             href="/signup"

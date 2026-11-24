@@ -18,7 +18,7 @@ export default function UnauthorizedPage() {
         <div className="text-6xl mb-4">🔒</div>
         <h1 className="text-3xl font-bold">Access Denied</h1>
         <p className="text-zinc-400">
-          You don't have permission to access the curator dashboard.
+          You don&apos;t have permission to access the curator dashboard.
           Only users with curator permissions can access this area.
         </p>
         <div className="flex flex-col gap-3 mt-8">

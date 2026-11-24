@@ -5,6 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 import { createHash } from "crypto";
 import fs from "fs/promises";
 import path from "path";
+import readline from "readline";
 
 const MIGRATIONS_DIR = path.join(process.cwd(), "supabase/migrations");
 
@@ -149,16 +150,16 @@ async function runMigration(
     console.log("\n" + "=".repeat(70));
 
     // Wait for user confirmation (interactive terminal)
-    const readline = require("readline").createInterface({
+    const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
     });
 
     const answer = await new Promise<string>((resolve) => {
-      readline.question(
+      rl.question(
         "\n✅ Did you run this migration successfully in Supabase? (yes/no): ",
         (ans: string) => {
-          readline.close();
+          rl.close();
           resolve(ans.toLowerCase().trim());
         }
       );

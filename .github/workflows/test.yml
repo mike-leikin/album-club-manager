@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [main, develop]
 
+# The default GITHUB_TOKEN is read-only in this repo; the coverage
+# comment step needs to post on the PR.
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -36,18 +42,10 @@ jobs:
       - name: Run tests with coverage
         run: npm run test:coverage
 
-      - name: Upload coverage reports to Codecov
-        if: matrix.node-version == '20.x'
-        uses: codecov/codecov-action@v4
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage/coverage-final.json
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: false
-
       - name: Comment coverage on PR
         if: github.event_name == 'pull_request' && matrix.node-version == '20.x'
+        # Informational only: never fail the build because a comment couldn't post
+        continue-on-error: true
         uses: romeovs/lcov-reporter-action@v0.3.1
         with:
           lcov-file: ./coverage/lcov.info
