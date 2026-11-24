@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { requireCuratorApi } from "@/lib/auth/apiAuth";
 import { createServerClient } from "@/lib/supabaseClient";
 
 type RouteContext = {
@@ -6,7 +7,10 @@ type RouteContext = {
 };
 
 // GET /api/participants/[id]/review-count - Get review count for a participant
-export async function GET(_request: Request, context: RouteContext) {
+export async function GET(request: NextRequest, context: RouteContext) {
+  const authError = await requireCuratorApi(request);
+  if (authError) return authError;
+
   try {
     const { id } = await context.params;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

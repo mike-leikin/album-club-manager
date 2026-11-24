@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireCuratorApi } from "@/lib/auth/apiAuth";
 import { createServerClient } from "@/lib/supabaseClient";
 
 export async function GET(request: NextRequest) {
+  const authError = await requireCuratorApi(request);
+  if (authError) return authError;
+
   const searchParams = request.nextUrl.searchParams;
   const search = searchParams.get("search") || "";
   const showOnlyUncovered = searchParams.get("onlyUncovered") === "true";

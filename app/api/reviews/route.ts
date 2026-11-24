@@ -1,9 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { requireCuratorApi } from "@/lib/auth/apiAuth";
 import { createServerClient } from "@/lib/supabaseClient";
 import type { Review, Participant } from "@/lib/types/database";
 
+// Public endpoint: only expose non-sensitive participant fields.
+// Never return email, auth_user_id, is_curator or unsubscribe tokens here.
+type PublicParticipant = Pick<Participant, "id" | "name">;
+
 type ReviewWithParticipant = Review & {
-  participant: Participant;
+  participant: PublicParticipant;
 };
 
 type ReviewStats = {
@@ -22,7 +27,7 @@ type ReviewStats = {
 };
 
 // GET /api/reviews?week_number=1 - Get all reviews for a specific week with stats
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const weekNumber = searchParams.get("week_number");
@@ -35,6 +40,12 @@ export async function GET(request: Request) {
       );
     }
 
+    // Including unmoderated/hidden reviews is curator-only
+    if (includeAll) {
+      const authError = await requireCuratorApi(request);
+      if (authError) return authError;
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const supabase = createServerClient() as any;
 
@@ -45,7 +56,7 @@ export async function GET(request: Request) {
       .select(
         `
         *,
-        participant:participants!reviews_participant_id_fkey(*)
+        participant:participants!reviews_participant_id_fkey(id, name)
       `
       )
       .eq("week_number", parseInt(weekNumber))

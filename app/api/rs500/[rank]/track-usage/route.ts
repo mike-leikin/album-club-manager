@@ -1,11 +1,15 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { requireCuratorApi } from "@/lib/auth/apiAuth";
 import { createServerClient } from "@/lib/supabaseClient";
 
 type Params = {
   params: Promise<{ rank: string }>;
 };
 
-export async function PATCH(_request: Request, { params }: Params) {
+export async function PATCH(request: NextRequest, { params }: Params) {
+  const authError = await requireCuratorApi(request);
+  if (authError) return authError;
+
   try {
     const { rank } = await params;
     const rankNumber = Number(rank);
