@@ -21,7 +21,8 @@
     "migrate:rollback": "tsx scripts/migrate.ts rollback",
     "import:rs500": "tsx scripts/import-rs500-simple.ts",
     "fix:rs500": "tsx scripts/fix-rs500-data.ts",
-    "refetch:spotify": "tsx scripts/refetch-all-spotify.ts"
+    "refetch:spotify": "tsx scripts/refetch-all-spotify.ts",
+    "update:disposable-domains": "tsx scripts/update-disposable-domains.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.36.3",
